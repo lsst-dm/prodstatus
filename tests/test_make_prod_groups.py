@@ -1,4 +1,4 @@
-# This file is part of ProdStat package.
+# This file is part of prodstatus package.
 #
 # Developed for the LSST Data Management System.
 # This product includes software developed by the LSST Project
@@ -30,7 +30,7 @@ import yaml
 import numpy as np
 import numpy.random
 
-from lsst.ProdStat.DRPUtils import DRPUtils
+from lsst.prodstatus.DRPUtils import DRPUtils
 
 RANDOM_SEED = 6563
 NUM_EXPOSURES = 1000

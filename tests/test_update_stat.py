@@ -1,4 +1,4 @@
-# This file is part of ProdStat package.
+# This file is part of prodstatus package.
 #
 # Developed for the LSST Data Management System.
 # This product includes software developed by the LSST Project
@@ -24,17 +24,17 @@
 import unittest
 from unittest import mock
 
-from lsst.ProdStat import DRPUtils
-from ProdStatTestBase import ProdStatTestBase, MOCK_NETRC
+from lsst.prodstatus import DRPUtils
+from ProdstatusTestBase import ProdstatusTestBase, MOCK_NETRC
 
 TEST_ISSUE_SUMMARY = "step1#v23_0_0_rc5/PREOPS-973/20220127T205042Z"
 
 
 @mock.patch("netrc.netrc", MOCK_NETRC)
-class TestUpdateStat(ProdStatTestBase, unittest.TestCase):
-    @mock.patch("lsst.ProdStat.DRPUtils.GetButlerStat", autospec=True)
-    @mock.patch("lsst.ProdStat.DRPUtils.GetPanDaStat", autospec=True)
-    @mock.patch("lsst.ProdStat.JiraUtils.JIRA", autospec=True)
+class TestUpdateStat(ProdstatusTestBase, unittest.TestCase):
+    @mock.patch("lsst.prodstatus.DRPUtils.GetButlerStat", autospec=True)
+    @mock.patch("lsst.prodstatus.DRPUtils.GetPanDaStat", autospec=True)
+    @mock.patch("lsst.prodstatus.JiraUtils.JIRA", autospec=True)
     def test_update_stat(self, MockJira, MockGetPanDaStat, MockGetButlerStat):
         drp_issue = "DRP-YYY"
         production_issue = "PREOPS-XXX"

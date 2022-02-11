@@ -1,4 +1,4 @@
-# This file is part of ProdStat package.
+# This file is part of prodstatus package.
 #
 # Developed for the LSST Data Management System.
 # This product includes software developed by the LSST Project
@@ -24,13 +24,13 @@
 import unittest
 from unittest import mock
 
-from lsst.ProdStat import DRPUtils
-from ProdStatTestBase import ProdStatTestBase, MOCK_NETRC
+from lsst.prodstatus import DRPUtils
+from ProdstatusTestBase import ProdstatusTestBase, MOCK_NETRC
 
 
 @mock.patch("netrc.netrc", MOCK_NETRC)
-class TestUpdateIssue(ProdStatTestBase, unittest.TestCase):
-    @mock.patch("lsst.ProdStat.JiraUtils.JIRA", autospec=True)
+class TestUpdateIssue(ProdstatusTestBase, unittest.TestCase):
+    @mock.patch("lsst.prodstatus.JiraUtils.JIRA", autospec=True)
     def test_new_issue(self, MockJira):
         drp_issue = "DRP0"
         production_issue = "PREOPS-XXX"
@@ -50,7 +50,7 @@ class TestUpdateIssue(ProdStatTestBase, unittest.TestCase):
             set(["project", "issuetype", "summary", "description", "components"]),
         )
 
-    @mock.patch("lsst.ProdStat.JiraUtils.JIRA", autospec=True)
+    @mock.patch("lsst.prodstatus.JiraUtils.JIRA", autospec=True)
     def test_update_existing_issue(self, MockJira):
         drp_issue = "DRP-148"
         production_issue = "PREOPS-XXX"

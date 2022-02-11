@@ -1,4 +1,4 @@
-# This file is part of ProdStat package.
+# This file is part of prodstatus package.
 #
 # Developed for the LSST Data Management System.
 # This product includes software developed by the LSST Project
@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 # coding: utf-8
-"""Base for tests of ProdStat functions."""
+"""Base for tests of prodstatus functions."""
 
 import os
 from unittest import mock
@@ -44,7 +44,7 @@ MOCK_NETRC.return_value.authenticators.return_value = (
 
 
 @mock.patch("netrc.netrc", MOCK_NETRC)
-class ProdStatTestBase:
+class ProdstatusTestBase:
     def setUp(self):
         self.start_dir = os.getcwd()
         self.temp_dir = TemporaryDirectory()

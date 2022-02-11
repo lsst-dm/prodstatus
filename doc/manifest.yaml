@@ -3,17 +3,17 @@
 # List of names of Python modules in this package.
 # For each module there is a corresponding module doc subdirectory.
 modules:
-  - "lsst.ProdStat"
-  - "lsst.ProdStat.DRPUtils"
-  - "lsst.ProdStat.GetButlerStat"
-  - "lsst.ProdStat.GetPanDaStat"
-  - "lsst.ProdStat.JiraUtils"
-  - "lsst.ProdStat.MakePandaPlots"
-  - "lsst.ProdStat.ReportToJira"
-  - "lsst.ProdStat.cli.prodstat"
+  - "lsst.prodstatus"
+  - "lsst.prodstatus.DRPUtils"
+  - "lsst.prodstatus.GetButlerStat"
+  - "lsst.prodstatus.GetPanDaStat"
+  - "lsst.prodstatus.JiraUtils"
+  - "lsst.prodstatus.MakePandaPlots"
+  - "lsst.prodstatus.ReportToJira"
+  - "lsst.prodstatus.cli.prodstat"
 
 # Name of the static content directories (subdirectories of `_static`).
 # Static content directories are usually named after the package.
 # Most packages do not need a static content directory (leave commented out).
 # statics:
-#   - "_static/ProdStat"
+#   - "_static/prodstatus"

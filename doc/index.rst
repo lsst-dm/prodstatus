@@ -1,5 +1,5 @@
 ##############################
-ProdStat documentation preview
+prodstatus documentation preview
 ##############################
 
 .. This page is for local development only. It isn't published to pipelines.lsst.io.
@@ -9,4 +9,4 @@ ProdStat documentation preview
 .. toctree::
    :maxdepth: 1
 
-   lsst.ProdStat/index
+   lsst.prodstatus/index

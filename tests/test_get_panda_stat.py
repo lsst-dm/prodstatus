@@ -1,4 +1,4 @@
-# This file is part of ProdStat package.
+# This file is part of prodstatus package.
 #
 # Developed for the LSST Data Management System.
 # This product includes software developed by the LSST Project
@@ -27,7 +27,7 @@ from unittest import mock
 import gzip
 import json
 
-from lsst.ProdStat.GetPanDaStat import GetPanDaStat
+from lsst.prodstatus.GetPanDaStat import GetPanDaStat
 
 TEST_PANDA_QUERY_FNAME = os.path.join(
     os.environ["PRODSTAT_DIR"], "tests", "data", "panda_query_results.json.gz"
@@ -57,7 +57,7 @@ class TestGetPandaStat(unittest.TestCase):
     # Patch to replace calles to GetPanDaStat.querypanda with the function
     # to read data from the test json file.
     @mock.patch.object(GetPanDaStat, "querypanda", new=_mock_querypanda)
-    @mock.patch("lsst.ProdStat.GetPanDaStat.plt.show")
+    @mock.patch("lsst.prodstatus.GetPanDaStat.plt.show")
     def test_get_panda_stat(self, mock_plt_show):
         with open(TEST_PANDA_STAT_PARAM_FNAME, "rt", encoding="UTF-8") as param_io:
             get_panda_stat_kwargs = json.load(param_io)

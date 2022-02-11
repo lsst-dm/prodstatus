@@ -1,25 +1,25 @@
 ########
-ProdStat
+prodstatus
 ########
 
 ``prodstat`` provides scripts which are used  to organize DP0.2 production and collect production statistics.
 Collected statistics in form of plots and tables can be reported to corresponding Jira tickets.
 
-For a "quick start" guide, see: `doc/lsst.ProdStat/quickstart.rst. <doc/lsst.ProdStat/quickstart.rst/>`_ 
+For a "quick start" guide, see: `doc/lsst.prodstatus/quickstart.rst. <doc/lsst.prodstatus/quickstart.rst/>`_ 
 
 Quick reminders
 ---------------
 
 Check out the product::
 
-  git clone https://github.com/lsst-dm/ProdStat.git
-  cd ProdStat
+  git clone https://github.com/lsst-dm/prodstatus.git
+  cd prodstatus
   scons
   
 Setup the environment::
 
   setup lsst_distrib
-  setup -r <ProdStat dir> ProdStat
+  setup -r <prodstatus dir> prodstatus
 
 Get a list of commands::
 
@@ -59,5 +59,5 @@ Create a plot with timing data ::
   prodstat prep-timing-data PARAM_FILE
   prodstat plot-data PARAM_FILE
 
-See `doc/lsst.ProdStat/quickstart.rst. <doc/lsst.ProdStat/quickstart.rst/>`_ for descriptions
+See `doc/lsst.prodstatus/quickstart.rst. <doc/lsst.prodstatus/quickstart.rst/>`_ for descriptions
 of the parametersand other options. 

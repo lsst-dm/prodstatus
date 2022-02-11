@@ -1,4 +1,4 @@
-# This file is part of ProdStat package.
+# This file is part of prodstatus package.
 #
 # Developed for the LSST Data Management System.
 # This product includes software developed by the LSST Project
@@ -28,14 +28,14 @@ from unittest.mock import patch
 
 import click
 
-from lsst.ProdStat.GetPanDaStat import GetPanDaStat
+from lsst.prodstatus.GetPanDaStat import GetPanDaStat
 
 __all__ = ["main"]
 
 
 @click.group()
 def cli():
-    """Command line interface creating ProdStat test data files."""
+    """Command line interface creating prodstatus test data files."""
 
 
 @cli.command()

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# This file is part of ProdStat package.
+# This file is part of prodstatus package.
 #
 # Developed for the LSST Data Management System.
 # This product includes software developed by the LSST Project
@@ -20,7 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 # coding: utf-8
-"""Command line interface for ProdStat."""
+"""Command line interface for prodstatus."""
 
 import yaml
 
@@ -36,7 +36,7 @@ __all__ = ["main"]
 
 @click.group()
 def cli():
-    """Command line interface for ProdStat."""
+    """Command line interface for prodstatus."""
 
 
 @cli.command()
@@ -128,7 +128,7 @@ def update_issue(bps_submit_fname, production_issue, drp_issue, ts):
         PREOPS-938 or similar production issue for this group of
         bps submissions
     drp_issue : `str`
-        DRP issue created to track ProdStat for this bps submit
+        DRP issue created to track prodstatus for this bps submit
     ts : `str`
         unknown
     """
@@ -150,7 +150,7 @@ def add_job_to_summary(production_issue, drp_issue, reset, remove):
     production_issue : `str`
         campaign defining ticket, also in the butler output name
     drp_issue : `str`
-        the issue created to track ProdStat for this bps submit
+        the issue created to track prodstatus for this bps submit
     reset : `bool`
         erase the whole table (don't do this lightly)
     remove : `bool`

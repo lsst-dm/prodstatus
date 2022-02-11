@@ -1,4 +1,4 @@
-# This file is part of ProdStat package.
+# This file is part of prodstatus package.
 #
 # Developed for the LSST Data Management System.
 # This product includes software developed by the LSST Project
@@ -25,8 +25,8 @@ import json
 import unittest
 from unittest import mock
 
-from lsst.ProdStat import DRPUtils
-from ProdStatTestBase import ProdStatTestBase, MOCK_NETRC
+from lsst.prodstatus import DRPUtils
+from ProdstatusTestBase import ProdstatusTestBase, MOCK_NETRC
 
 TEST_ISSUE_SUMMARY = "step1#v23_0_0_rc5/PREOPS-973/20220127T205042Z"
 TEST_ISSUE_DESCRIPTION = json.dumps(
@@ -43,8 +43,8 @@ TEST_ISSUE_DESCRIPTION = json.dumps(
 
 
 @mock.patch("netrc.netrc", MOCK_NETRC)
-class TestAddJobToSummary(ProdStatTestBase, unittest.TestCase):
-    @mock.patch("lsst.ProdStat.JiraUtils.JIRA", autospec=True)
+class TestAddJobToSummary(ProdstatusTestBase, unittest.TestCase):
+    @mock.patch("lsst.prodstatus.JiraUtils.JIRA", autospec=True)
     def test_add_job_to_summary(self, MockJira):
         drp_issue = "DRP-YYY"
         production_issue = "PREOPS-XXX"
