@@ -28,7 +28,7 @@ import netrc
 import tarfile
 
 TEST_DATA_FNAME = os.path.join(
-    os.environ["PRODSTAT_DIR"], "tests", "data", "testdrp.tgz"
+    os.environ["PRODSTATUS_DIR"], "tests", "data", "testdrp.tgz"
 )
 
 # Mock netrc.netrc on the class, using a pre-made MOCK_NETRC object,

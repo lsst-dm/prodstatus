@@ -30,11 +30,11 @@ import json
 from lsst.prodstatus.GetPanDaStat import GetPanDaStat
 
 TEST_PANDA_QUERY_FNAME = os.path.join(
-    os.environ["PRODSTAT_DIR"], "tests", "data", "panda_query_results.json.gz"
+    os.environ["PRODSTATUS_DIR"], "tests", "data", "panda_query_results.json.gz"
 )
 
 TEST_PANDA_STAT_PARAM_FNAME = os.path.join(
-    os.environ["PRODSTAT_DIR"], "tests", "data", "get_panda_stat_params.json"
+    os.environ["PRODSTATUS_DIR"], "tests", "data", "get_panda_stat_params.json"
 )
 
 
