@@ -31,6 +31,7 @@ import math
 import matplotlib.pyplot as plt
 import pandas as pd
 from pandas.plotting import table
+import logging
 
 __all__ = ['GetPanDaStat']
 
@@ -73,6 +74,10 @@ class GetPanDaStat:
         self.wfNames = dict()
         self.start_stamp = datetime.datetime.strptime(self.start_date, "%Y-%m-%d").timestamp()
         self.stop_stamp = datetime.datetime.strptime(self.stop_date, "%Y-%m-%d").timestamp()
+        logging.basicConfig(level=logging.DEBUG,
+                            format="%(asctime)s %(filename)s:%(lineno)s %(message)s",
+                            datefmt='%Y-%m-%d %H:%M:%S')
+        self.log = logging.getLogger(__name__)
 
     def get_workflows(self):
         """First lets get all workflows with given keys."""
@@ -89,13 +94,14 @@ class GetPanDaStat:
                 key = str(r_name).split("_")[-1]
                 date_str = key.split('t')[0]
                 date_stamp = datetime.datetime.strptime(date_str, "%Y%m%d").timestamp()
-                print('key=', key, ' date_str=', date_str, ' date_stamp=', date_stamp)
+#                print('key=', key, ' date_str=', date_str, ' date_stamp=', date_stamp)
+                self.log.info(f"key={key} date_str={date_str} date_stamp={date_stamp}")
                 if self.start_stamp <= date_stamp <= self.stop_stamp:
                     self.workKeys.append(str(key))
                     nwf += 1
-        print("number of workflows =", nwf)
+        self.log.info(f"number of workflows ={nwf}")
         if nwf == 0:
-            print("No workflows to work with -- exiting")
+            self.log.warning(f"No workflows to work with -- exiting")
             sys.exit(-256)
         for key in self.workKeys:
             self.workflows[key] = []
@@ -105,7 +111,7 @@ class GetPanDaStat:
                 if wfk in r_name:
                     self.workflows[wfk].append(wf)
         #
-        print("Selected workflows:", self.workflows)
+        self.log.info(f"Selected workflows: {self.workflows}")
         #        print(self.wfNames)
         for key in self.workKeys:
             workflow = self.workflows[key]
@@ -160,9 +166,7 @@ class GetPanDaStat:
 
         urls = workflow["r_name"]
         tasks = self.querypanda(
-            urlst="http://panda-doma.cern.ch/tasks/?taskname="
-                  + urls
-                  + "*&days=120&json"
+            urlst=f"http://panda-doma.cern.ch/tasks/?taskname={urls}*&days=120&json"
         )
         return tasks
 
@@ -185,11 +189,8 @@ class GetPanDaStat:
 
         # Now select a number of jobs to calculate average cpu time and max Rss
         uri = (
-            "http://panda-doma.cern.ch/jobs/?jeditaskid="
-            + str(jeditaskid)
-            + "&limit="
-            + str(self.maxtask)
-            + "&jobstatus=finished&json"
+            f"http://panda-doma.cern.ch/jobs/?jeditaskid={str(jeditaskid)}"
+            f"&limit={str(self.maxtask)}&jobstatus=finished&json"
         )
         jobsdata = self.querypanda(urlst=uri)
         """ list of jobs in the task """
@@ -220,6 +221,7 @@ class GetPanDaStat:
         else:
             return data
         """select first good job """
+        jb = jobs[0]
         for jb in jobs:
             if jb["jobstatus"] != "failed":
                 break
@@ -250,11 +252,11 @@ class GetPanDaStat:
         data["jobstatus"] = jb["jobstatus"]
         tokens = jb["starttime"].split("T")
         data["jobstarttime"] = (
-            tokens[0] + " " + tokens[1]
+                tokens[0] + " " + tokens[1]
         )  # get rid of T in the date string
         tokens = jb["endtime"].split("T")
         data["jobendtime"] = (
-            tokens[0] + " " + tokens[1]
+                tokens[0] + " " + tokens[1]
         )  # get rid of T in the date string
         taskstart = datetime.datetime.strptime(
             data["starttime"], "%Y-%m-%d %H:%M:%S"
@@ -310,7 +312,7 @@ class GetPanDaStat:
             taskname = name[:-1]
             data = self.gettaskinfo(task)
             if len(data) == 0:
-                print("No data for ", taskname)
+                self.log.info(f"No data for {taskname}")
                 continue
             jobname = data["jobname"].split("Task")[0]
             taskname = data["taskname"]
@@ -361,6 +363,7 @@ class GetPanDaStat:
                         or str(wf["r_status"]) == "subfinished"
                         or str(wf["r_status"]) == "running"
                         or str(wf["r_status"]) == "transforming"
+                        or str(wf["r_status"]) == "cancelling"
                 ):
                     """get tasks for this workflow"""
                     tasks = self.getwftasks(wf)
@@ -391,8 +394,8 @@ class GetPanDaStat:
                     result = json.loads(url.read().decode())
                     success = True
             except url_error.URLError:
-                print("failed with ", urlst, " retrying")
-                print("ntryes=", ntryes)
+                logging.warning(f"failed with {urlst} retrying")
+                logging.warning(f"ntryes={ntryes}")
                 success = False
                 ntryes += 1
                 sleep(2)
@@ -509,7 +512,7 @@ class GetPanDaStat:
 
         Parameters
         ----------
-        s : `int`
+        s : `class`
             task status flag
 
         Returns
@@ -560,7 +563,7 @@ class GetPanDaStat:
             newbody += line
             i += 1
         new_body = newbody[:-2]
-        with open("/tmp/" + out_file + "-" + self.Jira + ".txt", "w") as tb_file:
+        with open(f"/tmp/{out_file}-{self.Jira}.txt", "w") as tb_file:
             print(new_body, file=tb_file)
         return newbody
 
@@ -578,7 +581,7 @@ class GetPanDaStat:
         df_styled = dataframe.style.apply(self.highlight_greaterthan_0, axis=1)
         df_styled.set_table_attributes('border="1"')
         df_html = df_styled.render()
-        htfile = open("/tmp/" + outfile + "-" + self.Jira + ".html", "w")
+        htfile = open(f"/tmp/{outfile}-{self.Jira}.html", "w")
         print(df_html, file=htfile)
         htfile.close()
 
@@ -605,13 +608,13 @@ class GetPanDaStat:
         tabula.auto_set_column_width(col=list(range(len(data_frame.columns))))
         tabula.set_fontsize(12)  # if ++fontsize is necessary ++colWidths
         tabula.scale(1.2, 1.2)  # change size table
-        plt.savefig("/tmp/" + table_name + "-" + self.Jira + ".png", transparent=True)
+        plt.savefig(f"/tmp/{table_name}-{self.Jira}.png", transparent=True)
         plt.show()
         html_buff = data_frame.to_html(index=True)
-        html_file = open("/tmp/" + table_name + "-" + self.Jira + ".html", "w")
+        html_file = open(f"/tmp/{table_name}-{self.Jira}.html", "w")
         html_file.write(html_buff)
         html_file.close()
-        data_frame.to_csv("/tmp/" + table_name + "-" + self.Jira + ".csv", index=True)
+        data_frame.to_csv(f"/tmp/{table_name}-{self.Jira}.csv", index=True)
         csbuf = data_frame.to_csv(index=True)
         self.make_table_from_csv(csbuf, table_name, index_name, comment)
 
@@ -620,7 +623,7 @@ class GetPanDaStat:
         self.get_workflows()
         self.gettasks()
         self.getallstat()
-        print("workflow info")
+        self.log.info(f"workflow info")
         wfind = list()
         wflist = list()
         #        wfIndF = open('./wfInd.txt','w')
@@ -628,7 +631,6 @@ class GetPanDaStat:
         _dfids = dict()
         _dfkeys = list()
         for key in self.wfInfo:
-            """wfInd.append(self.wfNames[key])"""
             utime = self.wfInfo[key]["created"]
             _sttime = datetime.datetime.utcfromtimestamp(utime)
             self.wfInfo[key]["created"] = _sttime
@@ -662,5 +664,5 @@ class GetPanDaStat:
         dfs = pd.DataFrame(statlist, index=ttypes)
         table_name = "pandaStat"
         index_name = " Workflow Task "
-        comment = " Panda campaign statistics " + self.Jira
+        comment = f" Panda campaign statistics {self.Jira}"
         self.make_table(dfs, table_name, index_name, comment)

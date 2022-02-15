@@ -27,9 +27,10 @@ from urllib.request import urlopen
 from time import sleep
 import datetime
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import pandas as pd
 import numpy as np
-
+import logging
 
 __all__ = ['MakePandaPlots']
 
@@ -82,13 +83,17 @@ class MakePandaPlots:
         self.wfNames = dict()
         self.start_stamp = datetime.datetime.strptime(self.start_date, "%Y-%m-%d").timestamp()
         self.stop_stamp = datetime.datetime.strptime(self.stop_date, "%Y-%m-%d").timestamp()
+        logging.basicConfig(level=logging.DEBUG,
+                            format="%(asctime)s %(filename)s:%(lineno)s %(message)s",
+                            datefmt='%Y-%m-%d %H:%M:%S')
+        self.log = logging.getLogger(__name__)
 
     def get_workflows(self):
         """First lets get all workflows with given keys.
         """
 
         wfdata = self.query_panda(
-            urlst="http://panda-doma.cern.ch/idds/wfprogress/?json"
+            urlst=f"http://panda-doma.cern.ch/idds/wfprogress/?json"
         )
         comp = str(self.Jira).lower()
         comp1 = str(self.collType)
@@ -102,9 +107,9 @@ class MakePandaPlots:
                 if self.start_stamp <= date_stamp <= self.stop_stamp:
                     self.workKeys.append(str(key))
                     nwf += 1
-        print("number of workflows =", nwf)
+        self.log.info(f"number of workflows ={nwf}")
         if nwf == 0:
-            print("No workflows to work with -- exiting")
+            self.log.warning("No workflows to work with -- exiting")
             sys.exit(-256)
         for key in self.workKeys:
             self.workflows[key] = []
@@ -114,7 +119,7 @@ class MakePandaPlots:
                 if wfk in r_name:
                     self.workflows[wfk].append(wf)
         #
-        print("Selected workflows:", self.workflows)
+        self.log.info(f"Selected workflows:{self.workflows}")
         #        print(self.wfNames)
         create_time = list()
         for key in self.workKeys:
@@ -130,13 +135,9 @@ class MakePandaPlots:
                 processed_files = wf["processed_files"]
                 task_statuses = wf["tasks_statuses"]
                 create_time.append(created)
-                print(
-                    "created",
-                    created,
-                    " total tasks ",
-                    total_tasks,
-                    " total files ",
-                    total_files,
+                self.log.info(
+                    f"created{created} total tasks {total_tasks}"
+                    f" total files {total_files}"
                 )
                 if "Finished" in task_statuses.keys():
                     finished = task_statuses["Finished"]
@@ -163,7 +164,7 @@ class MakePandaPlots:
                         "created": created,
                     }
         self.start_time = min(create_time)
-        print("all started at ", self.start_time)
+        self.log.info(f"all started at {self.start_time}")
 
     def get_wf_tasks(self, workflow):
         """Select tasks for given workflow (jobs).
@@ -180,9 +181,8 @@ class MakePandaPlots:
         """
         urls = str(workflow["r_name"])
         tasks = self.query_panda(
-            urlst="http://panda-doma.cern.ch/tasks/?taskname="
-                  + urls
-                  + "*&days=120&json"
+            urlst=f"http://panda-doma.cern.ch/tasks/?"
+        f"taskname={urls}*&days=120&json"
         )
         return tasks
 
@@ -197,8 +197,7 @@ class MakePandaPlots:
 
         jeditaskid = task["jeditaskid"]
         """ Now select jobs to get timing information """
-        uri = "http://panda-doma.cern.ch/jobs/?jeditaskid=" + \
-              str(jeditaskid) + "&json"
+        uri = f"http://panda-doma.cern.ch/jobs/?jeditaskid={str(jeditaskid)}&json"
         jobsdata = self.query_panda(urlst=uri)
         """ list of jobs in the task """
         jobs = jobsdata["jobs"]
@@ -213,7 +212,7 @@ class MakePandaPlots:
                 if isinstance(jb["starttime"], str):
                     tokens = jb["starttime"].split("T")
                     startst = (
-                        tokens[0] + " " + tokens[1]
+                            tokens[0] + " " + tokens[1]
                     )  # get rid of T in the date string
                     taskstart = datetime.datetime.strptime(
                         startst, "%Y-%m-%d %H:%M:%S"
@@ -230,7 +229,6 @@ class MakePandaPlots:
                             self.allJobs[_name] = list()
                             self.allJobs[_name].append((delta_time,
                                                         durationsec))
-        #            print(self.allJobs)
         else:
             return
         return
@@ -292,8 +290,8 @@ class MakePandaPlots:
                     result = json.loads(url.read().decode())
                     success = True
             except url_error.URLError:
-                print("failed with ", urlst, " retrying")
-                print("ntryes=", ntryes)
+                logging.info(f"failed with {urlst} retrying")
+                logging.info(f"ntryes={ntryes}")
                 success = False
                 ntryes += 1
                 sleep(2)
@@ -301,7 +299,7 @@ class MakePandaPlots:
         sys.stdout.flush()
         return result
 
-    def make_plot(self, data_list, max_time, job_name, n_fig):
+    def make_plot(self, data_list, max_time, job_name, figure_number):
         """Plot timing data in png file.
 
         Parameters
@@ -312,50 +310,56 @@ class MakePandaPlots:
             maximal time in the timing data list
         job_name : `str`
             name of the job to be used in the name of plot file
-        n_fig : 'int' figure number
+        figure_number : 'int' figure number
         """
+        colors_list = list(mcolors.TABLEAU_COLORS)
+        number_of_colors = len(colors_list)
         first_bin = int(self.start_at / self.scale_factor)
         last_bin = first_bin + self.plot_n_bins
-        n_bins = int(max_time / self.bin_width)
+        n_bins = int(max_time / float(self.bin_width))
         task_count = np.zeros(n_bins)
         for time_in, duration in data_list:
-            task_count[int(time_in / self.bin_width): int(
-                (time_in + duration) / self.bin_width)] += 1
+            task_count[int(time_in / float(self.bin_width)): int(
+                (time_in + duration) / float(self.bin_width))] += 1
         if self.plot_n_bins > n_bins:
             last_bin = n_bins
         sub_task_count = np.copy(task_count[first_bin:last_bin])
-        max_y = 1.2 * (max(sub_task_count) + 1.0)
-        sub_task_count.resize([self.plot_n_bins])
-        x_bins = np.arange(self.plot_n_bins) * self.scale_factor + self.start_at
-        plt.figure(n_fig)
-        plt.plot(x_bins, sub_task_count, label=str(job_name))
-        plt.axis([self.start_at, self.stop_at, 0, max_y])
-        plt.xlabel("Hours since first quantum start")
-        plt.ylabel("Number of running quanta")
-        plt.savefig("timing_" + job_name + ".png")
+        if len(sub_task_count) > 0:
+            max_y = 1.2 * (max(sub_task_count) + 1.0)
+            sub_task_count.resize([self.plot_n_bins])
+            x_bins = np.arange(self.plot_n_bins) * self.scale_factor + self.start_at
+            plt.figure(figure_number)
+            _color_index = int(figure_number) - (int(figure_number) // number_of_colors) * number_of_colors
+            plt.plot(x_bins, sub_task_count, label=str(job_name), color=colors_list[int(_color_index)])
+            plt.axis([self.start_at, self.stop_at, 0, max_y])
+            plt.xlabel("Hours since first quantum start")
+            plt.ylabel("Number of running quanta")
+            plt.title(job_name)
+            plt.legend()
+            plt.savefig("timing_" + job_name + ".png")
 
     def prep_data(self):
         """Create file with timing data."""
 
         self.get_workflows()
         self.get_tasks()
-        print(" all time data")
+        self.log.info(" all time data")
         for key in self.allJobs:
             self.allJobs[key].sort()
-            print(key, ' ', self.allJobs[key])
+            self.log.info(f"{key}  {self.allJobs[key]}")
         for job_name in self.allJobs.keys():
             dataframe = pd.DataFrame(
                 self.allJobs[job_name], columns=["delta_time", "durationsec"]
             )
             dataframe.to_csv(
-                "/tmp/" + "panda_time_series_" + job_name + ".csv", index=True
+                f"/tmp/panda_time_series_{job_name}.csv", index=True
             )
 
     def plot_data(self):
         """Create plot of timing data in form of png file."""
-        n_fig = 0
+        figure_number = 0
         for job_name in self.job_names:
-            data_file = "/tmp/" + "panda_time_series_" + job_name + ".csv"
+            data_file = f"/tmp/panda_time_series_{job_name}.csv"
             if os.path.exists(data_file):
                 df = pd.read_csv(
                     data_file, header=0, index_col=0, parse_dates=True,
@@ -366,6 +370,6 @@ class MakePandaPlots:
                     if float(row[0]) >= max_time:
                         max_time = row[0]
                     data_list.append((row[0], row[1]))
-                print(" job name ", job_name)
-                self.make_plot(data_list, max_time, job_name, n_fig)
-                n_fig += 1
+                self.log.info(f" job name {job_name}")
+                self.make_plot(data_list, max_time, job_name, figure_number)
+                figure_number += 1
