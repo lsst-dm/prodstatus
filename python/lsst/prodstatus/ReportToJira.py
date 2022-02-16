@@ -21,6 +21,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import yaml
 from .JiraUtils import JiraUtils
+import logging
 
 __all__ = ['ReportToJira']
 
@@ -35,24 +36,28 @@ class ReportToJira:
 
             project: 'Pre-Operations'
             Jira: PREOPS-911
-            comments:
-            - file: /Users/kuropat/devel/reports/pandaWfStat-PREOPS-911.txt
-              tokens:
+            comments: 'list'
+            - file: 'str' - /tmp/pandaWfStat-PREOPS-911.txt
+              tokens: 'list'
                  - 'pandaWfStat'
                  - 'workflow'
-            - file: /Users/kuropat/devel/reports/pandaStat-PREOPS-911.txt
-              tokens:
+            - file: 'str' - /tmp/pandaStat-PREOPS-911.txt
+              tokens: 'list'
                  - 'pandaStat'
                  - 'campaign'
-            - file: /home/kuropat/devel/reports/butlerStat-PREOPS-911_step1.txt
-              tokens:
+            - file: 'str' - /tmp/butlerStat-PREOPS-911_step1.txt
+              tokens: 'list'
                 - 'butlerStat'
                 - 'Campaign'
-            attachments:
-              - /Users/kuropat/devel/reports/pandaWfStat-PREOPS-911.html
+            attachments: 'list'
+              - /tmp/pandaWfStat-PREOPS-911.html
     """
 
     def __init__(self, inp_file):
+        logging.basicConfig(level=logging.DEBUG,
+                            format="%(asctime)s %(filename)s:%(lineno)s %(message)s",
+                            datefmt='%Y-%m-%d %H:%M:%S')
+        self.log = logging.getLogger(__name__)
         self.ju = JiraUtils()
         (self.a_jira, account) = self.ju.get_login()
         with open(inp_file) as pf:
@@ -72,11 +77,11 @@ class ReportToJira:
 
     def run(self):
         """Update the jira ticket."""
-        print("The summary for ticket:", self.ticket)
+        self.log.info(f"The summary for ticket:{self.ticket}")
         issue_id = self.ju.get_issue_id(self.project, self.ticket)
         issue = self.ju.get_issue(self.ticket)
         summary = self.ju.get_summary(issue)
-        print(summary)
+        self.log.info(summary)
         for comment in self.comments:
             com_file = comment['file']
             tokens = comment['tokens']
