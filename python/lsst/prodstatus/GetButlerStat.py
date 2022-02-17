@@ -180,7 +180,7 @@ class GetButlerStat:
                         self.collection_keys[c] = key
         self.log.info("selected collections ")
         for key in collections:
-            self.log.info(f"{collections[key]}")
+            self.log.info(f"{key}")
         return collections
 
     def make_sum(self, task_size, task_res):
