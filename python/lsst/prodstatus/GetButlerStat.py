@@ -81,7 +81,7 @@ class GetButlerStat:
         self.collection_data = dict()
         self.start_stamp = datetime.datetime.strptime(self.start_date, "%Y-%m-%d").timestamp()
         self.stop_stamp = datetime.datetime.strptime(self.stop_date, "%Y-%m-%d").timestamp()
-        logging.basicConfig(level=logging.DEBUG,
+        logging.basicConfig(level=logging.INFO,
                             format="%(asctime)s %(filename)s:%(lineno)s %(message)s",
                             datefmt='%Y-%m-%d %H:%M:%S')
         self.log = logging.getLogger(__name__)

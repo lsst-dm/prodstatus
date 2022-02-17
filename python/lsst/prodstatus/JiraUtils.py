@@ -34,7 +34,7 @@ class JiraUtils:
         username, account, password = secrets.authenticators("lsstjira")
         self.aut_jira = JIRA(options={"server": account}, basic_auth=(username, password))
         self.user_name = username
-        logging.basicConfig(level=logging.DEBUG,
+        logging.basicConfig(level=logging.INFO,
                             format="%(asctime)s %(filename)s:%(lineno)s %(message)s",
                             datefmt='%Y-%m-%d %H:%M:%S')
         self.log = logging.getLogger(__name__)
