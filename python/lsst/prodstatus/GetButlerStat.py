@@ -442,7 +442,7 @@ class GetButlerStat:
             task = dt[task_type]
             u_time = task["startTime"]
             task["startTime"] = u_time
-            tokens = utime.split(".")
+            tokens = u_time.split(".")
             u_time = tokens[0]
             task["startTime"] = u_time
             u_time = datetime.datetime.strptime(u_time, "%Y-%m-%d %H:%M:%S").timestamp()
