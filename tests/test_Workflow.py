@@ -26,17 +26,20 @@ from os import environ
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import numpy as np
+import pandas as pd
+
 from lsst.ctrl.bps import BpsConfig
 from lsst.prodstatus.Workflow import Workflow
 
 BPS_CONFIG_PATH = Path(
     environ["PRODSTATUS_DIR"], "tests", "data", "bps_config_base.yaml"
 )
-TEST_WORKFLOW_NAME = 'test'
+TEST_WORKFLOW_NAME = "test"
 
 
 class TestWorkflow(unittest.TestCase):
-    def test_create(self):
+    def test_init(self):
         bps_config = BpsConfig(BPS_CONFIG_PATH)
         workflow = Workflow(bps_config, TEST_WORKFLOW_NAME)
         self.assertIsInstance(workflow.bps_config["campaign"], str)
@@ -48,8 +51,77 @@ class TestWorkflow(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             workflow.to_files(Path(temp_dir))
 
-            workflow_dir = Path(temp_dir).joinpath(TEST_WORKFLOW_NAME)
-            read_workflow = Workflow.from_files(workflow_dir)
+            workflow_dir = Path(temp_dir)
+            read_workflow = Workflow.from_files(workflow_dir, TEST_WORKFLOW_NAME)
             self.assertEqual(
                 workflow.bps_config["campaign"], read_workflow.bps_config["campaign"]
             )
+
+    def test_split_by_band(self):
+        bps_config = BpsConfig(BPS_CONFIG_PATH)
+        full_workflow = Workflow(bps_config, TEST_WORKFLOW_NAME)
+        bands = "ugrizy"
+        split_workflows = full_workflow.split_by_band(bands)
+        for band, workflow in zip(bands, split_workflows):
+            self.assertEqual(workflow.band, band)
+
+    def test_split_by_exp(self):
+        bps_config = BpsConfig(BPS_CONFIG_PATH)
+        test_exps = pd.DataFrame(
+            {
+                "band": ["g", "g", "r", "g", "i", "i", "r"],
+                "exp_id": [1, 3, 4, 5, 10, 11, 12],
+            }
+        )
+        full_workflow = Workflow(bps_config, TEST_WORKFLOW_NAME, exposures=test_exps)
+
+        group_size = 3
+        split_workflows = full_workflow.split_by_exposure(group_size)
+        for workflow in split_workflows:
+            self.assertLessEqual(len(workflow.exposures), group_size)
+        self.assertEqual(len(split_workflows), np.ceil(len(test_exps) / group_size))
+
+        combined_exps = pd.concat(w.exposures for w in split_workflows)
+        self.assertTrue(combined_exps.equals(test_exps))
+
+    def test_create_many(self):
+        bps_config = BpsConfig(BPS_CONFIG_PATH)
+        test_exps = pd.DataFrame(
+            {
+                "band": ["g", "g", "r", "g", "i", "i", "r"],
+                "exp_id": [1, 3, 4, 5, 10, 11, 12],
+            }
+        )
+        step_configs = {
+            "step1": {"split_bands": False, "exposure_groups": {"group_size": 3}},
+            "step2": {"split_bands": True, "exposure_groups": {"group_size": 2}},
+            "step3": {
+                "split_bands": False,
+                "exposure_groups": {"group_size": 2, "skip_groups": 1, "num_groups": 2},
+            },
+        }
+        workflows = Workflow.create_many(bps_config, step_configs, test_exps)
+
+        step_workflows = {}
+        for w in workflows:
+            if w.step not in step_workflows:
+                step_workflows[w.step] = []
+            step_workflows[w.step].append(w)
+
+        # breakpoint()
+        self.assertEqual(len(step_workflows["step1"]), 3)
+        for w in step_workflows["step1"]:
+            self.assertLessEqual(
+                len(w.exposures), step_configs["step1"]["exposure_groups"]["group_size"]
+            )
+
+        for w in step_workflows["step2"]:
+            self.assertLessEqual(len(w.exposures.band.unique()), 1)
+            self.assertLessEqual(
+                len(w.exposures), step_configs["step2"]["exposure_groups"]["group_size"]
+            )
+
+        self.assertEqual(
+            len(step_workflows["step3"]),
+            step_configs["step3"]["exposure_groups"]["num_groups"],
+        )

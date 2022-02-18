@@ -5,6 +5,7 @@
 setupRequired(base)
 setupRequired(daf_base)
 setupRequired(daf_butler)
+setupRequired(ctrl_bps)
 
 # The following is boilerplate for all packages.
 # See https://dmtn-001.lsst.io for details on LSST_LIBRARY_PATH.

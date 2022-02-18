@@ -109,28 +109,35 @@ class Workflow:
 
         # If we do not need to split the workflow, just return a list containing
         # only this workflow.
-        if group_size is None or not (0 < group_size < len(exposures)):
+        if group_size is None or not (0 < group_size < len(self.exposures)):
             return [self]
 
         workflows = []
         base_query = self.bps_config["payload"]["dataQuery"]
         num_subgroups = np.ceil(len(exp_ids) / group_size).astype(int)
-        exp_id_subgroups = np.split(np.sort(exp_ids), num_subgroups)
+        exp_id_subgroups = np.array_split(np.sort(exp_ids), num_subgroups)
         for these_exp_ids in exp_id_subgroups:
             min_exp_id = min(these_exp_ids)
             max_exp_id = max(these_exp_ids)
             data_query = f"({base_query}) and (exposure >= {min_exp_id}) and (exposure <= {max_exp_id})"
-            this_bps_query = self.bps_query.copy()
-            this_bps_query["payload"]["dataQuery"] = data_query
+            this_bps_config = self.bps_config.copy()
+            this_bps_config["payload"]["dataQuery"] = data_query
 
             this_band = self.band
             these_exposures = self.exposures.query(
-                f"(exp_id >= {min_exp_id}) and (exp_id <= {max_exp_id}"
+                f"(exp_id >= {min_exp_id}) and (exp_id <= {max_exp_id})"
             ).copy()
             this_workflow = Workflow(
-                this_bps_config, band=this_band, exposures=these_exposures
+                this_bps_config, band=this_band, exposures=these_exposures, step=self.step
             )
             workflows.append(this_workflow)
+
+        if len(workflows) <= skip_groups:
+            return []
+
+        workflows = workflows[skip_groups:]
+        if num_groups is not None and len(workflows) > num_groups:
+            workflows = workflows[:num_groups]
 
         return workflows
 
@@ -151,8 +158,8 @@ class Workflow:
         base_query = self.bps_config["payload"]["dataQuery"]
         for band in bands:
             data_query = f"({base_query}) and (band == '{band}')"
-            this_bps_query = self.bps_query.copy()
-            this_bps_query["payload"]["dataQuery"] = data_query
+            this_bps_config = self.bps_config.copy()
+            this_bps_config["payload"]["dataQuery"] = data_query
 
             if self.exposures is not None:
                 these_exposures = self.exposures.query(f"band=='{band}'").copy()
@@ -160,7 +167,7 @@ class Workflow:
                 these_exposures = None
 
             this_workflow = Workflow(
-                this_bps_config, band=band, exposures=these_exposures
+                this_bps_config, band=band, exposures=these_exposures, step=self.step
             )
             workflows.append(this_workflow)
 
@@ -195,7 +202,8 @@ class Workflow:
             bps_config = base_bps_config.copy()
             bps_config["pipelineYaml"] = f"{bps_config['pipelineYaml']}#{step}"
             workflow = cls(bps_config, exposures=exposures, step=step)
-            step_workflows.append(workflow)
+            step_workflows.append(workflow
+                                  )
 
         # Build a list of workflows split up by band when requested
         step_band_workflows = []
@@ -212,7 +220,7 @@ class Workflow:
         for workflow in step_band_workflows:
             step_spec = step_specs[workflow.step]
             if "exposure_groups" in step_spec:
-                split_by_exposure_kwargs = step_spec[workflow.step]["exposure_groups"]
+                split_by_exposure_kwargs = step_spec["exposure_groups"]
                 workflows = workflow.split_by_exposure(**split_by_exposure_kwargs)
                 split_workflows.extend(workflows)
             else:
