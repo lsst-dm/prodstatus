@@ -116,7 +116,7 @@ class Workflow:
         base_query = self.bps_config["payload"]["dataQuery"]
         num_subgroups = np.ceil(len(exp_ids) / group_size).astype(int)
         exp_id_subgroups = np.array_split(np.sort(exp_ids), num_subgroups)
-        for these_exp_ids in exp_id_subgroups:
+        for subgroup_idx, these_exp_ids in enumerate(exp_id_subgroups):
             min_exp_id = min(these_exp_ids)
             max_exp_id = max(these_exp_ids)
             data_query = f"({base_query}) and (exposure >= {min_exp_id}) and (exposure <= {max_exp_id})"
@@ -128,7 +128,11 @@ class Workflow:
                 f"(exp_id >= {min_exp_id}) and (exp_id <= {max_exp_id})"
             ).copy()
             this_workflow = Workflow(
-                this_bps_config, band=this_band, exposures=these_exposures, step=self.step
+                this_bps_config,
+                band=this_band,
+                exposures=these_exposures,
+                step=self.step,
+                name=f"{self.name}_{subgroup_idx+1}",
             )
             workflows.append(this_workflow)
 
@@ -167,14 +171,18 @@ class Workflow:
                 these_exposures = None
 
             this_workflow = Workflow(
-                this_bps_config, band=band, exposures=these_exposures, step=self.step
+                this_bps_config,
+                band=band,
+                exposures=these_exposures,
+                step=self.step,
+                name=f"{self.name}_{band}",
             )
             workflows.append(this_workflow)
 
         return workflows
 
     @classmethod
-    def create_many(cls, base_bps_config, step_specs, exposures):
+    def create_many(cls, base_bps_config, step_specs, exposures, base_name=""):
         """Create workflows for a set of steps and exposures.
 
         Parameters
@@ -194,6 +202,8 @@ class Workflow:
                 The filter for the exposure.
             ``"exp_id"``
                 The exposures id
+        base_name : `str`
+            The base for the name of the workflows.
         """
 
         # Make a list of workflows, where each workflow completes a step
@@ -201,9 +211,10 @@ class Workflow:
         for step, step_spec in step_specs.items():
             bps_config = base_bps_config.copy()
             bps_config["pipelineYaml"] = f"{bps_config['pipelineYaml']}#{step}"
-            workflow = cls(bps_config, exposures=exposures, step=step)
-            step_workflows.append(workflow
-                                  )
+            workflow = cls(
+                bps_config, exposures=exposures, step=step, name=f"{base_name}_{step}"
+            )
+            step_workflows.append(workflow)
 
         # Build a list of workflows split up by band when requested
         step_band_workflows = []

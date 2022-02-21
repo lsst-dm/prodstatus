@@ -22,13 +22,17 @@
 """Interface for managing and reporting on data processing campaigns."""
 
 # imports
-from dataclasses import dataclass
+import dataclasses
 from typing import List, Dict, Optional
+import contextlib
+
+import yaml
+
 
 import pandas as pd
 
 from lsst.ctrl.bps import BpsConfig
-from prodstatus.Workflow import Workflow
+from lsst.prodstatus.Workflow import Workflow
 
 # constants
 
@@ -39,51 +43,53 @@ from prodstatus.Workflow import Workflow
 # classes
 
 
-@dataclass
+@dataclasses.dataclass
 class Campaign:
     """API for managing and reporting on data processing campaigns."""
 
-    campaign_id: str
+    name: str
     bps_config_base: Optional[BpsConfig] = None
-    workflows: List[Workflow] = []
+    workflows: List[Workflow] = dataclasses.field(default_factory=list)
+    campaign_spec: Optional[dict] = None
 
     @classmethod
-    def create(cls, campaign_spec_path):
-        """Create a workflow, creating a jira or storage directory if necessary.
+    def create_from_yaml(cls, campaign_yaml_path):
+        """Create a campaign using parameters read from a file
 
         Parameters
         ----------
-        campaign_spec_path: `str`, `pathlib.Path`
-            Path from which to load campaign specifications.
+        campaign_yaml_path : `str` or `pathlib.Path`
+            File from which to load the yaml
 
         Returns
         -------
-        campaign : `lsst.prodstatus.Campaign`
-            The instantiated campaign.
-
+        campaign : `Campaign`
+            The new campaign.
         """
-        with open(campaign_spec_path, "rt") as campaign_spec_in:
+        with open(campaign_yaml_path, "rt") as campaign_spec_io:
             campaign_spec = yaml.safe_load(campaign_spec_io)
 
-        campaign_id = campaign_spec["campaign_id"]
+        name = campaign_spec["name"]
 
-        bps_config_base = BpsConfig(campaign_spec["bps_config"])
-        campaign = cls(campaign_spec, bps_config_base, id)
-
-        exposures_path = campaign_spec["exposures"]
-        exposures = pd.read_csv(
-            exposures_path, names=["band", "exp_id"], delimiter=r"\s+"
-        )
-        exposures.sort_values("exp_id", inplace=True)
-
-        bps_config = bps_config_base.copy()
-
-        campaign = cls(campaign_id, bps_config_base, [])
+        base_bps_config = BpsConfig(campaign_spec["bps_config_base"])
 
         if "steps" in campaign_spec:
-            self.workflows = Workflows.create_many(
-                bps_config_base, campaign_spec["steps"], exposures
+            step_specs = campaign_spec["steps"]
+
+            if "exposures" in campaign_spec:
+                exposures_path = campaign_spec["exposures"]
+                exposures = pd.read_csv(
+                    exposures_path, names=["band", "exp_id"], delimiter=r"\s+"
+                )
+                exposures.sort_values("exp_id", inplace=True)
+
+            workflows = Workflow.create_many(
+                base_bps_config, step_specs, exposures, base_name=name
             )
+        else:
+            workflows = []
+
+        campaign = cls(name, base_bps_config, workflows, campaign_spec)
 
         return campaign
 
@@ -95,16 +101,8 @@ class Campaign:
         ----------
         dir : `pathlib.Path`
             Directory into which to save files.
-
-        Returns
-        -------
-        None.
         """
-        dir = Path(dir)
-
-        bps_config_base_path = dir.joinpath(bps_config_base_NAME)
-        with open(bps_config_base_path, "wt") as bps_config_base_io:
-            self.bps_config_base.dump(bps_config_base_io)
+        raise NotImplementedError
 
     @classmethod
     def from_files(cls, dir):
@@ -120,14 +118,7 @@ class Campaign:
         workflow : `Workflow`
             An initialized instance of a campaign.
         """
-        dir = Path(dir)
-
-        id = dir.name
-
-        bps_config_base_path = dir.joinpath(bps_config_base_NAME)
-        bps_config_base = BpsConfig(bps_config_base_path)
-        campaign = cls(bps_config_base, id)
-        return campaign
+        raise NotImplementedError
 
     def to_jira(self, issue, jira=None):
         """Save workflow data into a jira issue.
