@@ -58,8 +58,17 @@ class TestCampaign(unittest.TestCase):
         with self.campaign_yaml_path.open("rt") as campaign_yaml_io:
             campaign_spec = yaml.safe_load(campaign_yaml_io)
 
-        self.assertGreaterEqual(
-            len(campaign.workflows), len(campaign_spec["steps"])
-        )
+        self.assertGreaterEqual(len(campaign.workflows), len(campaign_spec["steps"]))
 
         self.assertEqual(campaign.name, campaign_spec["name"])
+
+    def test_file_save_load(self):
+        campaign = Campaign.create_from_yaml(self.campaign_yaml_path)
+        test_campaign_name = campaign.name
+
+        with TemporaryDirectory() as temp_dir:
+            campaign.to_files(Path(temp_dir))
+
+            campaign_dir = Path(temp_dir)
+            read_campaign = campaign.from_files(campaign_dir, test_campaign_name)
+            self.assertEqual(read_campaign.name, campaign.name)

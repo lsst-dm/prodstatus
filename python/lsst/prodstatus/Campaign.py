@@ -23,8 +23,10 @@
 
 # imports
 import dataclasses
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Mapping
 import contextlib
+import csv
+from pathlib import Path
 
 import yaml
 
@@ -35,6 +37,11 @@ from lsst.ctrl.bps import BpsConfig
 from lsst.prodstatus.Workflow import Workflow
 
 # constants
+
+CAMPAIGN_KEYWORDS = ("name",)
+BPS_CONFIG_BASE_FNAME = "bps_config_base.yaml"
+CAMPAIGN_SPEC_FNAME = "campaign.yaml"
+WORKFLOW_NAMES_FNAME = "workflow_names.txt"
 
 # exception classes
 
@@ -49,7 +56,7 @@ class Campaign:
 
     name: str
     bps_config_base: Optional[BpsConfig] = None
-    workflows: List[Workflow] = dataclasses.field(default_factory=list)
+    workflows: Mapping[str, Workflow] = dataclasses.field(default_factory=dict)
     campaign_spec: Optional[dict] = None
 
     @classmethod
@@ -83,11 +90,16 @@ class Campaign:
                 )
                 exposures.sort_values("exp_id", inplace=True)
 
-            workflows = Workflow.create_many(
+            all_workflows = Workflow.create_many(
                 base_bps_config, step_specs, exposures, base_name=name
             )
-        else:
-            workflows = []
+
+        workflows = {}
+        for workflow in all_workflows:
+            step = workflow.step
+            if step not in workflows:
+                workflows[step] = []
+            workflows[step].append(workflow)
 
         campaign = cls(name, base_bps_config, workflows, campaign_spec)
 
@@ -102,23 +114,82 @@ class Campaign:
         dir : `pathlib.Path`
             Directory into which to save files.
         """
-        raise NotImplementedError
+        dir = Path(dir)
+        if self.name is not None:
+            dir = dir.joinpath(self.name)
+            dir.mkdir(exist_ok=True)
+
+        bps_config_path = dir.joinpath(BPS_CONFIG_BASE_FNAME)
+        with open(bps_config_path, "wt") as bps_config_io:
+            self.bps_config_base.dump(bps_config_io)
+
+        campaign_spec_path = dir.joinpath(CAMPAIGN_SPEC_FNAME)
+        with open(campaign_spec_path, "wt") as campaign_spec_io:
+            yaml.dump(self.campaign_spec, campaign_spec_io)
+
+        workflow_names_path = dir.joinpath(WORKFLOW_NAMES_FNAME)
+        with workflow_names_path.open("wt") as workflow_names_io:
+            for step in self.workflows:
+                for workflow in self.workflows[step]:
+                    workflow_names_io.write(f"{step} {workflow.name}\n")
+
+        for step_workflows in self.workflows.values():
+            for workflow in step_workflows:
+                step_dir = dir.joinpath(workflow.step)
+                step_dir.mkdir(exist_ok=True)
+                workflow.to_files(step_dir)
 
     @classmethod
-    def from_files(cls, dir):
+    def from_files(cls, dir, name=None):
         """Load workflow data from files in a directory.
 
         Parameters
         ----------
         dir : `pathlib.Path`
             Directory into which to save files.
+        name : `str`
+            The name of the campaign (used to determine the subdirectory)
 
         Returns
         -------
-        workflow : `Workflow`
+        campaign : `Campaign`
             An initialized instance of a campaign.
         """
-        raise NotImplementedError
+        dir = Path(dir)
+        if name is not None:
+            dir = dir.joinpath(name)
+
+        campaign_spec_path = dir.joinpath(CAMPAIGN_SPEC_FNAME)
+        with open(campaign_spec_path, "rt") as campaign_spec_io:
+            campaign_spec = yaml.safe_load(campaign_spec_io)
+
+        name = name if name is not None else campaign_spec["name"]
+
+        bps_config_base_path = dir.joinpath(BPS_CONFIG_BASE_FNAME)
+        bps_config_base = BpsConfig(bps_config_base_path)
+
+        # Find the steps and workflows, so we know what directory
+        # to read the workflows from.
+        workflow_names_path = dir.joinpath(WORKFLOW_NAMES_FNAME)
+        with workflow_names_path.open("rt") as workflow_names_io:
+            step_workflow_reader = csv.reader(workflow_names_io, delimiter=" ")
+
+            # Load the file into a list of tuples,
+            # where each tuple is a step, workflow name pair.
+            step_wfname_pairs = [sw for sw in step_workflow_reader]
+
+        # Load the workflows
+        workflows = {}
+        for step, workflow_name in step_wfname_pairs:
+            step_dir = dir.joinpath(step)
+            if workflow_name not in workflows:
+                workflows[workflow_name] = []
+            workflow = Workflow.from_files(step_dir, workflow_name)
+            workflows[workflow_name].append(workflow)
+
+        campaign = cls(name, bps_config_base, workflows, campaign_spec)
+
+        return campaign
 
     def to_jira(self, issue, jira=None):
         """Save workflow data into a jira issue.
@@ -130,10 +201,6 @@ class Campaign:
         jira : `jira.JIRA`, optional
             The connection to Jira. The default is None.
             If create is true, jira must not be None.
-
-        Returns
-        -------
-        None.
 
         Note
         ----
