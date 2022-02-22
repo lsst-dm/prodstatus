@@ -30,6 +30,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import pandas as pd
 import numpy as np
+import http.client
 import logging
 
 __all__ = ['MakePandaPlots']
@@ -72,7 +73,6 @@ class MakePandaPlots:
                                / self.scale_factor)
         self.start_time = 0
         self.work_keys = list()
-        print(" Collecting information for Jira ticket ", self.jira_ticket)
         self.workflows = dict()
         self.workflow_info = dict()  # workflow status
         self.task_counts = dict()  # number of tasks of given type
@@ -87,6 +87,8 @@ class MakePandaPlots:
                             format="%(asctime)s %(filename)s:%(lineno)s %(message)s",
                             datefmt='%Y-%m-%d %H:%M:%S')
         self.log = logging.getLogger(__name__)
+        self.log.info(f" Collecting information for Jira ticket {self.jira_ticket}")
+        http.client._MAXLINE = 655360
 
     def get_workflows(self):
         """First lets get all workflows with given keys.
@@ -120,7 +122,6 @@ class MakePandaPlots:
                     self.workflows[wfk].append(wf)
         #
         self.log.info(f"Selected workflows:{self.workflows}")
-        #        print(self.wfNames)
         create_time = list()
         for key in self.work_keys:
             workflow = self.workflows[key]
@@ -182,7 +183,7 @@ class MakePandaPlots:
         url_string = str(workflow["r_name"])
         tasks = self.query_panda(
             url_string=(f"http://panda-doma.cern.ch/tasks/?"
-        f"taskname={url_string}*&days=120&json"
+                        f"taskname={url_string}*&days=120&json"
                         )
         )
         return tasks
@@ -249,11 +250,14 @@ class MakePandaPlots:
             _id = task["jeditaskid"]
             task_ids[_id] = i
             i += 1
+        " select tasks for requested plots only"
         for _id in sorted(task_ids):
             t_ind = task_ids[_id]
             task = tasks[t_ind]
-            #            comp = key.upper()
-            self.get_task_info(task)
+            task_name = task["taskname"]
+            for _name in self.job_names:
+                if _name in task_name:
+                    self.get_task_info(task)
         return
 
     def get_tasks(self):
@@ -285,16 +289,18 @@ class MakePandaPlots:
         success = False
         n_tries = 0
         result = dict()
-        while (not success) or (n_tries >= 5):
+        while not success:
             try:
                 with urlopen(url_string) as url:
                     result = json.loads(url.read().decode())
-                    success = True
+                success = True
             except url_error.URLError:
                 logging.info(f"failed with {url_string} retrying")
-                logging.info(f"ntryes={n_tries}")
+                logging.info(f"ntries={n_tries}")
                 success = False
                 n_tries += 1
+                if n_tries >= 5:
+                    break
                 sleep(2)
         sys.stdout.write(".")
         sys.stdout.flush()
@@ -341,14 +347,11 @@ class MakePandaPlots:
 
     def prep_data(self):
         """Create file with timing data."""
-
         self.get_workflows()
         self.get_tasks()
-        self.log.info(" all time data")
         for key in self.all_jobs:
             self.all_jobs[key].sort()
-            self.log.info(f"{key}  {self.all_jobs[key]}")
-        for job_name in self.all_jobs.keys():
+        for job_name in self.all_jobs:
             dataframe = pd.DataFrame(
                 self.all_jobs[job_name], columns=["delta_time", "durationsec"]
             )
