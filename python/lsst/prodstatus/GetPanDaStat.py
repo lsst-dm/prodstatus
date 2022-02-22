@@ -386,16 +386,18 @@ class GetPanDaStat:
         success = False
         n_tries = 0
         result = dict()
-        while (not success) or (n_tries >= 5):
+        while not success:
             try:
                 with urlopen(url_string) as url:
                     result = json.loads(url.read().decode())
-                    success = True
+                success = True
             except url_error.URLError:
                 logging.warning(f"failed with {url_string} retrying")
                 logging.warning(f"n_tries={n_tries}")
                 success = False
                 n_tries += 1
+                if n_tries >= 5:
+                    break
                 sleep(2)
         sys.stdout.write(".")
         sys.stdout.flush()
