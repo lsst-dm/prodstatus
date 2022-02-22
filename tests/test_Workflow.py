@@ -25,9 +25,11 @@ import unittest
 from os import environ
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest import mock
 
 import numpy as np
 import pandas as pd
+import jira
 
 from lsst.ctrl.bps import BpsConfig
 from lsst.prodstatus.Workflow import Workflow
@@ -125,3 +127,16 @@ class TestWorkflow(unittest.TestCase):
             len(step_workflows["step3"]),
             step_configs["step3"]["exposure_groups"]["num_groups"],
         )
+
+    @mock.patch("jira.JIRA", autospec=True)
+    def test_load_save_jira(self, MockJIRA):
+        this_jira = jira.JIRA(options={"server": ''}, basic_auth=('',''))
+        bps_config = BpsConfig(BPS_CONFIG_PATH)
+        workflow = Workflow(bps_config, TEST_WORKFLOW_NAME)
+
+        issue = workflow.to_jira(this_jira)
+        
+        #reread_workflow = Workflow.from_jira(issue)
+        #self.assertIsInstance(reread_workflow, Workflow)
+        
+        

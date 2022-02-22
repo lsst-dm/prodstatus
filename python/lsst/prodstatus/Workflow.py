@@ -26,6 +26,7 @@
 from dataclasses import dataclass
 from typing import List, Dict, Optional
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import yaml
 import numpy as np
@@ -38,8 +39,9 @@ from lsst.ctrl.bps import BpsConfig
 
 BPS_CONFIG_FNAME = "bps_config.yaml"
 WORKFLOW_FNAME = "workflow.yaml"
-WORKFLOW_KEYWORDS = ("name", "step", "band")
+WORKFLOW_KEYWORDS = ("name", "step", "band", "issue_name")
 EXPLIST_FNAME = "explist.csv"
+ALL_WORKFLOW_FNAMES = (BPS_CONFIG_FNAME, WORKFLOW_FNAME, EXPLIST_FNAME)
 
 # exception classes
 
@@ -76,6 +78,8 @@ class Workflow:
             The filter for the exposure.
         ``"exp_id"``
             The exposures id
+    issue_name: `str`
+        The jira issue name for the issue that tracks this workflow.
 
     """
 
@@ -84,6 +88,7 @@ class Workflow:
     step: Optional[str] = None
     band: str = "all"
     exposures: Optional[pd.DataFrame] = None
+    issue_name: Optional[str] = None
 
     def split_by_exposure(self, group_size=None, skip_groups=0, num_groups=None):
         """Split the workflow by exposure number.
@@ -318,22 +323,46 @@ class Workflow:
 
         return workflow
 
-    def to_jira(self, issue, jira=None):
+    def to_jira(self, jira=None, issue=None):
         """Save workflow data into a jira issue.
 
         Parameters
         ----------
+        jira : `jira.JIRA`,
+            The connection to Jira.
         issue : `jira.resources.Issue`, optional
             This issue in which to save campaign data.
-        jira : `jira.JIRA`, optional
-            The connection to Jira. The default is None.
-            If create is true, jira must not be None.
+            If None, a new issue will be created.
 
-        Note
-        ----
-        If issue is None, jira must not be None.
+        Returns
+        -------
+        issue : `jira.resources.Issue`
+            The issue to which the workflow was written.
         """
-        raise NotImplementedError
+#        assert issue is not None ;# For development
+
+        if issue is None:
+            issue = jira.create_issue(
+                project="DRP",
+                issuetype="Task",
+                summary="a new issue",
+                description="A workflow",
+                components=[{"name": "Test"}]
+                )
+        
+        with TemporaryDirectory() as staging_dir:
+            self.to_files(staging_dir)
+
+            dir = Path(staging_dir)
+            if self.name is not None:
+                dir = dir.joinpath(self.name)
+                
+            for file_name in ALL_WORKFLOW_FNAMES:
+                full_file_name = dir.joinpath(file_name)
+                jira.add_attachment(issue, attachment=str(full_file_name))
+                
+        return issue
+
 
     @classmethod
     def from_jira(cls, issue):
@@ -350,7 +379,17 @@ class Workflow:
         workflow : `Workflow`
             An initialized instance of a workflow.
         """
-        raise NotImplementedError
-
+        with TemporaryDirectory() as staging_dir:
+            dir = Path(staging_dir)
+            for attachment in issue.fields.attachment:
+                if attachment.filename in ALL_WORKFLOW_NAMES:
+                    file_content = attachment.get()
+                    fname = dir.joinpath(attachment.filename)
+                    with fname.open('rb') as file_io:
+                        file_content.write(file_content)
+                
+            workflow = cls.from_files(staging_dir)
+        
+        return workflow
 
 # internal functions & classes

@@ -38,7 +38,7 @@ from lsst.prodstatus.Workflow import Workflow
 
 # constants
 
-CAMPAIGN_KEYWORDS = ("name",)
+CAMPAIGN_KEYWORDS = ("name", "issue_name")
 BPS_CONFIG_BASE_FNAME = "bps_config_base.yaml"
 CAMPAIGN_SPEC_FNAME = "campaign.yaml"
 WORKFLOW_NAMES_FNAME = "workflow_names.txt"
@@ -58,6 +58,7 @@ class Campaign:
     bps_config_base: Optional[BpsConfig] = None
     workflows: Mapping[str, Workflow] = dataclasses.field(default_factory=dict)
     campaign_spec: Optional[dict] = None
+    issue_name: Optional[str] = None
 
     @classmethod
     def create_from_yaml(cls, campaign_yaml_path):
@@ -77,7 +78,11 @@ class Campaign:
             campaign_spec = yaml.safe_load(campaign_spec_io)
 
         name = campaign_spec["name"]
-
+        if "issue_name" in campaign_spec:
+            issue_name = campaign_spec["issue_name"]
+        else:
+            issue_name = None
+        
         base_bps_config = BpsConfig(campaign_spec["bps_config_base"])
 
         if "steps" in campaign_spec:
@@ -101,7 +106,7 @@ class Campaign:
                 workflows[step] = []
             workflows[step].append(workflow)
 
-        campaign = cls(name, base_bps_config, workflows, campaign_spec)
+        campaign = cls(name, base_bps_config, workflows, campaign_spec, issue_name)
 
         return campaign
 
@@ -164,6 +169,10 @@ class Campaign:
             campaign_spec = yaml.safe_load(campaign_spec_io)
 
         name = name if name is not None else campaign_spec["name"]
+        if "issue_name" in campaign_spec:
+            issue_name = campaign_spec["issue_name"]
+        else:
+            issue_name = None
 
         bps_config_base_path = dir.joinpath(BPS_CONFIG_BASE_FNAME)
         bps_config_base = BpsConfig(bps_config_base_path)
@@ -187,11 +196,11 @@ class Campaign:
             workflow = Workflow.from_files(step_dir, workflow_name)
             workflows[workflow_name].append(workflow)
 
-        campaign = cls(name, bps_config_base, workflows, campaign_spec)
+        campaign = cls(name, bps_config_base, workflows, campaign_spec, issue_name)
 
         return campaign
 
-    def to_jira(self, issue, jira=None):
+    def to_jira(self, issue=None, jira=None, create_issue=False):
         """Save workflow data into a jira issue.
 
         Parameters
@@ -201,7 +210,14 @@ class Campaign:
         jira : `jira.JIRA`, optional
             The connection to Jira. The default is None.
             If create is true, jira must not be None.
-
+        create_issue : `bool`
+            Create an issue if one does not exist already?
+            
+        Returns
+        -------
+        issue : `jira.resources.Issue`
+            The issue to which the workflow was written.
+            
         Note
         ----
         If issue is None, jira must not be none.
