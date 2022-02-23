@@ -391,8 +391,8 @@ class Workflow:
                 if attachment.filename in ALL_WORKFLOW_FNAMES:
                     file_content = attachment.get()
                     fname = dir.joinpath(attachment.filename)
-                    with fname.open('rb') as file_io:
-                        file_content.write(file_content)
+                    with fname.open('wb') as file_io:
+                        file_io.write(file_content)
                 
             workflow = cls.from_files(staging_dir)
         
