@@ -364,7 +364,7 @@ class Workflow:
                 
             for file_name in ALL_WORKFLOW_FNAMES:
                 full_file_path = dir.joinpath(file_name)
-                if full_file_path.exists()
+                if full_file_path.exists():
                     for attachment in issue.fields.attachment:
                         if file_name == attachment.filename:
                             if replace:
