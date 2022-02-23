@@ -33,7 +33,7 @@ import numpy as np
 import pandas as pd
 
 from lsst.ctrl.bps import BpsConfig
-
+from . import LOG
 
 # constants
 
@@ -323,7 +323,7 @@ class Workflow:
 
         return workflow
 
-    def to_jira(self, jira=None, issue=None):
+    def to_jira(self, jira=None, issue=None, replace=False):
         """Save workflow data into a jira issue.
 
         Parameters
@@ -341,6 +341,9 @@ class Workflow:
         """
 #        assert issue is not None ;# For development
 
+        if issue is None and self.issue_name is not None:
+            issue = jira.issue(self.issue_name)
+
         if issue is None:
             issue = jira.create_issue(
                 project="DRP",
@@ -350,6 +353,8 @@ class Workflow:
                 components=[{"name": "Test"}]
                 )
         
+        self.issue_name = str(issue)
+        
         with TemporaryDirectory() as staging_dir:
             self.to_files(staging_dir)
 
@@ -358,14 +363,17 @@ class Workflow:
                 dir = dir.joinpath(self.name)
                 
             for file_name in ALL_WORKFLOW_FNAMES:
-                full_file_name = dir.joinpath(file_name)
-                try:
-                    jira.add_attachment(issue, attachment=str(full_file_name))
-                except FileNotFoundError:
-                    # If the data is not part of this instance of Workflow,
-                    # the file will not be present. That's okay: if there's nothing
-                    # to save, there's no need to save it.
-                    pass
+                full_file_path = dir.joinpath(file_name)
+                if full_file_path.exists()
+                    for attachment in issue.fields.attachment:
+                        if file_name == attachment.filename:
+                            if replace:
+                                LOG.warning(f"replacing {file_name}")
+                                jira.delete_attachment(attachment.id)
+                            else:
+                                LOG.warning(f"{file_name} already exists; not saving.")
+                            
+                    jira.add_attachment(issue, attachment=str(full_file_path))
                 
         return issue
 
@@ -395,6 +403,7 @@ class Workflow:
                         file_io.write(file_content)
                 
             workflow = cls.from_files(staging_dir)
+            workflow.issue_name = str(issue)
         
         return workflow
 
