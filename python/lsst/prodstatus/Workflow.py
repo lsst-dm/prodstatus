@@ -388,7 +388,7 @@ class Workflow:
         with TemporaryDirectory() as staging_dir:
             dir = Path(staging_dir)
             for attachment in issue.fields.attachment:
-                if attachment.filename in ALL_WORKFLOW_NAMES:
+                if attachment.filename in ALL_WORKFLOW_FNAMES:
                     file_content = attachment.get()
                     fname = dir.joinpath(attachment.filename)
                     with fname.open('rb') as file_io:
