@@ -359,7 +359,13 @@ class Workflow:
                 
             for file_name in ALL_WORKFLOW_FNAMES:
                 full_file_name = dir.joinpath(file_name)
-                jira.add_attachment(issue, attachment=str(full_file_name))
+                try:
+                    jira.add_attachment(issue, attachment=str(full_file_name))
+                except FileNotFoundError:
+                    # If the data is not part of this instance of Workflow,
+                    # the file will not be present. That's okay: if there's nothing
+                    # to save, there's no need to save it.
+                    pass
                 
         return issue
 
