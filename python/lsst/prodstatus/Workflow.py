@@ -331,7 +331,7 @@ class Workflow:
         jira : `jira.JIRA`,
             The connection to Jira.
         issue : `jira.resources.Issue`, optional
-            This issue in which to save campaign data.
+            This issue in which to save workflow data.
             If None, a new issue will be created.
 
         Returns
@@ -339,8 +339,6 @@ class Workflow:
         issue : `jira.resources.Issue`
             The issue to which the workflow was written.
         """
-#        assert issue is not None ;# For development
-
         if issue is None and self.issue_name is not None:
             issue = jira.issue(self.issue_name)
 
@@ -352,6 +350,7 @@ class Workflow:
                 description="A workflow",
                 components=[{"name": "Test"}]
                 )
+            LOG.info(f"Created issue {issue}")
         
         self.issue_name = str(issue)
         

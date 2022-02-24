@@ -41,7 +41,8 @@ from lsst.prodstatus.Workflow import Workflow
 CAMPAIGN_KEYWORDS = ("name", "issue_name")
 BPS_CONFIG_BASE_FNAME = "bps_config_base.yaml"
 CAMPAIGN_SPEC_FNAME = "campaign.yaml"
-WORKFLOW_NAMES_FNAME = "workflow_names.txt"
+STEP_METADATA_FNAME = "steps.yaml"
+ALL_CAMPAIGN_FNAMES = (BPS_CONFIG_BASE_FNAME, CAMPAIGN_SPEC_FNAME, STEP_METADATA_FNAME)
 
 # exception classes
 
@@ -59,6 +60,7 @@ class Campaign:
     workflows: Mapping[str, Workflow] = dataclasses.field(default_factory=dict)
     campaign_spec: Optional[dict] = None
     issue_name: Optional[str] = None
+    step_issue_names: Mapping[str, str] = dataclasses.field(default_factory=dict) 
 
     @classmethod
     def create_from_yaml(cls, campaign_yaml_path):
@@ -130,13 +132,19 @@ class Campaign:
 
         campaign_spec_path = dir.joinpath(CAMPAIGN_SPEC_FNAME)
         with open(campaign_spec_path, "wt") as campaign_spec_io:
-            yaml.dump(self.campaign_spec, campaign_spec_io)
+            yaml.dump(self.campaign_spec, campaign_spec_io, indent=4)
 
-        workflow_names_path = dir.joinpath(WORKFLOW_NAMES_FNAME)
-        with workflow_names_path.open("wt") as workflow_names_io:
-            for step in self.workflows:
+        step_metadata = {}
+        for step in self.workflows:
+            step_metadata[step] = {'workflows': []}
+            if step in self.step_issue_names:
+                step_metadata[step]['issue'] = self.step_issue_names[stop]
                 for workflow in self.workflows[step]:
-                    workflow_names_io.write(f"{step} {workflow.name}\n")
+                    step_metadata[step]['workflows']['name'] = workflow.name
+                    step_metadata[step]['workflows']['issue'] = workflow.issue
+        step_metadata_path = dir.joinpath(STEP_METADATA_FNAME)
+        with open(step_metadata_path, "wt") as step_metadata_io:
+            yaml.dump(step_metadata, step_metadata_io, indent=4)
 
         for step_workflows in self.workflows.values():
             for workflow in step_workflows:
@@ -176,54 +184,86 @@ class Campaign:
 
         bps_config_base_path = dir.joinpath(BPS_CONFIG_BASE_FNAME)
         bps_config_base = BpsConfig(bps_config_base_path)
-
-        # Find the steps and workflows, so we know what directory
-        # to read the workflows from.
-        workflow_names_path = dir.joinpath(WORKFLOW_NAMES_FNAME)
-        with workflow_names_path.open("rt") as workflow_names_io:
-            step_workflow_reader = csv.reader(workflow_names_io, delimiter=" ")
-
-            # Load the file into a list of tuples,
-            # where each tuple is a step, workflow name pair.
-            step_wfname_pairs = [sw for sw in step_workflow_reader]
-
-        # Load the workflows
+            
+        step_metadata_path = dir.joinpath(STEP_METADATA_FNAME)
+        with open(step_metadata_path, "rt") as step_metadata_io:
+            step_metadata = yaml.safe_load(step_metadata_io)
+            
         workflows = {}
-        for step, workflow_name in step_wfname_pairs:
+        step_issue_names = {}
+        for step in step_metadata:
             step_dir = dir.joinpath(step)
-            if workflow_name not in workflows:
-                workflows[workflow_name] = []
-            workflow = Workflow.from_files(step_dir, workflow_name)
-            workflows[workflow_name].append(workflow)
+            workflows[step] = []
+            if 'issue' in workflows[step]:
+                step_issue_names[step] = workflows[step]['issue']
 
-        campaign = cls(name, bps_config_base, workflows, campaign_spec, issue_name)
+            for workflow_elem in step_metadata[step]['workflows']:
+                workflow_name = workflow_elem['name']
+                workflow = Workflow.from_files(step_dir, workflow_name)
+                workflows[workflow_name].append(workflow)        
+
+        campaign = cls(name, bps_config_base, workflows, campaign_spec, issue_name, step_issue_names)
 
         return campaign
 
-    def to_jira(self, issue=None, jira=None, create_issue=False):
-        """Save workflow data into a jira issue.
+    def to_jira(self, jira=None, issue=None):
+        """Save campaign data into a jira issue.
 
         Parameters
         ----------
+        jira : `jira.JIRA`,
+            The connection to Jira.
         issue : `jira.resources.Issue`, optional
             This issue in which to save campaign data.
-        jira : `jira.JIRA`, optional
-            The connection to Jira. The default is None.
-            If create is true, jira must not be None.
-        create_issue : `bool`
-            Create an issue if one does not exist already?
-            
+            If None, a new issue will be created.
+
         Returns
         -------
         issue : `jira.resources.Issue`
             The issue to which the workflow was written.
-            
-        Note
-        ----
-        If issue is None, jira must not be none.
         """
-        assert (jira is not None) or (issue is not None)
-        raise NotImplementedError
+        if issue is None and self.issue_name is not None:
+            issue = jira.issue(self.issue_name)
+
+        if issue is None:
+            issue = jira.create_issue(
+                project="DRP",
+                issuetype="Task",
+                summary="a new issue",
+                description="A workflow",
+                components=[{"name": "Test"}]
+                )
+            LOG.info(f"Created issue {issue}")
+        
+        self.issue_name = str(issue)
+        
+        with TemporaryDirectory() as staging_dir:
+            self.to_files(staging_dir)
+
+            dir = Path(staging_dir)
+            if self.name is not None:
+                dir = dir.joinpath(self.name)
+                
+            for file_name in ALL_CAMPAIGN_FNAMES:
+                full_file_path = dir.joinpath(file_name)
+                if full_file_path.exists():
+                    for attachment in issue.fields.attachment:
+                        if file_name == attachment.filename:
+                            if replace:
+                                LOG.warning(f"replacing {file_name}")
+                                jira.delete_attachment(attachment.id)
+                            else:
+                                LOG.warning(f"{file_name} already exists; not saving.")
+                            
+                    jira.add_attachment(issue, attachment=str(full_file_path))
+                    
+            for step in self.workflows:
+                for workflow in self.workflows[step]:
+                    # the workflow object supplies the issue name, if it exists
+                    # and is known.
+                    workflow.to_jira(jira)
+                
+        return issue
 
     @classmethod
     def from_jira(cls, issue):

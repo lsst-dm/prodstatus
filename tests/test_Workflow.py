@@ -110,7 +110,6 @@ class TestWorkflow(unittest.TestCase):
                 step_workflows[w.step] = []
             step_workflows[w.step].append(w)
 
-        # breakpoint()
         self.assertEqual(len(step_workflows["step1"]), 3)
         for w in step_workflows["step1"]:
             self.assertLessEqual(
