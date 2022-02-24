@@ -58,7 +58,7 @@ class TestCampaign(unittest.TestCase):
         with self.campaign_yaml_path.open("rt") as campaign_yaml_io:
             campaign_spec = yaml.safe_load(campaign_yaml_io)
 
-        self.assertGreaterEqual(len(campaign.workflows), len(campaign_spec["steps"]))
+        self.assertGreaterEqual(len(campaign.steps), len(campaign_spec["steps"]))
 
         self.assertEqual(campaign.name, campaign_spec["name"])
 

@@ -24,7 +24,7 @@
 # imports
 import dataclasses
 import os
-from typing import Optional, Mapping
+from typing import Optional, List
 from tempfile import TemporaryDirectory
 import contextlib
 from pathlib import Path
@@ -35,7 +35,7 @@ import yaml
 import pandas as pd
 
 from lsst.ctrl.bps import BpsConfig
-from lsst.prodstatus.Workflow import Workflow
+from lsst.prodstatus.Step import Step
 from lsst.prodstatus import LOG
 
 # constants
@@ -43,8 +43,7 @@ from lsst.prodstatus import LOG
 CAMPAIGN_KEYWORDS = ("name", "issue_name")
 BPS_CONFIG_BASE_FNAME = "bps_config_base.yaml"
 CAMPAIGN_SPEC_FNAME = "campaign.yaml"
-STEP_METADATA_FNAME = "steps.yaml"
-ALL_CAMPAIGN_FNAMES = (BPS_CONFIG_BASE_FNAME, CAMPAIGN_SPEC_FNAME, STEP_METADATA_FNAME)
+ALL_CAMPAIGN_FNAMES = (BPS_CONFIG_BASE_FNAME, CAMPAIGN_SPEC_FNAME)
 
 # exception classes
 
@@ -59,10 +58,9 @@ class Campaign:
 
     name: str
     bps_config_base: Optional[BpsConfig] = None
-    workflows: Mapping[str, Workflow] = dataclasses.field(default_factory=dict)
+    steps: List[Step] = dataclasses.field(default_factory=list)
     campaign_spec: Optional[dict] = None
     issue_name: Optional[str] = None
-    step_issue_names: Mapping[str, str] = dataclasses.field(default_factory=dict)
 
     @classmethod
     def create_from_yaml(cls, campaign_yaml_path):
@@ -89,9 +87,8 @@ class Campaign:
 
         base_bps_config = BpsConfig(campaign_spec["bps_config_base"])
 
+        steps = []
         if "steps" in campaign_spec:
-            step_specs = campaign_spec["steps"]
-
             if "exposures" in campaign_spec:
                 exposures_path = campaign_spec["exposures"]
                 exposures = pd.read_csv(
@@ -99,18 +96,18 @@ class Campaign:
                 )
                 exposures.sort_values("exp_id", inplace=True)
 
-            all_workflows = Workflow.create_many(
-                base_bps_config, step_specs, exposures, base_name=name
-            )
+            for step_name, step_specs in campaign_spec["steps"].items():
+                step_workflow_base_name = f"{name}_{step_name}"
+                step = Step.generate_new(
+                    step_name,
+                    base_bps_config,
+                    exposures=exposures,
+                    workflow_base_name=step_workflow_base_name,
+                    **step_specs,
+                )
+                steps.append(step)
 
-        workflows = {}
-        for workflow in all_workflows:
-            step = workflow.step
-            if step not in workflows:
-                workflows[step] = []
-            workflows[step].append(workflow)
-
-        campaign = cls(name, base_bps_config, workflows, campaign_spec, issue_name)
+        campaign = cls(name, base_bps_config, steps, campaign_spec, issue_name)
 
         return campaign
 
@@ -136,23 +133,10 @@ class Campaign:
         with open(campaign_spec_path, "wt") as campaign_spec_io:
             yaml.dump(self.campaign_spec, campaign_spec_io, indent=4)
 
-        step_metadata = {}
-        for step in self.workflows:
-            step_metadata[step] = {"workflows": []}
-            if step in self.step_issue_names:
-                step_metadata[step]["issue"] = self.step_issue_names[step]
-                for workflow in self.workflows[step]:
-                    step_metadata[step]["workflows"]["name"] = workflow.name
-                    step_metadata[step]["workflows"]["issue"] = workflow.issue
-        step_metadata_path = dir.joinpath(STEP_METADATA_FNAME)
-        with open(step_metadata_path, "wt") as step_metadata_io:
-            yaml.dump(step_metadata, step_metadata_io, indent=4)
-
-        for step_workflows in self.workflows.values():
-            for workflow in step_workflows:
-                step_dir = dir.joinpath(workflow.step)
-                step_dir.mkdir(exist_ok=True)
-                workflow.to_files(step_dir)
+        steps_path = dir.joinpath("steps")
+        steps_path.mkdir(exist_ok=True)
+        for step in self.steps:
+            step.to_files(steps_path)
 
     @classmethod
     def from_files(cls, dir, name=None):
@@ -187,35 +171,17 @@ class Campaign:
         bps_config_base_path = dir.joinpath(BPS_CONFIG_BASE_FNAME)
         bps_config_base = BpsConfig(bps_config_base_path)
 
-        step_metadata_path = dir.joinpath(STEP_METADATA_FNAME)
-        with open(step_metadata_path, "rt") as step_metadata_io:
-            step_metadata = yaml.safe_load(step_metadata_io)
+        steps_path = dir.joinpath("steps")
+        steps = []
+        for step_name in campaign_spec["steps"]:
+            step = Step.from_files(steps_path, name=step_name)
+            steps.append(step)
 
-        workflows = {}
-        step_issue_names = {}
-        for step in step_metadata:
-            step_dir = dir.joinpath(step)
-            workflows[step] = []
-            if "issue" in workflows[step]:
-                step_issue_names[step] = workflows[step]["issue"]
-
-            for workflow_elem in step_metadata[step]["workflows"]:
-                workflow_name = workflow_elem["name"]
-                workflow = Workflow.from_files(step_dir, workflow_name)
-                workflows[workflow_name].append(workflow)
-
-        campaign = cls(
-            name,
-            bps_config_base,
-            workflows,
-            campaign_spec,
-            issue_name,
-            step_issue_names,
-        )
+        campaign = cls(name, bps_config_base, steps, campaign_spec, issue_name)
 
         return campaign
 
-    def to_jira(self, jira=None, issue=None, replace=False):
+    def to_jira(self, jira=None, issue=None, replace=False, cascade=False):
         """Save campaign data into a jira issue.
 
         Parameters
@@ -227,12 +193,15 @@ class Campaign:
             If None, a new issue will be created.
         replace : `bool`
             Remove existing jira attachments before adding new ones?
+        cascade : `bool`
+            Write dependent issues (steps and workflows) as well?
 
         Returns
         -------
         issue : `jira.resources.Issue`
             The issue to which the workflow was written.
         """
+        raise NotImplementedError("This code is untested")
         if issue is None and self.issue_name is not None:
             issue = jira.issue(self.issue_name)
 
@@ -249,13 +218,25 @@ class Campaign:
         self.issue_name = str(issue)
 
         with TemporaryDirectory() as staging_dir:
+
+            # Write dependent issues first, so references to them can be
+            # written to the campaing issue itself later.
+            if cascade:
+                for step in self.steps:
+                    if self.issue_name is not None:
+                        step_issue = jira.issue(step.issue_name)
+                    else:
+                        step_issue = None
+
+                    step.to_jira(jira, step_issue, replace=replace, cascade=cascade)
+
             self.to_files(staging_dir)
 
             dir = Path(staging_dir)
             if self.name is not None:
                 dir = dir.joinpath(self.name)
 
-            for file_name in ALL_CAMPAIGN_FNAMES:
+            for file_name in (BPS_CONFIG_BASE_FNAME, CAMPAIGN_SPEC_FNAME):
                 full_file_path = dir.joinpath(file_name)
                 if full_file_path.exists():
                     for attachment in issue.fields.attachment:
@@ -268,16 +249,10 @@ class Campaign:
 
                     jira.add_attachment(issue, attachment=str(full_file_path))
 
-            for step in self.workflows:
-                for workflow in self.workflows[step]:
-                    # the workflow object supplies the issue name, if it exists
-                    # and is known.
-                    workflow.to_jira(jira)
-
         return issue
 
     @classmethod
-    def from_jira(cls, issue):
+    def from_jira(cls, issue, jira):
         """Load campaign data from a jira issue.
 
 
@@ -285,13 +260,45 @@ class Campaign:
         ----------
         issue : `jira.resources.Issue`
             This issue from which to load campaign data.
+        jira : `jira.JIRA`,
+            The connection to Jira.
 
         Returns
         -------
         campaign : `Campaign`
             An initialized instance of a campaign.
         """
-        raise NotImplementedError
+        raise NotImplementedError("This code is untested")
+        issue = jira.issue(issue) if isinstance(issue, str) else issue
+
+        with TemporaryDirectory() as staging_dir:
+            dir = Path(staging_dir)
+            for attachment in issue.fields.attachment:
+                if attachment.filename == BPS_CONFIG_BASE_FNAME:
+                    file_content = attachment.get()
+                    fname = dir.joinpath(BPS_CONFIG_BASE_FNAME)
+                    with fname.open("wb") as file_io:
+                        file_io.write(file_content)
+
+            for attachment in issue.fields.attachment:
+                if attachment.filename == CAMPAIGN_SPEC_FNAME:
+                    file_content = attachment.get()
+                    campaign_spec_path = dir.joinpath(CAMPAIGN_SPEC_FNAME)
+                    with campaign_spec_path.open("wb") as file_io:
+                        file_io.write(file_content)
+
+            with campaign_spec_path.open("rt") as file_io:
+                campaign_spec = yaml.safe_load(file_io)
+
+            step_path = dir.joinpath("steps")
+            for step_spec in campaign_spec["steps"].values():
+                step_issue_name = step_spec["issue"]
+                step_issue = jira.issue(step_issue_name)
+                step = Step.from_jira(step_issue)
+                step.to_files(step_path)
+
+            campaign = cls.from_files(staging_dir)
+            campaign.issue_name = str(issue)
 
 
 # internal functions & classes

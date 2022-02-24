@@ -379,7 +379,7 @@ class Workflow:
         return issue
 
     @classmethod
-    def from_jira(cls, issue):
+    def from_jira(cls, issue, jira=None):
         """Load workflow data from a jira issue.
 
 
@@ -387,12 +387,16 @@ class Workflow:
         ----------
         issue : `jira.resources.Issue`
             This issue from which to load campaign data.
+        jira : `jira.JIRA`,
+            The connection to Jira.
 
         Returns
         -------
         workflow : `Workflow`
             An initialized instance of a workflow.
         """
+        issue = jira.issue(issue) if isinstance(issue, str) else issue
+
         with TemporaryDirectory() as staging_dir:
             dir = Path(staging_dir)
             for attachment in issue.fields.attachment:
