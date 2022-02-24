@@ -32,7 +32,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pandas.plotting import table
 
-__all__ = ['GetPanDaStat']
+__all__ = ["GetPanDaStat"]
 
 
 class GetPanDaStat:
@@ -71,8 +71,12 @@ class GetPanDaStat:
         self.taskStat = dict()
         self.allStat = dict()  # general statistics
         self.wfNames = dict()
-        self.start_stamp = datetime.datetime.strptime(self.start_date, "%Y-%m-%d").timestamp()
-        self.stop_stamp = datetime.datetime.strptime(self.stop_date, "%Y-%m-%d").timestamp()
+        self.start_stamp = datetime.datetime.strptime(
+            self.start_date, "%Y-%m-%d"
+        ).timestamp()
+        self.stop_stamp = datetime.datetime.strptime(
+            self.stop_date, "%Y-%m-%d"
+        ).timestamp()
 
     def get_workflows(self):
         """First lets get all workflows with given keys."""
@@ -87,9 +91,9 @@ class GetPanDaStat:
             r_name = wf["r_name"]
             if comp in r_name and comp1 in r_name:
                 key = str(r_name).split("_")[-1]
-                date_str = key.split('t')[0]
+                date_str = key.split("t")[0]
                 date_stamp = datetime.datetime.strptime(date_str, "%Y%m%d").timestamp()
-                print('key=', key, ' date_str=', date_str, ' date_stamp=', date_stamp)
+                print("key=", key, " date_str=", date_str, " date_stamp=", date_stamp)
                 if self.start_stamp <= date_stamp <= self.stop_stamp:
                     self.workKeys.append(str(key))
                     nwf += 1
@@ -161,8 +165,8 @@ class GetPanDaStat:
         urls = workflow["r_name"]
         tasks = self.querypanda(
             urlst="http://panda-doma.cern.ch/tasks/?taskname="
-                  + urls
-                  + "*&days=120&json"
+            + urls
+            + "*&days=120&json"
         )
         return tasks
 
@@ -357,10 +361,10 @@ class GetPanDaStat:
             _workflows = self.workflows[key]
             for wf in _workflows:
                 if (
-                        str(wf["r_status"]) == "finished"
-                        or str(wf["r_status"]) == "subfinished"
-                        or str(wf["r_status"]) == "running"
-                        or str(wf["r_status"]) == "transforming"
+                    str(wf["r_status"]) == "finished"
+                    or str(wf["r_status"]) == "subfinished"
+                    or str(wf["r_status"]) == "running"
+                    or str(wf["r_status"]) == "transforming"
                 ):
                     """get tasks for this workflow"""
                     tasks = self.getwftasks(wf)
@@ -447,7 +451,7 @@ class GetPanDaStat:
             diskcount = maxdisk_pj * nfiles
             corecount_pj = corecount / ntasks
             corecount = corecount_pj * nfiles
-            if taskduration <= 0.:
+            if taskduration <= 0.0:
                 nparallel = 1
             else:
                 nparallel = int(math.ceil(walltime / taskduration))

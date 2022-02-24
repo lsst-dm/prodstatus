@@ -23,9 +23,10 @@
 
 # imports
 import dataclasses
-from typing import List, Dict, Optional, Mapping
+import os
+from typing import Optional, Mapping
+from tempfile import TemporaryDirectory
 import contextlib
-import csv
 from pathlib import Path
 
 import yaml
@@ -35,6 +36,7 @@ import pandas as pd
 
 from lsst.ctrl.bps import BpsConfig
 from lsst.prodstatus.Workflow import Workflow
+from lsst.prodstatus import LOG
 
 # constants
 
@@ -60,7 +62,7 @@ class Campaign:
     workflows: Mapping[str, Workflow] = dataclasses.field(default_factory=dict)
     campaign_spec: Optional[dict] = None
     issue_name: Optional[str] = None
-    step_issue_names: Mapping[str, str] = dataclasses.field(default_factory=dict) 
+    step_issue_names: Mapping[str, str] = dataclasses.field(default_factory=dict)
 
     @classmethod
     def create_from_yaml(cls, campaign_yaml_path):
@@ -84,7 +86,7 @@ class Campaign:
             issue_name = campaign_spec["issue_name"]
         else:
             issue_name = None
-        
+
         base_bps_config = BpsConfig(campaign_spec["bps_config_base"])
 
         if "steps" in campaign_spec:
@@ -136,12 +138,12 @@ class Campaign:
 
         step_metadata = {}
         for step in self.workflows:
-            step_metadata[step] = {'workflows': []}
+            step_metadata[step] = {"workflows": []}
             if step in self.step_issue_names:
-                step_metadata[step]['issue'] = self.step_issue_names[stop]
+                step_metadata[step]["issue"] = self.step_issue_names[step]
                 for workflow in self.workflows[step]:
-                    step_metadata[step]['workflows']['name'] = workflow.name
-                    step_metadata[step]['workflows']['issue'] = workflow.issue
+                    step_metadata[step]["workflows"]["name"] = workflow.name
+                    step_metadata[step]["workflows"]["issue"] = workflow.issue
         step_metadata_path = dir.joinpath(STEP_METADATA_FNAME)
         with open(step_metadata_path, "wt") as step_metadata_io:
             yaml.dump(step_metadata, step_metadata_io, indent=4)
@@ -184,29 +186,36 @@ class Campaign:
 
         bps_config_base_path = dir.joinpath(BPS_CONFIG_BASE_FNAME)
         bps_config_base = BpsConfig(bps_config_base_path)
-            
+
         step_metadata_path = dir.joinpath(STEP_METADATA_FNAME)
         with open(step_metadata_path, "rt") as step_metadata_io:
             step_metadata = yaml.safe_load(step_metadata_io)
-            
+
         workflows = {}
         step_issue_names = {}
         for step in step_metadata:
             step_dir = dir.joinpath(step)
             workflows[step] = []
-            if 'issue' in workflows[step]:
-                step_issue_names[step] = workflows[step]['issue']
+            if "issue" in workflows[step]:
+                step_issue_names[step] = workflows[step]["issue"]
 
-            for workflow_elem in step_metadata[step]['workflows']:
-                workflow_name = workflow_elem['name']
+            for workflow_elem in step_metadata[step]["workflows"]:
+                workflow_name = workflow_elem["name"]
                 workflow = Workflow.from_files(step_dir, workflow_name)
-                workflows[workflow_name].append(workflow)        
+                workflows[workflow_name].append(workflow)
 
-        campaign = cls(name, bps_config_base, workflows, campaign_spec, issue_name, step_issue_names)
+        campaign = cls(
+            name,
+            bps_config_base,
+            workflows,
+            campaign_spec,
+            issue_name,
+            step_issue_names,
+        )
 
         return campaign
 
-    def to_jira(self, jira=None, issue=None):
+    def to_jira(self, jira=None, issue=None, replace=False):
         """Save campaign data into a jira issue.
 
         Parameters
@@ -216,6 +225,8 @@ class Campaign:
         issue : `jira.resources.Issue`, optional
             This issue in which to save campaign data.
             If None, a new issue will be created.
+        replace : `bool`
+            Remove existing jira attachments before adding new ones?
 
         Returns
         -------
@@ -231,19 +242,19 @@ class Campaign:
                 issuetype="Task",
                 summary="a new issue",
                 description="A workflow",
-                components=[{"name": "Test"}]
-                )
+                components=[{"name": "Test"}],
+            )
             LOG.info(f"Created issue {issue}")
-        
+
         self.issue_name = str(issue)
-        
+
         with TemporaryDirectory() as staging_dir:
             self.to_files(staging_dir)
 
             dir = Path(staging_dir)
             if self.name is not None:
                 dir = dir.joinpath(self.name)
-                
+
             for file_name in ALL_CAMPAIGN_FNAMES:
                 full_file_path = dir.joinpath(file_name)
                 if full_file_path.exists():
@@ -254,15 +265,15 @@ class Campaign:
                                 jira.delete_attachment(attachment.id)
                             else:
                                 LOG.warning(f"{file_name} already exists; not saving.")
-                            
+
                     jira.add_attachment(issue, attachment=str(full_file_path))
-                    
+
             for step in self.workflows:
                 for workflow in self.workflows[step]:
                     # the workflow object supplies the issue name, if it exists
                     # and is known.
                     workflow.to_jira(jira)
-                
+
         return issue
 
     @classmethod

@@ -129,13 +129,12 @@ class TestWorkflow(unittest.TestCase):
 
     @mock.patch("jira.JIRA", autospec=True)
     def test_load_save_jira(self, MockJIRA):
-        this_jira = jira.JIRA(options={"server": ''}, basic_auth=('',''))
+        this_jira = jira.JIRA(options={"server": ""}, basic_auth=("", ""))
         bps_config = BpsConfig(BPS_CONFIG_PATH)
         workflow = Workflow(bps_config, TEST_WORKFLOW_NAME)
 
         issue = workflow.to_jira(this_jira)
-        
-        #reread_workflow = Workflow.from_jira(issue)
-        #self.assertIsInstance(reread_workflow, Workflow)
-        
-        
+        self.assertIsNotNone(issue)
+
+        # reread_workflow = Workflow.from_jira(issue)
+        # self.assertIsInstance(reread_workflow, Workflow)

@@ -24,7 +24,7 @@
 
 # imports
 from dataclasses import dataclass
-from typing import List, Dict, Optional
+from typing import Optional
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -96,12 +96,14 @@ class Workflow:
         Parameters
         ----------
         group_size : `int` optional
-            The approximate size of the group. The default is None, which causes
-            the method to return a single workflow with all exposures.
+            The approximate size of the group. The default is None, which
+            causes the method to return a single workflow with all
+            exposures.
         skip_groups : `int` optional
             The number of groups to skip. The default is 0 (no skipped groups).
         num_groups : `int` optional
-            The maximum number for groups. The default is None, for all groups
+            The maximum number for groups. The default is None,
+            for all groups
 
         Returns
         -------
@@ -112,8 +114,8 @@ class Workflow:
             raise NoExposuresException
         exp_ids = self.exposures["exp_id"].values
 
-        # If we do not need to split the workflow, just return a list containing
-        # only this workflow.
+        # If we do not need to split the workflow, just return a list
+        # containing only this workflow.
         if group_size is None or not (0 < group_size < len(self.exposures)):
             return [self]
 
@@ -348,19 +350,19 @@ class Workflow:
                 issuetype="Task",
                 summary="a new issue",
                 description="A workflow",
-                components=[{"name": "Test"}]
-                )
+                components=[{"name": "Test"}],
+            )
             LOG.info(f"Created issue {issue}")
-        
+
         self.issue_name = str(issue)
-        
+
         with TemporaryDirectory() as staging_dir:
             self.to_files(staging_dir)
 
             dir = Path(staging_dir)
             if self.name is not None:
                 dir = dir.joinpath(self.name)
-                
+
             for file_name in ALL_WORKFLOW_FNAMES:
                 full_file_path = dir.joinpath(file_name)
                 if full_file_path.exists():
@@ -371,11 +373,10 @@ class Workflow:
                                 jira.delete_attachment(attachment.id)
                             else:
                                 LOG.warning(f"{file_name} already exists; not saving.")
-                            
-                    jira.add_attachment(issue, attachment=str(full_file_path))
-                
-        return issue
 
+                    jira.add_attachment(issue, attachment=str(full_file_path))
+
+        return issue
 
     @classmethod
     def from_jira(cls, issue):
@@ -398,12 +399,13 @@ class Workflow:
                 if attachment.filename in ALL_WORKFLOW_FNAMES:
                     file_content = attachment.get()
                     fname = dir.joinpath(attachment.filename)
-                    with fname.open('wb') as file_io:
+                    with fname.open("wb") as file_io:
                         file_io.write(file_content)
-                
+
             workflow = cls.from_files(staging_dir)
             workflow.issue_name = str(issue)
-        
+
         return workflow
+
 
 # internal functions & classes

@@ -37,7 +37,7 @@ from lsst.daf.butler import ButlerURI
 # PropertySet needs to be imported to load the butler yaml.
 from lsst.daf.base import PropertySet  # noqa: F401
 
-__all__ = ['GetButlerStat']
+__all__ = ["GetButlerStat"]
 
 
 class GetButlerStat:
@@ -79,8 +79,12 @@ class GetButlerStat:
         self.CollKeys = dict()
         self.collSize = dict()
         self.collData = dict()
-        self.start_stamp = datetime.datetime.strptime(self.start_date, "%Y-%m-%d").timestamp()
-        self.stop_stamp = datetime.datetime.strptime(self.stop_date, "%Y-%m-%d").timestamp()
+        self.start_stamp = datetime.datetime.strptime(
+            self.start_date, "%Y-%m-%d"
+        ).timestamp()
+        self.stop_stamp = datetime.datetime.strptime(
+            self.stop_date, "%Y-%m-%d"
+        ).timestamp()
 
     @staticmethod
     def parse_metadata_yaml(yaml_file):
@@ -166,10 +170,12 @@ class GetButlerStat:
         for c in sorted(self.registry.queryCollections()):
             if pre_ops in str(c) and self.collType in str(c):
                 sub_str = str(c).split(pre_ops)[1]
-                if 'T' in sub_str and 'Z' in sub_str:
-                    key = sub_str.split('/')[-1]
-                    date_str = key.split('T')[0]
-                    date_stamp = datetime.datetime.strptime(date_str, "%Y%m%d").timestamp()
+                if "T" in sub_str and "Z" in sub_str:
+                    key = sub_str.split("/")[-1]
+                    date_str = key.split("T")[0]
+                    date_stamp = datetime.datetime.strptime(
+                        date_str, "%Y%m%d"
+                    ).timestamp()
                     if self.start_stamp <= date_stamp <= self.stop_stamp:
                         collections.append(c)
                         self.CollKeys[c] = key
@@ -378,8 +384,8 @@ class GetButlerStat:
                     """parse results """
                     results = self.parse_metadata_yaml(yaml_file="/tmp/tempTask.yaml")
                     if (
-                            results.get("EndCpuTime", None) is None
-                            and results.get("endCpuTime", None) is not None
+                        results.get("EndCpuTime", None) is None
+                        and results.get("endCpuTime", None) is not None
                     ):
                         cpu_time = float(results.get("endCpuTime", None))
                     else:

@@ -31,7 +31,7 @@ import pandas as pd
 import numpy as np
 
 
-__all__ = ['MakePandaPlots']
+__all__ = ["MakePandaPlots"]
 
 
 class MakePandaPlots:
@@ -67,8 +67,7 @@ class MakePandaPlots:
         self.start_at = float(kwargs["start_at"])
         self.start_date = kwargs["start_date"]
         self.stop_date = kwargs["stop_date"]
-        self.plot_n_bins = int((self.stop_at - self.start_at)
-                               / self.scale_factor)
+        self.plot_n_bins = int((self.stop_at - self.start_at) / self.scale_factor)
         self.start_time = 0
         self.workKeys = list()
         print(" Collecting information for Jira ticket ", self.Jira)
@@ -80,12 +79,15 @@ class MakePandaPlots:
         self.wfTasks = dict()  # tasks per workflow
         self.job_names = kwargs["job_names"]
         self.wfNames = dict()
-        self.start_stamp = datetime.datetime.strptime(self.start_date, "%Y-%m-%d").timestamp()
-        self.stop_stamp = datetime.datetime.strptime(self.stop_date, "%Y-%m-%d").timestamp()
+        self.start_stamp = datetime.datetime.strptime(
+            self.start_date, "%Y-%m-%d"
+        ).timestamp()
+        self.stop_stamp = datetime.datetime.strptime(
+            self.stop_date, "%Y-%m-%d"
+        ).timestamp()
 
     def get_workflows(self):
-        """First lets get all workflows with given keys.
-        """
+        """First lets get all workflows with given keys."""
 
         wfdata = self.query_panda(
             urlst="http://panda-doma.cern.ch/idds/wfprogress/?json"
@@ -97,7 +99,7 @@ class MakePandaPlots:
             r_name = wf["r_name"]
             if comp in r_name and comp1 in r_name:
                 key = str(r_name).split("_")[-1]
-                date_str = key.split('t')[0]
+                date_str = key.split("t")[0]
                 date_stamp = datetime.datetime.strptime(date_str, "%Y%m%d").timestamp()
                 if self.start_stamp <= date_stamp <= self.stop_stamp:
                     self.workKeys.append(str(key))
@@ -181,8 +183,8 @@ class MakePandaPlots:
         urls = str(workflow["r_name"])
         tasks = self.query_panda(
             urlst="http://panda-doma.cern.ch/tasks/?taskname="
-                  + urls
-                  + "*&days=120&json"
+            + urls
+            + "*&days=120&json"
         )
         return tasks
 
@@ -197,8 +199,7 @@ class MakePandaPlots:
 
         jeditaskid = task["jeditaskid"]
         """ Now select jobs to get timing information """
-        uri = "http://panda-doma.cern.ch/jobs/?jeditaskid=" + \
-              str(jeditaskid) + "&json"
+        uri = "http://panda-doma.cern.ch/jobs/?jeditaskid=" + str(jeditaskid) + "&json"
         jobsdata = self.query_panda(urlst=uri)
         """ list of jobs in the task """
         jobs = jobsdata["jobs"]
@@ -224,12 +225,10 @@ class MakePandaPlots:
                 for _name in self.job_names:
                     if _name in job_name:
                         if _name in self.allJobs:
-                            self.allJobs[_name].append((delta_time,
-                                                        durationsec))
+                            self.allJobs[_name].append((delta_time, durationsec))
                         else:
                             self.allJobs[_name] = list()
-                            self.allJobs[_name].append((delta_time,
-                                                        durationsec))
+                            self.allJobs[_name].append((delta_time, durationsec))
         #            print(self.allJobs)
         else:
             return
@@ -258,8 +257,7 @@ class MakePandaPlots:
         return
 
     def get_tasks(self):
-        """Select all workflow tasks.
-        """
+        """Select all workflow tasks."""
         for key in self.workKeys:
             self.wfTasks[key] = list()
             _workflows = self.workflows[key]
@@ -319,8 +317,11 @@ class MakePandaPlots:
         n_bins = int(max_time / self.bin_width)
         task_count = np.zeros(n_bins)
         for time_in, duration in data_list:
-            task_count[int(time_in / self.bin_width): int(
-                (time_in + duration) / self.bin_width)] += 1
+            task_count[
+                int(time_in / self.bin_width) : int(
+                    (time_in + duration) / self.bin_width
+                )
+            ] += 1
         if self.plot_n_bins > n_bins:
             last_bin = n_bins
         sub_task_count = np.copy(task_count[first_bin:last_bin])
@@ -342,7 +343,7 @@ class MakePandaPlots:
         print(" all time data")
         for key in self.allJobs:
             self.allJobs[key].sort()
-            print(key, ' ', self.allJobs[key])
+            print(key, " ", self.allJobs[key])
         for job_name in self.allJobs.keys():
             dataframe = pd.DataFrame(
                 self.allJobs[job_name], columns=["delta_time", "durationsec"]
@@ -358,8 +359,8 @@ class MakePandaPlots:
             data_file = "/tmp/" + "panda_time_series_" + job_name + ".csv"
             if os.path.exists(data_file):
                 df = pd.read_csv(
-                    data_file, header=0, index_col=0, parse_dates=True,
-                    squeeze=True)
+                    data_file, header=0, index_col=0, parse_dates=True, squeeze=True
+                )
                 data_list = list()
                 max_time = 0.0
                 for index, row in df.iterrows():
