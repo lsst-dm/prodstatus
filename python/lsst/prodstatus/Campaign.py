@@ -42,9 +42,7 @@ from lsst.prodstatus import LOG
 # constants
 
 CAMPAIGN_KEYWORDS = ("name", "issue_name")
-BPS_CONFIG_BASE_FNAME = "bps_config_base.yaml"
 CAMPAIGN_SPEC_FNAME = "campaign.yaml"
-ALL_CAMPAIGN_FNAMES = (BPS_CONFIG_BASE_FNAME, CAMPAIGN_SPEC_FNAME)
 
 # exception classes
 
