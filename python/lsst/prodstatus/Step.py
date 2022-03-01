@@ -101,7 +101,7 @@ class Step:
         step._generate_workflows(base_bps_config, exposures, workflow_base_name)
         return step
 
-    def _generate_workflows(self, base_bps_config, exposures, base_name):
+    def _generate_workflows(self, base_bps_config, exposures, base_name, drop_empty=True):
         """Generate the workflows for this step.
 
         Parameters
@@ -116,7 +116,8 @@ class Step:
                 The exposures id
         base_name : `str`
             The base for the names of the workflows.
-
+        drop_empty : `bool`
+            Exclude workflows with no assigned exposures.
         """
 
         # Begin by making one workflows with does everything in this step.
@@ -142,9 +143,16 @@ class Step:
         if self.exposure_groups is not None:
             for workflow in band_workflows:
                 split_workflows = workflow.split_by_exposure(**self.exposure_groups)
-                self.workflows.extend(split_workflows)
+                for workflow in split_workflows:
+                    if len(workflow.exposures)>0 or not drop_empty:
+                        self.workflows.append(workflow)
         else:
-            self.workflows = band_workflows
+            if drop_empty and exposures is not None:
+                for workflow in band_workflows:
+                    if len(workflow.exposures)>0:
+                        self.workflows.append(workflow)
+            else:
+                self.workflows.extend(band_workflows)
 
     def to_files(self, dir):
         """Save step data to files in a directory.
@@ -333,10 +341,26 @@ class Step:
 
             workflows_path = dir.joinpath("workflows")
             for workflow_params in step_spec["workflows"].values():
-                workflow_issue_name = workflow_params["issue"]
-                workflow_issue = jira.issue(workflow_issue_name)
-                workflow = Workflow.from_jira(workflow_issue)
-                workflow.to_files(workflows_path)
+                if "issue" in workflow_params and workflow_params["issue"] is not None:
+                    workflow_issue_name = workflow_params["issue"]
+                    workflow_issue = jira.issue(workflow_issue_name)
+                    workflow = Workflow.from_jira(workflow_issue)
+                    workflow.to_files(workflows_path)
+                else:
+                    LOG.warning("Could not load {workflow_params['name']} from jira (no issue name)")
 
             campaign = cls.from_files(staging_dir)
             campaign.issue_name = str(issue)
+
+    def __str__(self):
+        output = f"""{self.__class__.__name__}
+name: {self.name}
+issue name: {self.issue_name}
+split bands: {self.split_bands}
+exposure groups: {str(self.exposure_groups)}
+workflows:"""
+        
+        for wf in self.workflows:
+            output += f"\n - {wf.name} (issue {wf.issue_name}) with dataQuery {wf.bps_config['payload']['dataQuery']}"
+            
+        return output

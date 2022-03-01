@@ -23,10 +23,12 @@
 """Interface for managing and reporting on data processing workflows."""
 
 # imports
+import dataclasses
 from dataclasses import dataclass
 from typing import Optional
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from io import StringIO
 
 import yaml
 import numpy as np
@@ -40,7 +42,7 @@ from . import LOG
 BPS_CONFIG_FNAME = "bps_config.yaml"
 WORKFLOW_FNAME = "workflow.yaml"
 WORKFLOW_KEYWORDS = ("name", "step", "band", "issue_name")
-EXPLIST_FNAME = "explist.csv"
+EXPLIST_FNAME = "explist.txt"
 ALL_WORKFLOW_FNAMES = (BPS_CONFIG_FNAME, WORKFLOW_FNAME, EXPLIST_FNAME)
 
 # exception classes
@@ -128,7 +130,7 @@ class Workflow:
             max_exp_id = max(these_exp_ids)
             data_query = f"({base_query}) and (exposure >= {min_exp_id}) and (exposure <= {max_exp_id})"
             this_bps_config = self.bps_config.copy()
-            this_bps_config["payload"]["dataQuery"] = data_query
+            this_bps_config.update({'payload': {'dataQuery': data_query}})
 
             this_band = self.band
             these_exposures = self.exposures.query(
@@ -170,7 +172,7 @@ class Workflow:
         for band in bands:
             data_query = f"({base_query}) and (band == '{band}')"
             this_bps_config = self.bps_config.copy()
-            this_bps_config["payload"]["dataQuery"] = data_query
+            this_bps_config.update({'payload': {'dataQuery': data_query}})
 
             if self.exposures is not None:
                 these_exposures = self.exposures.query(f"band=='{band}'").copy()
@@ -189,7 +191,7 @@ class Workflow:
         return workflows
 
     @classmethod
-    def create_many(cls, base_bps_config, step_specs, exposures, base_name=""):
+    def create_many(cls, base_bps_config, step_specs, exposures, base_name="", drop_empty=True):
         """Create workflows for a set of steps and exposures.
 
         Parameters
@@ -211,6 +213,8 @@ class Workflow:
                 The exposures id
         base_name : `str`
             The base for the name of the workflows.
+        drop_empty : `bool`
+            Suppress workflows with no exposures.
         """
 
         # Make a list of workflows, where each workflow completes a step
@@ -244,6 +248,9 @@ class Workflow:
             else:
                 split_workflows.append(workflow)
 
+        if drop_empty:
+            split_workflows = [wf for wf in split_workflows if len(wf.exposures)>0]
+                
         return split_workflows
 
     def to_files(self, dir):
@@ -411,5 +418,27 @@ class Workflow:
 
         return workflow
 
-
+    def __str__(self):
+        result = f"""{self.__class__.__name__}
+name: {self.name}
+issue name: {self.issue_name}
+step: {self.step}
+band: {self.band}
+BPS config dataQuery: {self.bps_config['payload']['dataQuery']}"""
+        if self.exposures is None or len(self.exposures)<1:
+            result= f"""{result}
+exposures: None
+"""
+        else:
+            result = f"""{result}
+number of exposures: {len(self.exposures)}
+min exposure id: {self.exposures.exp_id.min()}
+max exposure id: {self.exposures.exp_id.max()}
+exposure counts by band: {self.exposures.band.value_counts().to_dict()}
+"""
+        
+        # Strip lead
+        return result
+            
+                
 # internal functions & classes

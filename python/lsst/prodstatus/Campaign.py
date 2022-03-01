@@ -28,6 +28,7 @@ from typing import Optional, List
 from tempfile import TemporaryDirectory
 import contextlib
 from pathlib import Path
+from copy import deepcopy
 
 import yaml
 
@@ -57,7 +58,6 @@ class Campaign:
     """API for managing and reporting on data processing campaigns."""
 
     name: str
-    bps_config_base: Optional[BpsConfig] = None
     steps: List[Step] = dataclasses.field(default_factory=list)
     campaign_spec: Optional[dict] = None
     issue_name: Optional[str] = None
@@ -85,8 +85,6 @@ class Campaign:
         else:
             issue_name = None
 
-        base_bps_config = BpsConfig(campaign_spec["bps_config_base"])
-
         steps = []
         if "steps" in campaign_spec:
             if "exposures" in campaign_spec:
@@ -97,17 +95,23 @@ class Campaign:
                 exposures.sort_values("exp_id", inplace=True)
 
             for step_name, step_specs in campaign_spec["steps"].items():
-                step_workflow_base_name = f"{name}_{step_name}"
+                step_workflow_base_name = f"{name}"
+                base_bps_config = BpsConfig(step_specs["base_bps_config"])
+                
+                # spec_kwargs should be the same as step_specs, except
+                # that the filename of the BPS config file is replaced
+                # by the BpsConfig instance.
+                step_spec_kwargs = deepcopy(step_specs)
+                step_spec_kwargs["base_bps_config"] = base_bps_config
                 step = Step.generate_new(
                     step_name,
-                    base_bps_config,
                     exposures=exposures,
                     workflow_base_name=step_workflow_base_name,
-                    **step_specs,
+                    **step_spec_kwargs,
                 )
                 steps.append(step)
 
-        campaign = cls(name, base_bps_config, steps, campaign_spec, issue_name)
+        campaign = cls(name, steps, campaign_spec, issue_name)
 
         return campaign
 
@@ -124,10 +128,6 @@ class Campaign:
         if self.name is not None:
             dir = dir.joinpath(self.name)
             dir.mkdir(exist_ok=True)
-
-        bps_config_path = dir.joinpath(BPS_CONFIG_BASE_FNAME)
-        with open(bps_config_path, "wt") as bps_config_io:
-            self.bps_config_base.dump(bps_config_io)
 
         campaign_spec_path = dir.joinpath(CAMPAIGN_SPEC_FNAME)
         with open(campaign_spec_path, "wt") as campaign_spec_io:
@@ -168,16 +168,13 @@ class Campaign:
         else:
             issue_name = None
 
-        bps_config_base_path = dir.joinpath(BPS_CONFIG_BASE_FNAME)
-        bps_config_base = BpsConfig(bps_config_base_path)
-
         steps_path = dir.joinpath("steps")
         steps = []
         for step_name in campaign_spec["steps"]:
             step = Step.from_files(steps_path, name=step_name)
             steps.append(step)
 
-        campaign = cls(name, bps_config_base, steps, campaign_spec, issue_name)
+        campaign = cls(name, steps, campaign_spec, issue_name)
 
         return campaign
 
@@ -236,18 +233,16 @@ class Campaign:
             if self.name is not None:
                 dir = dir.joinpath(self.name)
 
-            for file_name in (BPS_CONFIG_BASE_FNAME, CAMPAIGN_SPEC_FNAME):
-                full_file_path = dir.joinpath(file_name)
-                if full_file_path.exists():
-                    for attachment in issue.fields.attachment:
-                        if file_name == attachment.filename:
-                            if replace:
-                                LOG.warning(f"replacing {file_name}")
-                                jira.delete_attachment(attachment.id)
-                            else:
-                                LOG.warning(f"{file_name} already exists; not saving.")
+            full_file_path = dir.joinpath(CAMPAIGN_SPEC_FNAME)
+            for attachment in issue.fields.attachment:
+                if file_name == attachment.filename:
+                    if replace:
+                        LOG.warning(f"replacing {file_name}")
+                        jira.delete_attachment(attachment.id)
+                    else:
+                        LOG.warning(f"{file_name} already exists; not saving.")
 
-                    jira.add_attachment(issue, attachment=str(full_file_path))
+            jira.add_attachment(issue, attachment=str(full_file_path))
 
         return issue
 
@@ -273,12 +268,6 @@ class Campaign:
 
         with TemporaryDirectory() as staging_dir:
             dir = Path(staging_dir)
-            for attachment in issue.fields.attachment:
-                if attachment.filename == BPS_CONFIG_BASE_FNAME:
-                    file_content = attachment.get()
-                    fname = dir.joinpath(BPS_CONFIG_BASE_FNAME)
-                    with fname.open("wb") as file_io:
-                        file_io.write(file_content)
 
             for attachment in issue.fields.attachment:
                 if attachment.filename == CAMPAIGN_SPEC_FNAME:
@@ -292,14 +281,27 @@ class Campaign:
 
             step_path = dir.joinpath("steps")
             for step_spec in campaign_spec["steps"].values():
-                step_issue_name = step_spec["issue"]
-                step_issue = jira.issue(step_issue_name)
-                step = Step.from_jira(step_issue)
-                step.to_files(step_path)
+                if "issue" in step_spec and step_spec["issue"] is not None:
+                    step_issue_name = step_spec["issue"]
+                    step_issue = jira.issue(step_issue_name)
+                    step = Step.from_jira(step_issue)
+                    step.to_files(step_path)
+                else:
+                    LOG.warning("Could not load {step_spec['name']} from jira (no issue name)")
 
             campaign = cls.from_files(staging_dir)
             campaign.issue_name = str(issue)
 
+    def __str__(self):
+        output = f"""{self.__class__.__name__}
+name: {self.name}
+issue name: {self.issue_name}
+steps:"""
+        
+        for step in self.steps:
+            output += f"\n - {step.name} (issue {step.issue_name}) with {len(step.workflows)} workflows"
+
+        return output
 
 # internal functions & classes
 

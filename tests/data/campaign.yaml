@@ -1,1 +1,1 @@
-name: test_campaignexposures: exposures.txt bps_config_base: bps_config_base.yamlsteps:    step1:        split_bands: false        exposure_groups:            group_size: 10    step2:        split_bands: false        exposure_groups:            group_size: 10    
+name: test_campaignexposures: exposures.txt bps_config_base: bps_config_base.yamlsteps:    step1:        split_bands: false        exposure_groups:            group_size: 10    step2:        split_bands: false        exposure_groups:            group_size: 10
