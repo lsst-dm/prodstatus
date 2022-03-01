@@ -42,8 +42,9 @@ class TestCampaign(unittest.TestCase):
         with open(ref_campaign_spec_path, "rt") as campaign_spec_io:
             campaign_spec = yaml.safe_load(campaign_spec_io)
 
-        for key in ("exposures", "bps_config_base"):
-            campaign_spec[key] = str(ref_test_data_dir.joinpath(campaign_spec[key]))
+        campaign_spec["exposures"] = str(ref_test_data_dir.joinpath(campaign_spec['exposures']))
+        for step_name, step_spec in campaign_spec["steps"].items():
+            step_spec["base_bps_config"] = ref_test_data_dir.joinpath(step_spec["base_bps_config"]).as_posix()
 
         self.campaign_yaml_path = self.test_dir.joinpath("campaign.yaml")
         with self.campaign_yaml_path.open("wt") as campaign_yaml_io:

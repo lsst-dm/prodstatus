@@ -97,7 +97,7 @@ class Campaign:
             for step_name, step_specs in campaign_spec["steps"].items():
                 step_workflow_base_name = f"{name}"
                 base_bps_config = BpsConfig(step_specs["base_bps_config"])
-                
+
                 # spec_kwargs should be the same as step_specs, except
                 # that the filename of the BPS config file is replaced
                 # by the BpsConfig instance.
@@ -235,12 +235,12 @@ class Campaign:
 
             full_file_path = dir.joinpath(CAMPAIGN_SPEC_FNAME)
             for attachment in issue.fields.attachment:
-                if file_name == attachment.filename:
+                if CAMPAIGN_SPEC_FNAME == attachment.filename:
                     if replace:
-                        LOG.warning(f"replacing {file_name}")
+                        LOG.warning(f"replacing {CAMPAIGN_SPEC_FNAME}")
                         jira.delete_attachment(attachment.id)
                     else:
-                        LOG.warning(f"{file_name} already exists; not saving.")
+                        LOG.warning(f"{CAMPAIGN_SPEC_FNAME} already exists; not saving.")
 
             jira.add_attachment(issue, attachment=str(full_file_path))
 
@@ -287,7 +287,9 @@ class Campaign:
                     step = Step.from_jira(step_issue)
                     step.to_files(step_path)
                 else:
-                    LOG.warning("Could not load {step_spec['name']} from jira (no issue name)")
+                    LOG.warning(
+                        "Could not load {step_spec['name']} from jira (no issue name)"
+                    )
 
             campaign = cls.from_files(staging_dir)
             campaign.issue_name = str(issue)
@@ -297,11 +299,12 @@ class Campaign:
 name: {self.name}
 issue name: {self.issue_name}
 steps:"""
-        
+
         for step in self.steps:
             output += f"\n - {step.name} (issue {step.issue_name}) with {len(step.workflows)} workflows"
 
         return output
+
 
 # internal functions & classes
 

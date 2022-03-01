@@ -74,7 +74,7 @@ class TestStep(unittest.TestCase):
             exposures,
             workflow_base_name=TEST_WORKFLOW_BASE_NAME,
         )
-        self.assertEqual(len(step.workflows), 6)
+        self.assertEqual(len(step.workflows), 3)
 
         # Test splitting by exposures, but not bands
         split_bands = False
@@ -109,9 +109,6 @@ class TestStep(unittest.TestCase):
         for band in "ugrizy":
             band_exposures = exposures.query(f"band == '{band}'")
             num_workflows_in_band = int(np.ceil(len(band_exposures) / group_size))
-            if num_workflows_in_band == 0:
-                # There will always be at least one group per band?
-                num_workflows_in_band = 1
             num_workflows += num_workflows_in_band
         self.assertEqual(len(step.workflows), num_workflows)
 

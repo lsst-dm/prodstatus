@@ -23,12 +23,10 @@
 """Interface for managing and reporting on data processing workflows."""
 
 # imports
-import dataclasses
 from dataclasses import dataclass
 from typing import Optional
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from io import StringIO
 
 import yaml
 import numpy as np
@@ -130,7 +128,7 @@ class Workflow:
             max_exp_id = max(these_exp_ids)
             data_query = f"({base_query}) and (exposure >= {min_exp_id}) and (exposure <= {max_exp_id})"
             this_bps_config = self.bps_config.copy()
-            this_bps_config.update({'payload': {'dataQuery': data_query}})
+            this_bps_config.update({"payload": {"dataQuery": data_query}})
 
             this_band = self.band
             these_exposures = self.exposures.query(
@@ -172,7 +170,7 @@ class Workflow:
         for band in bands:
             data_query = f"({base_query}) and (band == '{band}')"
             this_bps_config = self.bps_config.copy()
-            this_bps_config.update({'payload': {'dataQuery': data_query}})
+            this_bps_config.update({"payload": {"dataQuery": data_query}})
 
             if self.exposures is not None:
                 these_exposures = self.exposures.query(f"band=='{band}'").copy()
@@ -191,7 +189,9 @@ class Workflow:
         return workflows
 
     @classmethod
-    def create_many(cls, base_bps_config, step_specs, exposures, base_name="", drop_empty=True):
+    def create_many(
+        cls, base_bps_config, step_specs, exposures, base_name="", drop_empty=True
+    ):
         """Create workflows for a set of steps and exposures.
 
         Parameters
@@ -249,8 +249,8 @@ class Workflow:
                 split_workflows.append(workflow)
 
         if drop_empty:
-            split_workflows = [wf for wf in split_workflows if len(wf.exposures)>0]
-                
+            split_workflows = [wf for wf in split_workflows if len(wf.exposures) > 0]
+
         return split_workflows
 
     def to_files(self, dir):
@@ -425,8 +425,8 @@ issue name: {self.issue_name}
 step: {self.step}
 band: {self.band}
 BPS config dataQuery: {self.bps_config['payload']['dataQuery']}"""
-        if self.exposures is None or len(self.exposures)<1:
-            result= f"""{result}
+        if self.exposures is None or len(self.exposures) < 1:
+            result = f"""{result}
 exposures: None
 """
         else:
@@ -436,9 +436,9 @@ min exposure id: {self.exposures.exp_id.min()}
 max exposure id: {self.exposures.exp_id.max()}
 exposure counts by band: {self.exposures.band.value_counts().to_dict()}
 """
-        
+
         # Strip lead
         return result
-            
-                
+
+
 # internal functions & classes
