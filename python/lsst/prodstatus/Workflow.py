@@ -274,6 +274,7 @@ class Workflow:
         bps_config_path = dir.joinpath(BPS_CONFIG_FNAME)
         with open(bps_config_path, "wt") as bps_config_io:
             self.bps_config.dump(bps_config_io)
+            LOG.debug(f"Wrote {bps_config_path}")
 
         workflow_params = {
             k: getattr(self, k)
@@ -283,10 +284,12 @@ class Workflow:
         workflow_path = dir.joinpath(WORKFLOW_FNAME)
         with open(workflow_path, "wt") as workflow_io:
             yaml.dump(workflow_params, workflow_io)
+            LOG.debug(f"Wrote {workflow_path}")
 
         if self.exposures is not None:
             explist_path = dir.joinpath(EXPLIST_FNAME)
             self.exposures.to_csv(explist_path, header=False, index=False, sep=" ")
+            LOG.debug(f"Wrote {explist_path}")
 
     @classmethod
     def from_files(cls, dir, name=None):
@@ -318,6 +321,7 @@ class Workflow:
         if workflow_path.exists():
             with open(workflow_path, "rt") as workflow_io:
                 workflow_params = yaml.load(workflow_io, yaml.Loader)
+                LOG.debug(f"Read {workflow_path}")
 
             for keyword in WORKFLOW_KEYWORDS:
                 if keyword in workflow_params:
@@ -328,6 +332,7 @@ class Workflow:
             workflow.exposures = pd.read_csv(
                 explist_path, names=["band", "exp_id"], delimiter=r"\s+"
             )
+            LOG.debug(f"Read {explist_path}")
             workflow.exposures.sort_values("exp_id", inplace=True)
 
         return workflow
@@ -355,8 +360,8 @@ class Workflow:
             issue = jira.create_issue(
                 project="DRP",
                 issuetype="Task",
-                summary="a new issue",
-                description="A workflow",
+                summary=f"Workflow {self.name}",
+                description=f"Workflow {self.name}",
                 components=[{"name": "Test"}],
             )
             LOG.info(f"Created issue {issue}")
@@ -376,12 +381,17 @@ class Workflow:
                     for attachment in issue.fields.attachment:
                         if file_name == attachment.filename:
                             if replace:
-                                LOG.warning(f"replacing {file_name}")
+                                LOG.warning(
+                                    f"removing old attachment {file_name} from {issue}"
+                                )
                                 jira.delete_attachment(attachment.id)
                             else:
-                                LOG.warning(f"{file_name} already exists; not saving.")
+                                LOG.warning(
+                                    f"{file_name} already exists in {issue}; not saving."
+                                )
 
                     jira.add_attachment(issue, attachment=str(full_file_path))
+                    LOG.debug(f"Added {file_name} to {issue}")
 
         return issue
 
@@ -409,9 +419,11 @@ class Workflow:
             for attachment in issue.fields.attachment:
                 if attachment.filename in ALL_WORKFLOW_FNAMES:
                     file_content = attachment.get()
+                    LOG.debug(f"Read {attachment.filename} from {issue}")
                     fname = dir.joinpath(attachment.filename)
                     with fname.open("wb") as file_io:
                         file_io.write(file_content)
+                        LOG.debug(f"Wrote {fname}")
 
             workflow = cls.from_files(staging_dir)
             workflow.issue_name = str(issue)

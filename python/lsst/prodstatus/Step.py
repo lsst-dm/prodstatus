@@ -27,11 +27,14 @@ from typing import Mapping, List, Optional
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import yaml
+import pandas as pd
 
 from lsst.prodstatus.Workflow import Workflow
 from lsst.prodstatus import LOG
+from lsst.prodstatus.Workflow import EXPLIST_FNAME
 
 STEP_SPEC_FNAME = "step.yaml"
+ALL_STEP_FNAMES = (STEP_SPEC_FNAME, EXPLIST_FNAME)
 
 
 @dataclasses.dataclass
@@ -60,6 +63,7 @@ class Step:
     exposure_groups: Optional[Mapping[str, int]] = None
     workflows: List[Workflow] = dataclasses.field(default_factory=list)
     issue_name: Optional[str] = None
+    exposures: Optional[pd.DataFrame] = None
 
     @classmethod
     def generate_new(
@@ -187,6 +191,12 @@ class Step:
         step_spec_path = dir.joinpath(STEP_SPEC_FNAME)
         with open(step_spec_path, "wt") as step_spec_io:
             yaml.dump(step_spec, step_spec_io, indent=4)
+            LOG.debug(f"Wrote {step_spec_path}")
+
+        if self.exposures is not None:
+            explist_path = dir.joinpath(EXPLIST_FNAME)
+            self.exposures.to_csv(explist_path, header=False, index=False, sep=" ")
+            LOG.debug(f"Wrote {explist_path}")
 
         workflows_path = dir.joinpath("workflows")
         workflows_path.mkdir(exist_ok=True)
@@ -218,6 +228,7 @@ class Step:
         step_spec_path = dir.joinpath(STEP_SPEC_FNAME)
         with open(step_spec_path, "rt") as step_spec_io:
             step_spec = yaml.safe_load(step_spec_io)
+            LOG.debug(f"Read {step_spec_path}")
 
         name = name if name is not None else step_spec["name"]
         split_bands = step_spec["split_bands"]
@@ -227,8 +238,8 @@ class Step:
         else:
             exposure_groups = {}
 
-        if "issue_name" in step_spec:
-            issue_name = step_spec["issue_name"]
+        if "issue" in step_spec:
+            issue_name = step_spec["issue"]
         else:
             issue_name = None
 
@@ -237,6 +248,14 @@ class Step:
         for workflow_spec in step_spec["workflows"]:
             workflow = Workflow.from_files(workflows_path, name=workflow_spec["name"])
             step.workflows.append(workflow)
+
+        explist_path = dir.joinpath(EXPLIST_FNAME)
+        if explist_path.exists():
+            step.exposures = pd.read_csv(
+                explist_path, names=["band", "exp_id"], delimiter=r"\s+"
+            )
+            LOG.debug(f"Read {explist_path}")
+            step.exposures.sort_values("exp_id", inplace=True)
 
         return step
 
@@ -260,7 +279,7 @@ class Step:
         issue : `jira.resources.Issue`
             The issue to which the workflow was written.
         """
-        raise NotImplementedError("This code is untested")
+        # raise NotImplementedError("This code is untested")
         if issue is None and self.issue_name is not None:
             issue = jira.issue(self.issue_name)
 
@@ -268,8 +287,8 @@ class Step:
             issue = jira.create_issue(
                 project="DRP",
                 issuetype="Task",
-                summary="a new issue",
-                description="A step",
+                summary=f"Step {self.name}",
+                description=f"Step {self.name}",
                 components=[{"name": "Test"}],
             )
             LOG.info(f"Created issue {issue}")
@@ -281,7 +300,7 @@ class Step:
             # can be included when the step issue itself is created.
             if cascade:
                 for workflow in self.workflows:
-                    if self.issue_name is not None:
+                    if workflow.issue_name is not None:
                         workflow_issue = jira.issue(workflow.issue_name)
                     else:
                         workflow_issue = None
@@ -294,19 +313,23 @@ class Step:
             if self.name is not None:
                 dir = dir.joinpath(self.name)
 
-            full_file_path = dir.joinpath(STEP_SPEC_FNAME)
-            if full_file_path.exists():
-                for attachment in issue.fields.attachment:
-                    if STEP_SPEC_FNAME == attachment.filename:
-                        if replace:
-                            LOG.warning(f"replacing {STEP_SPEC_FNAME}")
-                            jira.delete_attachment(attachment.id)
-                        else:
-                            LOG.warning(
-                                f"{STEP_SPEC_FNAME} already exists; not saving."
-                            )
+            for file_name in ALL_STEP_FNAMES:
+                full_file_path = dir.joinpath(file_name)
+                if full_file_path.exists():
+                    for attachment in issue.fields.attachment:
+                        if file_name == attachment.filename:
+                            if replace:
+                                LOG.warning(
+                                    f"removing old attachment {file_name} from {issue}"
+                                )
+                                jira.delete_attachment(attachment.id)
+                            else:
+                                LOG.warning(
+                                    f"{file_name} already exists in {issue}; not saving."
+                                )
 
-                jira.add_attachment(issue, attachment=str(full_file_path))
+                    jira.add_attachment(issue, attachment=str(full_file_path))
+                    LOG.debug(f"Added {file_name} to {issue}")
 
         return issue
 
@@ -327,36 +350,42 @@ class Step:
         campaign : `Campaign`
             An initialized instance of a campaign.
         """
-        raise NotImplementedError("This code is untested")
         issue = jira.issue(issue) if isinstance(issue, str) else issue
 
         with TemporaryDirectory() as staging_dir:
             dir = Path(staging_dir)
             for attachment in issue.fields.attachment:
-                if attachment.filename == STEP_SPEC_FNAME:
-                    step_spec_bytes = attachment.get()
+                if attachment.filename in ALL_STEP_FNAMES:
+                    file_content = attachment.get()
+                    LOG.debug(f"Read {attachment.filename} from {issue}")
+                    fname = dir.joinpath(attachment.filename)
+                    with fname.open("wb") as file_io:
+                        file_io.write(file_content)
+                        LOG.debug(f"Wrote {fname}")
 
             fname = dir.joinpath(STEP_SPEC_FNAME)
-            with fname.open("wb") as file_io:
-                file_io.write(step_spec_bytes)
-
             with fname.open("rt") as file_io:
                 step_spec = yaml.safe_load(file_io)
+                LOG.debug(f"Read {fname}")
 
             workflows_path = dir.joinpath("workflows")
-            for workflow_params in step_spec["workflows"].values():
+            workflows_path.mkdir(exist_ok=True)
+            LOG.debug(f"Created {workflows_path}")
+            for workflow_params in step_spec["workflows"]:
                 if "issue" in workflow_params and workflow_params["issue"] is not None:
                     workflow_issue_name = workflow_params["issue"]
                     workflow_issue = jira.issue(workflow_issue_name)
-                    workflow = Workflow.from_jira(workflow_issue)
+                    workflow = Workflow.from_jira(workflow_issue, jira)
                     workflow.to_files(workflows_path)
                 else:
                     LOG.warning(
-                        "Could not load {workflow_params['name']} from jira (no issue name)"
+                        f"Could not load {workflow_params['name']} from jira (no issue name)"
                     )
 
-            campaign = cls.from_files(staging_dir)
-            campaign.issue_name = str(issue)
+            step = cls.from_files(staging_dir)
+            step.issue_name = str(issue)
+
+        return step
 
     def __str__(self):
         output = f"""{self.__class__.__name__}
