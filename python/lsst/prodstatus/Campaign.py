@@ -29,11 +29,8 @@ from tempfile import TemporaryDirectory
 import contextlib
 from pathlib import Path
 from copy import deepcopy
-import pandas as pd
 
 import yaml
-
-
 import pandas as pd
 
 from lsst.ctrl.bps import BpsConfig
