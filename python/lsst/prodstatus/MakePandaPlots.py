@@ -31,7 +31,8 @@ import matplotlib.colors as mcolors
 import pandas as pd
 import numpy as np
 import http.client
-import logging
+from lsst.prodstatus import LOG
+
 
 __all__ = ['MakePandaPlots']
 
@@ -83,10 +84,11 @@ class MakePandaPlots:
         self.workflow_names = dict()
         self.start_stamp = datetime.datetime.strptime(self.start_date, "%Y-%m-%d").timestamp()
         self.stop_stamp = datetime.datetime.strptime(self.stop_date, "%Y-%m-%d").timestamp()
-        logging.basicConfig(level=logging.INFO,
-                            format="%(asctime)s %(filename)s:%(lineno)s %(message)s",
-                            datefmt='%Y-%m-%d %H:%M:%S')
-        self.log = logging.getLogger(__name__)
+#        logging.basicConfig(level=logging.INFO,
+#                            format="%(asctime)s %(filename)s:%(lineno)s %(message)s",
+#                            datefmt='%Y-%m-%d %H:%M:%S')
+#        self.log = logging.getLogger(__name__)
+        self.log = LOG
         self.log.info(f" Collecting information for Jira ticket {self.jira_ticket}")
         http.client._MAXLINE = 655360
 
