@@ -27,9 +27,9 @@ import datetime
 import json
 import numpy as np
 import pandas as pd
-from .GetButlerStat import GetButlerStat
-from .GetPanDaStat import GetPanDaStat
-from .JiraUtils import JiraUtils
+from lsst.prodstatus import GetButlerStat
+from lsst.prodstatus import GetPanDaStat
+from lsst.prodstatus  import JiraUtils
 
 __all__ = ['DRPUtils']
 
