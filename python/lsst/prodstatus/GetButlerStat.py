@@ -33,7 +33,7 @@ import pandas as pd
 from pandas.plotting import table
 from lsst.daf.butler import Butler
 from lsst.daf.butler import ButlerURI
-import logging
+from lsst.prodstatus import LOG
 
 # PropertySet needs to be imported to load the butler yaml.
 from lsst.daf.base import PropertySet  # noqa: F401
@@ -81,10 +81,7 @@ class GetButlerStat:
         self.collection_data = dict()
         self.start_stamp = datetime.datetime.strptime(self.start_date, "%Y-%m-%d").timestamp()
         self.stop_stamp = datetime.datetime.strptime(self.stop_date, "%Y-%m-%d").timestamp()
-        logging.basicConfig(level=logging.INFO,
-                            format="%(asctime)s %(filename)s:%(lineno)s %(message)s",
-                            datefmt='%Y-%m-%d %H:%M:%S')
-        self.log = logging.getLogger(__name__)
+        self.log = LOG
         self.log.info(f" Collecting information for Jira ticket {self.jira_ticket}")
 
     @staticmethod
