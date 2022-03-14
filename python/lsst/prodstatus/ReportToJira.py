@@ -21,7 +21,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import yaml
 from .JiraUtils import JiraUtils
-import logging
+from lsst.prodstatus import LOG
 
 __all__ = ['ReportToJira']
 
@@ -54,10 +54,7 @@ class ReportToJira:
     """
 
     def __init__(self, inp_file):
-        logging.basicConfig(level=logging.INFO,
-                            format="%(asctime)s %(filename)s:%(lineno)s %(message)s",
-                            datefmt='%Y-%m-%d %H:%M:%S')
-        self.log = logging.getLogger(__name__)
+        self.log = LOG
         self.ju = JiraUtils()
         (self.a_jira, account) = self.ju.get_login()
         with open(inp_file) as pf:
