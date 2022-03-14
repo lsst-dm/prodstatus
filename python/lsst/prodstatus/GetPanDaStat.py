@@ -31,7 +31,7 @@ import math
 import matplotlib.pyplot as plt
 import pandas as pd
 from pandas.plotting import table
-import logging
+from lsst.prodstatus import LOG
 
 __all__ = ['GetPanDaStat']
 
@@ -74,10 +74,7 @@ class GetPanDaStat:
         self.workflow_names = dict()
         self.start_stamp = datetime.datetime.strptime(self.start_date, "%Y-%m-%d").timestamp()
         self.stop_stamp = datetime.datetime.strptime(self.stop_date, "%Y-%m-%d").timestamp()
-        logging.basicConfig(level=logging.INFO,
-                            format="%(asctime)s %(filename)s:%(lineno)s %(message)s",
-                            datefmt='%Y-%m-%d %H:%M:%S')
-        self.log = logging.getLogger(__name__)
+        self.log = LOG
 
     def get_workflows(self):
         """First lets get all workflows with given keys."""
