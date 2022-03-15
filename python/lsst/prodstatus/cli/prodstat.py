@@ -25,6 +25,8 @@
 import yaml
 
 import click
+from lsst.daf.butler.cli.utils import MWCommand
+from lsst.daf.butler.cli import cliLog
 from .. import DRPUtils
 from .. import GetButlerStat
 from .. import GetPanDaStat
@@ -33,13 +35,17 @@ from .. import MakePandaPlots
 
 __all__ = ["main"]
 
+class ProdstatusCommand(MWCommand):
+    """Command subclass with prodst-command specific overrides."""
+
+    extra_epilog = "See 'prodstat --help' for more options."
 
 @click.group()
 def cli():
     """Command line interface for prodstatus."""
+    pass
 
-
-@cli.command()
+@click.command(cls=ProdstatusCommand)
 @click.argument("template", type=str)
 @click.argument("band", type=click.Choice(["all", "f", "u", "g", "r", "i", "z", "y"]))
 @click.argument("groupsize", type=int)
@@ -47,8 +53,8 @@ def cli():
 @click.argument("ngroups", type=int)
 @click.argument("explist", type=str)
 def make_prod_groups(
-    template, band, groupsize, skipgroups, ngroups, explist
-):  # pylint: disable=too-many-arguments
+    template, band, groupsize, skipgroups, ngroups, explist):
+    # pylint: disable=too-many-arguments
     """Split a list of exposures into groups defined in yaml files.
 
     \b
@@ -74,7 +80,7 @@ def make_prod_groups(
     )
 
 
-@cli.command()
+@click.command(cls=ProdstatusCommand)
 @click.argument("param_file", type=click.Path(exists=True))
 def get_butler_stat(param_file):
     """Build production statistics tables using Butler metadata.
@@ -106,10 +112,10 @@ def get_butler_stat(param_file):
         in_pars = yaml.safe_load(p_file)
     butler_stat = GetButlerStat.GetButlerStat(**in_pars)
     butler_stat.run()
-    print("End with GetButlerStat")
+    click.echo("End with GetButlerStat")
 
 
-@cli.command()
+@click.command(cls=ProdstatusCommand)
 @click.argument("bps_submit_fname", type=str)
 @click.argument("production_issue", type=str)
 @click.argument("drp_issue", required=False, default="DRP0", type=str)
@@ -136,7 +142,7 @@ def update_issue(bps_submit_fname, production_issue, drp_issue, ts):
     drp.drp_issue_update(bps_submit_fname, production_issue, drp_issue, ts)
 
 
-@cli.command()
+@click.command(cls=ProdstatusCommand)
 @click.argument("production_issue", type=str)
 @click.argument("drp_issue", type=str)
 @click.option("--reset", default=False, type=bool)
@@ -157,7 +163,7 @@ def add_job_to_summary(production_issue, drp_issue, reset, remove):
         remove one entry from the table with the DRP/PREOPS number
     """
     if reset and remove:
-        print("Either reset or remove can be set, but not both.")
+        click.echo("Either reset or remove can be set, but not both.")
 
     if reset:
         first = 1
@@ -175,7 +181,7 @@ def add_job_to_summary(production_issue, drp_issue, reset, remove):
     )
 
 
-@cli.command()
+@click.command(cls=ProdstatusCommand)
 @click.argument("production_issue", type=str)
 @click.argument("drp_issue", required=False, default="DRP0", type=str)
 def update_stat(production_issue, drp_issue):
@@ -194,7 +200,7 @@ def update_stat(production_issue, drp_issue):
     drp_utils.drp_stat_update(production_issue, drp_issue)
 
 
-@cli.command()
+@click.command(cls=ProdstatusCommand)
 @click.argument("param_file", type=click.Path(exists=True))
 def get_panda_stat(param_file):
     """Build production statistics tables using PanDa database queries.
@@ -218,16 +224,15 @@ def get_panda_stat(param_file):
         maxtask : `int`
             maximum number of task files to analyse
     """
-
     click.echo("Start with GetPandaStat")
     with open(param_file, "r") as p_file:
         in_pars = yaml.safe_load(p_file)
     panda_stat = GetPanDaStat.GetPanDaStat(**in_pars)
     panda_stat.run()
-    print("End with GetPanDaStat")
+    click.echo("End with GetPanDaStat")
 
 
-@cli.command()
+@click.command(cls=ProdstatusCommand)
 @click.argument("param_file", type=click.Path(exists=True))
 def report_to_jira(param_file):
     """Report production statistics to a Jira ticket
@@ -257,10 +262,10 @@ def report_to_jira(param_file):
     click.echo("Start with ReportToJira")
     report = ReportToJira.ReportToJira(param_file)
     report.run()
-    print("End with ReportToJira")
+    click.echo("End with ReportToJira")
 
 
-@cli.command()
+@click.command(cls=ProdstatusCommand)
 @click.argument("param_file", type=click.Path(exists=True))
 def prep_timing_data(param_file):
     """Create  timing data of the campaign jobs
@@ -297,10 +302,10 @@ def prep_timing_data(param_file):
         params = yaml.safe_load(p_file)
     panda_plot_maker = MakePandaPlots.MakePandaPlots(**params)
     panda_plot_maker.prep_data()
-    print("Finish with prep_timing_data")
+    click.echo("Finish with prep_timing_data")
 
 
-@cli.command()
+@click.command(cls=ProdstatusCommand)
 @click.argument("param_file", type=click.Path(exists=True))
 def plot_data(param_file):
     """Create timing data of the campaign jobs.
@@ -336,8 +341,17 @@ def plot_data(param_file):
         params = yaml.safe_load(p_file)
     panda_plot_maker = MakePandaPlots.MakePandaPlots(**params)
     panda_plot_maker.plot_data()
-    print("Finish with plot_data")
+    click.echo("Finish with plot_data")
 
+cli.add_command(plot_data)
+cli.add_command(prep_timing_data)
+cli.add_command(make_prod_groups)
+cli.add_command(get_butler_stat)
+cli.add_command(update_issue)
+cli.add_command(add_job_to_summary)
+cli.add_command(update_stat)
+cli.add_command(get_panda_stat)
+cli.add_command(report_to_jira)
 
 def main():
     """Run the command line interface."""
