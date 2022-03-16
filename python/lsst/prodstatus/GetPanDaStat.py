@@ -62,7 +62,6 @@ class GetPanDaStat:
         self.stop_date = kwargs["stop_date"]
         self.max_tasks = int(kwargs["maxtask"])
         self.workflow_keys = list()
-        print(" Collecting information for Jira ticket ", self.Jira)
         self.workflows = dict()
         self.workflow_info = dict()  # workflow status
         self.task_counts = dict()  # number of tasks of given type
@@ -75,6 +74,7 @@ class GetPanDaStat:
         self.start_stamp = datetime.datetime.strptime(self.start_date, "%Y-%m-%d").timestamp()
         self.stop_stamp = datetime.datetime.strptime(self.stop_date, "%Y-%m-%d").timestamp()
         self.log = LOG
+        self.log.info(" Collecting information for Jira ticket ", self.Jira)
 
     def get_workflows(self):
         """First lets get all workflows with given keys."""
@@ -150,7 +150,7 @@ class GetPanDaStat:
 
         Parameters
         ----------
-        workflow : `str`
+        workflow : `Union`
             workflow name
 
         Returns
@@ -533,7 +533,7 @@ class GetPanDaStat:
             comma separated data buffer
         out_file : `str`
             output file name
-        index_name : `list`
+        index_name : `str`
             list of index names to name table rows
         comment : `str`
             additional string to be added at top of the table
@@ -591,7 +591,7 @@ class GetPanDaStat:
             pandas data frame
         table_name : `str`
             name of the output table
-        index_name : `list`
+        index_name : `str`
             list of raw names
         comment : `str`
             additional text information to put at top of the table
