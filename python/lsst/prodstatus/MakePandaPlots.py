@@ -174,7 +174,7 @@ class MakePandaPlots:
 
         Parameters
         ----------
-        workflow: `str`
+        workflow: `Union`
             workflow for which tasks will be selected
 
         Returns
