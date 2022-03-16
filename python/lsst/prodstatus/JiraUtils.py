@@ -252,7 +252,7 @@ class JiraUtils:
             api instance
         key : `str`
             issue key
-        tokens : `str`
+        tokens : `list`
             issue tokens
         comment_s : `str`
             comment body
@@ -314,7 +314,7 @@ class JiraUtils:
             The contents of the comment.
         """
 
-        com_str = jira.comment(int(issue_id), int(comment_id)).body
+        com_str = jira.comment(str(issue_id), str(comment_id)).body
         return com_str
 
     def update_attachment(self, jira, issue, attachment_file):
@@ -344,7 +344,7 @@ class JiraUtils:
                 filename = attachment["filename"]
                 if filename in attachment_file:
                     found = True
-                    jira.delete_attachment(int(att_id))
+                    jira.delete_attachment(str(att_id))
                     self.add_attachment(jira, issue, attachment_file)
             if not found:
                 self.add_attachment(jira, issue, attachment_file)
