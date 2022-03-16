@@ -72,7 +72,7 @@ def make_prod_groups(
         skip <skipgroups> groups (if others generating similar campaigns)
     ngroups : `int`
         how many groups (maximum)
-    explists : `str`
+    explist : `str`
         text file listing <band1> <exposure1> for all visits to use
     """
     DRPUtils.DRPUtils.make_prod_groups(
@@ -126,7 +126,7 @@ def update_issue(bps_submit_fname, production_issue, drp_issue, ts):
     \b
     Parameters
     ----------
-    pbs_submit_fname : `str`
+    bps_submit_fname : `str`
         The file name for the BPS submit file (yaml).
         Should be sitting in the same dir that bps submit was done,
         so that the submit/ dir can be searched for more info
