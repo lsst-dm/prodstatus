@@ -291,7 +291,7 @@ class GetButlerStat:
             string buffer containing csv values
         out_file : `str`
             name of the table file
-        index_name : `list`
+        index_name : `str`
             list of row names for the table
         comment : `str`
             additional string to be added to the top of table file
