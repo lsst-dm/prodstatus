@@ -393,8 +393,8 @@ class GetPanDaStat:
                     result = json.loads(url.read().decode())
                 success = True
             except url_error.URLError:
-                logging.warning(f"failed with {url_string} retrying")
-                logging.warning(f"n_tries={n_tries}")
+                LOG.warning(f"failed with {url_string} retrying")
+                LOG.warning(f"n_tries={n_tries}")
                 success = False
                 n_tries += 1
                 if n_tries >= 5:
