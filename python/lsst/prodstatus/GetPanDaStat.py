@@ -189,8 +189,12 @@ class GetPanDaStat:
         )
         jobsdata = self.query_panda(url_string=uri)
         """ list of jobs in the task """
-        jobs = jobsdata["jobs"]
-        njobs = len(jobs)
+        if "jobs" in jobsdata:
+            jobs = jobsdata["jobs"]
+            njobs = len(jobs)
+        else:
+            njobs = 0
+            jobs = list()
         corecount = 0
         max_rss = 0
         duration = 0
