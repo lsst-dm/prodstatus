@@ -386,7 +386,7 @@ def main():
     issue_id = ju.get_issue_id(project="DRP", key=ticket)
     print(f"issueId={issue_id}")
     desc = ju.get_description(issue)
-    logging.info(f"desc:{desc}")
+    LOG.info(f"desc:{desc}")
     " Let's make attachment if not exists"
     att_file = "./table.html"
     ju.update_attachment(jira, issue, att_file)
