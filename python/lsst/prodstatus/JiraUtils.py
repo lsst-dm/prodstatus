@@ -154,7 +154,7 @@ class JiraUtils:
         summary = issue.fields.summary
         for field_name in issue.raw["fields"]:
             value_string = issue.raw["fields"][field_name]
-            logging.info(f"Field:{field_name} Value: {value_string}")
+            LOG.info(f"Field:{field_name} Value: {value_string}")
         return summary
 
     @staticmethod
