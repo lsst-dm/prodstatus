@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="SCOPE_TYPE" value="3" />
+  </component>
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="444ec5a6-8209-4cfc-9e67-a590c2f749f6" name="Changes" comment="Some changes with LOG">
+      <change afterPath="$PROJECT_DIR$/.idea/prodstatus.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/prodstat.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/prodstat.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="25tPnPn0EYn0qfwnC4kfrFtJe7g" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="true" />
+    <property name="com.intellij.openapi.externalSystem.service.settings.ExternalSystemGroupConfigurable" value="ALL" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="node.js.detected.package.stylelint" value="true" />
+    <property name="node.js.selected.package.stylelint" value="" />
+    <property name="run.code.analysis.last.selected.profile" value="aDefault" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyIntegratedToolsModulesConfigurable" />
+  </component>
+  <component name="PyConsoleOptionsProvider">
+    <option name="myPythonConsoleState">
+      <console-settings module-name="prodstatus" is-module-sdk="true">
+        <option name="myUseModuleSdk" value="true" />
+        <option name="myModuleName" value="prodstatus" />
+      </console-settings>
+    </option>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="444ec5a6-8209-4cfc-9e67-a590c2f749f6" name="Changes" comment="" />
+      <created>1646343575503</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1646343575503</updated>
+      <workItem from="1646343577495" duration="2099000" />
+      <workItem from="1646407019056" duration="310000" />
+      <workItem from="1646865403359" duration="105000" />
+      <workItem from="1646927936330" duration="627000" />
+      <workItem from="1646929748845" duration="264000" />
+      <workItem from="1647268064602" duration="4095000" />
+      <workItem from="1647274212207" duration="19596000" />
+      <workItem from="1647356395401" duration="1437000" />
+      <workItem from="1647444753410" duration="2015000" />
+      <workItem from="1647716924059" duration="2157000" />
+      <workItem from="1647819855522" duration="544000" />
+    </task>
+    <task id="LOCAL-00001" summary="Some changes with LOG">
+      <created>1647271076826</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1647271076827</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Some changes with LOG">
+      <created>1647271095185</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1647271095185</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Some changes with LOG">
+      <created>1647271115406</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1647271115406</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Some changes with LOG">
+      <created>1647271135698</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1647271135698</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Some changes with LOG">
+      <created>1647271148208</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1647271148208</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Some changes with LOG">
+      <created>1647271392444</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1647271392444</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Reformatted clicl with include MWCommand.">
+      <created>1647363873672</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1647363873672</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Correct names in docstring">
+      <created>1647444983511</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1647444983511</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Corrections in docstring">
+      <created>1647445987778</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1647445987778</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Corrections in docstring">
+      <created>1647446025998</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1647446025998</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Corrections in docstring">
+      <created>1647446070879</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1647446070879</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Corrections in docstring">
+      <created>1647446115977</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1647446115977</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Set protection for missing jobs.">
+      <created>1647717187729</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1647717187729</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Some changes with LOG">
+      <created>1647717607164</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1647717607164</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Some changes with LOG">
+      <created>1647725144971</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1647725144971</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Some changes with LOG">
+      <created>1647725266377</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1647725266377</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Reformatted clicl with include MWCommand." />
+    <MESSAGE value="Correct names in docstring" />
+    <MESSAGE value="Corrections in docstring" />
+    <MESSAGE value="Set protection for missing jobs." />
+    <MESSAGE value="Some changes with LOG" />
+    <option name="LAST_COMMIT_MESSAGE" value="Some changes with LOG" />
+  </component>
+</project>
