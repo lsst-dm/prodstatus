@@ -21,7 +21,7 @@
 """Option groups for bps
 """
 
-__all__ = ["SubmissionOptions"]
+__all__ = ["ProdstatusOptions"]
 
 from lsst.daf.butler.cli.utils import OptionGroup, option_section
 from lsst.ctrl.mpexec.cli.opt import (
@@ -30,13 +30,9 @@ from lsst.ctrl.mpexec.cli.opt import (
     input_option,
     output_option,
     output_run_option,
-    pipeline_option,
-    qgraph_option
+    pipeline_option
 )
 from .options import (
-    extra_qgraph_option,
-    extra_init_option,
-    extra_run_quantum_option
 )
 
 
@@ -47,15 +43,12 @@ class SubmissionOptions(OptionGroup):
 
     def __init__(self):
         self.decorators = [
-            option_section(sectionText="Submission options:"),
+            option_section(sectionText="Prodstatus options:"),
             butler_config_option(),
             input_option(),
             output_option(),
             output_run_option(),
             data_query_option(),
             pipeline_option(),
-            qgraph_option(),
-            extra_qgraph_option(),
-            extra_init_option(),
-            extra_run_quantum_option()
+            qgraph_option()
         ]
