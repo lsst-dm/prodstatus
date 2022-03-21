@@ -84,10 +84,6 @@ class MakePandaPlots:
         self.workflow_names = dict()
         self.start_stamp = datetime.datetime.strptime(self.start_date, "%Y-%m-%d").timestamp()
         self.stop_stamp = datetime.datetime.strptime(self.stop_date, "%Y-%m-%d").timestamp()
-#        logging.basicConfig(level=logging.INFO,
-#                            format="%(asctime)s %(filename)s:%(lineno)s %(message)s",
-#                            datefmt='%Y-%m-%d %H:%M:%S')
-#        self.log = logging.getLogger(__name__)
         self.log = LOG
         self.log.info(f" Collecting information for Jira ticket {self.jira_ticket}")
         http.client._MAXLINE = 655360
@@ -97,7 +93,7 @@ class MakePandaPlots:
         """
 
         workflow_data = self.query_panda(
-            url_string=f"http://panda-doma.cern.ch/idds/wfprogress/?json"
+            url_string="http://panda-doma.cern.ch/idds/wfprogress/?json"
         )
         comp = str(self.jira_ticket).lower()
         comp1 = str(self.collection_type)
@@ -216,7 +212,7 @@ class MakePandaPlots:
                 if isinstance(jb["starttime"], str):
                     tokens = jb["starttime"].split("T")
                     start_string = (
-                            tokens[0] + " " + tokens[1]
+                        tokens[0] + " " + tokens[1]
                     )  # get rid of T in the date string
                     task_start = datetime.datetime.strptime(
                         start_string, "%Y-%m-%d %H:%M:%S"
@@ -297,8 +293,8 @@ class MakePandaPlots:
                     result = json.loads(url.read().decode())
                 success = True
             except url_error.URLError:
-                logging.info(f"failed with {url_string} retrying")
-                logging.info(f"ntries={n_tries}")
+                LOG.info(f"failed with {url_string} retrying")
+                LOG.info(f"ntries={n_tries}")
                 success = False
                 n_tries += 1
                 if n_tries >= 5:
