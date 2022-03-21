@@ -36,7 +36,7 @@ from .options import (
 )
 
 
-class SubmissionOptions(OptionGroup):
+class ProdstatusOptions(OptionGroup):
     """Decorator to add options to a command function for any
     stage during submission.
     """
