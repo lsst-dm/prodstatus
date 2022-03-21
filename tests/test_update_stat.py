@@ -24,7 +24,7 @@
 import unittest
 from unittest import mock
 
-from lsst.prodstatus import DRPUtils
+from lsst.prodstatus.DRPUtils import DRPUtils
 from ProdstatusTestBase import ProdstatusTestBase, MOCK_NETRC
 
 TEST_ISSUE_SUMMARY = "step1#v23_0_0_rc5/PREOPS-973/20220127T205042Z"
@@ -42,7 +42,8 @@ class TestUpdateStat(ProdstatusTestBase, unittest.TestCase):
         test_issue_fields = MockJira.return_value.issue.return_value.fields
         test_issue_fields.summary = TEST_ISSUE_SUMMARY
 
-        drp = DRPUtils.DRPUtils()
+#        drp = DRPUtils.DRPUtils()
+        drp = DRPUtils()
         drp.drp_stat_update(production_issue, drp_issue)
         mock_jira = MockJira.return_value
         self.assertEqual(mock_jira.issue.call_args_list, [mock.call(drp_issue)])
