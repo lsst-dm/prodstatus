@@ -22,8 +22,6 @@
 # coding: utf-8
 """Command line interface for prodstatus."""
 
-import yaml
-
 import click
 from lsst.daf.butler.cli.butler import LoaderCLI
 from lsst.daf.butler.cli.opt import (
@@ -41,10 +39,12 @@ epilog = unwrap("""
 
 __all__ = ["main"]
 
+
 class ProdstatusCommand(MWCommand):
     """Command subclass with prodst-command specific overrides."""
 
     extra_epilog = "See 'prodstat --help' for more options."
+
 
 class ProdstatusCli(LoaderCLI):
 
@@ -65,4 +65,3 @@ def cli(log_level, long_log, log_file, log_tty, log_label):
 
 def main():
     return cli()
-
