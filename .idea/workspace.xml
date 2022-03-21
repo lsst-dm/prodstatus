@@ -7,14 +7,8 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="444ec5a6-8209-4cfc-9e67-a590c2f749f6" name="Changes" comment="Some changes with LOG">
+    <list default="true" id="444ec5a6-8209-4cfc-9e67-a590c2f749f6" name="Changes" comment="Some changes with CLI">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/commands.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/commands.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/opt/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/opt/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/opt/arguments.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/opt/option_groups.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/prodstat.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/prodstat.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,7 +73,7 @@
       <workItem from="1647444753410" duration="2015000" />
       <workItem from="1647716924059" duration="2157000" />
       <workItem from="1647819855522" duration="544000" />
-      <workItem from="1647873614901" duration="2139000" />
+      <workItem from="1647873614901" duration="3041000" />
     </task>
     <task id="LOCAL-00001" summary="Some changes with LOG">
       <created>1647271076826</created>
@@ -193,11 +187,29 @@
       <option name="project" value="LOCAL" />
       <updated>1647725266377</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Some changes with CLI">
+      <created>1647877656133</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1647877656133</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Reformatted clicl with include MWCommand." />
@@ -205,6 +217,7 @@
     <MESSAGE value="Corrections in docstring" />
     <MESSAGE value="Set protection for missing jobs." />
     <MESSAGE value="Some changes with LOG" />
-    <option name="LAST_COMMIT_MESSAGE" value="Some changes with LOG" />
+    <MESSAGE value="Some changes with CLI" />
+    <option name="LAST_COMMIT_MESSAGE" value="Some changes with CLI" />
   </component>
 </project>
