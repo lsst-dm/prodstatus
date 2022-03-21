@@ -27,9 +27,9 @@ import datetime
 import json
 import numpy as np
 import pandas as pd
-from lsst.prodstatus import GetButlerStat
-from lsst.prodstatus import GetPanDaStat
-from lsst.prodstatus  import JiraUtils
+from lsst.prodstatus.GetButlerStat import GetButlerStat
+from lsst.prodstatus.GetPanDaStat import GetPanDaStat
+from lsst.prodstatus.JiraUtils import JiraUtils
 
 __all__ = ['DRPUtils']
 
@@ -39,7 +39,7 @@ class DRPUtils:
 
     def __init__(self):
         self.ju = JiraUtils()
-        self.ajira, self.user_name = self.ju.get_login()
+        (self.ajira, self.user_name) = self.ju.get_login()
 
     @staticmethod
     def parse_yaml(bps_yaml_file, ts):
