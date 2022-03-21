@@ -23,7 +23,6 @@
 import click
 import yaml
 from lsst.daf.butler.cli.utils import MWCommand
-
 from .. import opt
 
 from lsst.prodstatus import DRPUtils
@@ -36,7 +35,6 @@ class ProdstatusCommand(MWCommand):
     """Command subclass with bps-command specific overrides."""
 
     extra_epilog = "See 'prodstat --help' for more options."
-
 
 
 @click.command(cls=ProdstatusCommand)
