@@ -19,8 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-__all__ = ["get_butler_stat", "update_issue", "add_job_to_summary", "update_stat", "get_panda_stat", "report_to_jira",
-           "prep_timing_data", "plot_data"]
+__all__ = ["get_butler_stat", "update_issue", "add_job_to_summary", "update_stat", "get_panda_stat",
+           "report_to_jira", "prep_timing_data", "plot_data"]
 
-from .commands import get_butler_stat, update_issue, add_job_to_summary, update_stat, get_panda_stat, report_to_jira, \
-         prep_timing_data, plot_data
+from .commands import get_butler_stat, update_issue, add_job_to_summary, update_stat, \
+    get_panda_stat, report_to_jira, prep_timing_data, plot_data

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # This file is part of ctrl_bps.
 #
 # Developed for the LSST Data Management System.
@@ -23,6 +24,7 @@
 import click
 import yaml
 from lsst.daf.butler.cli.utils import MWCommand
+
 from .. import opt
 
 from lsst.prodstatus import DRPUtils
@@ -32,9 +34,10 @@ from lsst.prodstatus import ReportToJira
 from lsst.prodstatus import MakePandaPlots
 
 class ProdstatusCommand(MWCommand):
-    """Command subclass with bps-command specific overrides."""
+    """Command subclass with prodstat-command specific overrides."""
 
     extra_epilog = "See 'prodstat --help' for more options."
+
 
 
 @click.command(cls=ProdstatusCommand)

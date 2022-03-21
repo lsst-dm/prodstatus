@@ -8,11 +8,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="444ec5a6-8209-4cfc-9e67-a590c2f749f6" name="Changes" comment="Some changes with LOG">
-      <change afterPath="$PROJECT_DIR$/.idea/prodstatus.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/commands.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/commands.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/opt/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/opt/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/opt/arguments.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/opt/arguments.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/opt/option_groups.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/opt/option_groups.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/prodstat.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/prodstat.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -33,6 +35,9 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="25tPnPn0EYn0qfwnC4kfrFtJe7g" />
   <component name="ProjectViewState">
@@ -78,6 +83,7 @@
       <workItem from="1647444753410" duration="2015000" />
       <workItem from="1647716924059" duration="2157000" />
       <workItem from="1647819855522" duration="544000" />
+      <workItem from="1647871684574" duration="3045000" />
     </task>
     <task id="LOCAL-00001" summary="Some changes with LOG">
       <created>1647271076826</created>
@@ -196,6 +202,17 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Reformatted clicl with include MWCommand." />

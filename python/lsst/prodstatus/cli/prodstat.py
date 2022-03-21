@@ -66,3 +66,4 @@ def cli(log_level, long_log, log_file, log_tty, log_label):
 def main():
     return cli()
 
+

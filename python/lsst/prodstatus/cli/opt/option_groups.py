@@ -32,13 +32,11 @@ from lsst.ctrl.mpexec.cli.opt import (
     output_run_option,
     pipeline_option
 )
-from .options import (
-)
 
 
 class ProdstatusOptions(OptionGroup):
     """Decorator to add options to a command function for any
-    stage during submission.
+    stage during processing.
     """
 
     def __init__(self):
@@ -49,6 +47,5 @@ class ProdstatusOptions(OptionGroup):
             output_option(),
             output_run_option(),
             data_query_option(),
-            pipeline_option(),
-            qgraph_option()
+            pipeline_option()
         ]
