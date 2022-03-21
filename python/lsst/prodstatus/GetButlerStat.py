@@ -109,9 +109,9 @@ class GetButlerStat:
             f"start{_}Time" for _ in time_types
         ]
         max_fields = (
-                [f"End{_}Time" for _ in time_types]
-                + [f"end{_}Time" for _ in time_types]
-                + ["MaxResidentSetSize"]
+            [f"End{_}Time" for _ in time_types]
+            + [f"end{_}Time" for _ in time_types]
+            + ["MaxResidentSetSize"]
         )
         time_stamp = ["startUtc", "prepUtc"]
         results = dict()
@@ -125,7 +125,7 @@ class GetButlerStat:
                     if "T" in value:
                         tokens = start_string.split("T")
                         start_string = (
-                                tokens[0] + " " + tokens[1]
+                            tokens[0] + " " + tokens[1]
                         )  # get rid of T in the date string
                     if "timestamp" not in results:
                         results["timestamp"] = start_string
@@ -470,7 +470,7 @@ class GetButlerStat:
             html_file.write(html_buff)
             html_file.close()
         except IOError:
-            self.log.warning(f"Failed to write html table")
+            self.log.warning("Failed to write html table")
             html_file.close()
         cs_buf = data_frame.to_csv(index=True)
         table_name = "butlerStat"
