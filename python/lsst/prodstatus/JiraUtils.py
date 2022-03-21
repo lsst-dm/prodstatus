@@ -50,7 +50,7 @@ class JiraUtils:
         username, account, password = secrets.authenticators("lsstjira")
         self.user_name = username
         self.aut_jira = JIRA(options={"server": account}, basic_auth=(username, password))
-        return self.aut_jira, self.user_name
+        return (self.aut_jira, self.user_name)
 
     def get_issue(self, ticket):
         """Return issue object for given ticket.
