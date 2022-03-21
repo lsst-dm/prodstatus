@@ -80,7 +80,7 @@ class GetPanDaStat:
         """First lets get all workflows with given keys."""
 
         workflow_data = self.query_panda(
-            url_string="http://panda-doma.cern.ch/idds/wfprogress/?json"
+            "http://panda-doma.cern.ch/idds/wfprogress/?json"
         )
         comp = str(self.Jira).lower()
         comp1 = str(self.collection_type)
@@ -97,7 +97,7 @@ class GetPanDaStat:
                     nwf += 1
         self.log.info(f"number of workflows ={nwf}")
         if nwf == 0:
-            self.log.warning(f"No workflows to work with -- exiting")
+            self.log.warning("No workflows to work with -- exiting")
             sys.exit(-256)
         for key in self.workflow_keys:
             self.workflows[key] = []
@@ -161,7 +161,7 @@ class GetPanDaStat:
 
         urls = workflow["r_name"]
         tasks = self.query_panda(
-            url_string=f"http://panda-doma.cern.ch/tasks/?taskname={urls}*&days=120&json"
+            f"http://panda-doma.cern.ch/tasks/?taskname={urls}*&days=120&json"
         )
         return tasks
 
@@ -187,7 +187,7 @@ class GetPanDaStat:
             f"http://panda-doma.cern.ch/jobs/?jeditaskid={str(jeditaskid)}"
             f"&limit={str(self.max_tasks)}&jobstatus=finished&json"
         )
-        jobsdata = self.query_panda(url_string=uri)
+        jobsdata = self.query_panda(uri)
         """ list of jobs in the task """
         if "jobs" in jobsdata:
             jobs = jobsdata["jobs"]
@@ -251,11 +251,11 @@ class GetPanDaStat:
         data["jobstatus"] = jb["jobstatus"]
         tokens = jb["starttime"].split("T")
         data["jobstarttime"] = (
-                tokens[0] + " " + tokens[1]
+            tokens[0] + " " + tokens[1]
         )  # get rid of T in the date string
         tokens = jb["endtime"].split("T")
         data["jobendtime"] = (
-                tokens[0] + " " + tokens[1]
+            tokens[0] + " " + tokens[1]
         )  # get rid of T in the date string
         task_start = datetime.datetime.strptime(
             data["starttime"], "%Y-%m-%d %H:%M:%S"
@@ -624,7 +624,7 @@ class GetPanDaStat:
         self.get_workflows()
         self.get_tasks()
         self.get_all_stat()
-        self.log.info(f"workflow info")
+        self.log.info("workflow info")
         wfind = list()
         wflist = list()
         #        wfIndF = open('./wfInd.txt','w')
