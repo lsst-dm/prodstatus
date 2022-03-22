@@ -74,7 +74,7 @@ class GetPanDaStat:
         self.start_stamp = datetime.datetime.strptime(self.start_date, "%Y-%m-%d").timestamp()
         self.stop_stamp = datetime.datetime.strptime(self.stop_date, "%Y-%m-%d").timestamp()
         self.log = LOG
-        self.log.info(" Collecting information for Jira ticket ", self.Jira)
+        self.log.info(f" Collecting information for Jira ticket  {self.Jira}")
 
     def get_workflows(self):
         """First lets get all workflows with given keys."""
