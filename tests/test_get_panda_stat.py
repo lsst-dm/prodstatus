@@ -38,7 +38,7 @@ TEST_PANDA_STAT_PARAM_FNAME = os.path.join(
 )
 
 
-def _mock_querypanda(self, urlst):
+def _mock_query_panda(self, urlst):
     fname = TEST_PANDA_QUERY_FNAME
     this_open = gzip.open if fname.endswith(".gz") else open
     try:
@@ -54,9 +54,9 @@ def _mock_querypanda(self, urlst):
 
 class TestGetPandaStat(unittest.TestCase):
 
-    # Patch to replace calles to GetPanDaStat.querypanda with the function
+    # Patch to replace calles to GetPanDaStat.query_panda with the function
     # to read data from the test json file.
-    @mock.patch.object(GetPanDaStat, "querypanda", new=_mock_querypanda)
+    @mock.patch.object(GetPanDaStat, "query_panda", new=_mock_query_panda)
     @mock.patch("lsst.prodstatus.GetPanDaStat.plt.show")
     def test_get_panda_stat(self, mock_plt_show):
         with open(TEST_PANDA_STAT_PARAM_FNAME, "rt", encoding="UTF-8") as param_io:

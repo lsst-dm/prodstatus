@@ -23,6 +23,7 @@ import netrc
 from jira import JIRA
 import argparse
 import datetime
+from lsst.prodstatus import LOG
 
 __all__ = ["JiraUtils"]
 
@@ -31,8 +32,9 @@ class JiraUtils:
     def __init__(self):
         secrets = netrc.netrc()
         username, account, password = secrets.authenticators("lsstjira")
-        self.ajira = JIRA(options={"server": account}, basic_auth=(username, password))
+        self.aut_jira = JIRA(options={"server": account}, basic_auth=(username, password))
         self.user_name = username
+        self.log = LOG
 
     def get_login(self):
         """Tries to get user info from ~/.netrc
@@ -47,8 +49,8 @@ class JiraUtils:
         secrets = netrc.netrc()
         username, account, password = secrets.authenticators("lsstjira")
         self.user_name = username
-        self.ajira = JIRA(options={"server": account}, basic_auth=(username, password))
-        return self.ajira, self.user_name
+        self.aut_jira = JIRA(options={"server": account}, basic_auth=(username, password))
+        return self.aut_jira, self.user_name
 
     def get_issue(self, ticket):
         """Return issue object for given ticket.
@@ -63,7 +65,7 @@ class JiraUtils:
         issue_object : `jira.resouce.Issue`
             The object representing the content of the issue.
         """
-        issue_object = self.ajira.issue(ticket)
+        issue_object = self.aut_jira.issue(ticket)
         return issue_object
 
     def get_issue_id(self, project, key):
@@ -81,11 +83,11 @@ class JiraUtils:
         issueId : `str`
             the issue ID
         """
-        jql_str = "project=%s AND issue=%s " % (project, key)
-        query = self.ajira.search_issues(jql_str=jql_str)
-        print("query=", query)
+        jql_str = f"project={project} AND issue={key}"
+        query = self.aut_jira.search_issues(jql_str=jql_str)
+        self.log.info(f"query={query}")
         issue_id = int(query[0].id)
-        print("Issue id=", issue_id)
+        self.log.info(f"Issue id={issue_id}")
         return issue_id
 
     @staticmethod
@@ -107,7 +109,6 @@ class JiraUtils:
             if "comment" in field_name:
                 comments = issue.raw["fields"][field_name]
                 com_list = comments["comments"]
-                print("comments")
                 for comment in com_list:
                     all_comments[comment["id"]] = comment["body"]
         return all_comments
@@ -133,7 +134,6 @@ class JiraUtils:
                 attachments = issue.raw["fields"][field_name]
                 for attachment in attachments:
                     all_attachments[attachment["id"]] = attachment["filename"]
-                    print(attachment["id"], " ", attachment["filename"])
         return all_attachments
 
     @staticmethod
@@ -153,11 +153,12 @@ class JiraUtils:
 
         summary = issue.fields.summary
         for field_name in issue.raw["fields"]:
-            print("Field:", field_name, "Value:", issue.raw["fields"][field_name])
+            value_string = issue.raw["fields"][field_name]
+            LOG.info(f"Field:{field_name} Value: {value_string}")
         return summary
 
     @staticmethod
-    def add_attachment(jira, issue, att_file):
+    def add_attachment(jira, issue, attachment_file):
         """Add attachment file to an issue.
 
         Parameters
@@ -166,8 +167,10 @@ class JiraUtils:
             jira instance
         issue : `jira.resource.Issue`
             issue instance
+        attachment_file: 'string'
+            file name to attach
         """
-        jira.add_attachment(issue=issue, attachment=att_file)
+        jira.add_attachment(issue=issue, attachment=attachment_file)
 
     """ creat issue with parameters in the issue dictionary
      that can look like:
@@ -249,8 +252,8 @@ class JiraUtils:
             api instance
         key : `str`
             issue key
-        token : `str`
-            issue token
+        tokens : `str`
+            issue tokens
         comment_s : `str`
             comment body
         issue_id : `str`
@@ -314,7 +317,7 @@ class JiraUtils:
         com_str = jira.comment(int(issue_id), int(comment_id)).body
         return com_str
 
-    def update_attachment(self, jira, issue, att_file):
+    def update_attachment(self, jira, issue, attachment_file):
         """Replate an attachment in an issue.
 
         Parameters
@@ -323,7 +326,7 @@ class JiraUtils:
             jira API instance
         issue : `jira.resource.Issue`
             issue instance
-        att_file : `str`
+        attachment_file : `str`
             file /path/name
 
         Notes
@@ -339,14 +342,14 @@ class JiraUtils:
                 print("attachment:", attachment["id"], " ", attachment["filename"])
                 att_id = attachment["id"]
                 filename = attachment["filename"]
-                if filename in att_file:
+                if filename in attachment_file:
                     found = True
                     jira.delete_attachment(int(att_id))
-                    self.add_attachment(jira, issue, att_file)
+                    self.add_attachment(jira, issue, attachment_file)
             if not found:
-                self.add_attachment(jira, issue, att_file)
+                self.add_attachment(jira, issue, attachment_file)
         else:
-            self.add_attachment(jira, issue, att_file)
+            self.add_attachment(jira, issue, attachment_file)
 
     @staticmethod
     def get_description(issue):
@@ -375,54 +378,19 @@ def main():
 
     options = parser.parse_args()
     ticket = options.ticket
-    print("ticket=", ticket)
+    print(f"ticket={ticket}")
     ju = JiraUtils()
     jira, username = ju.get_login()
-    """ We will not create issue because we can not delete one
-    issue_fields = {
-        "summary": "Test Ticket",
-        "description": "The ticket to test JitaUtils",
-        "project": "DRP",
-        "issuetype": {"name": "Task"},
-        "components": [{"name": "Test"}]
-    }
-    issue = ju.create_issue( jira, issue_fields)
-    key = issue.key
-    if key is None:
-        print("Failed to create ticket")
-    else:
-        print("Created new ticket, key=", key)
-    " Now lets update the issue "
-    issue_fields = {
-        "summary": "New ticket summary"
-    }
-    issue = jira.issue(key)
-    ju.update_issue(issue, issue_fields)
-    summary = issue.fields.summary
-    if 'New' in summary:
-        print("succesfully updated ticket")
-    else:
-        print(" summary update failed")
-    " Now lets delete the ticket"
-    try:
-        issue.delete()
-        issue = jira.issue(key)
-        if issue is None:
-            print(" The issue was deleted")
-        else:
-            print("Failed to delete issue")
-    except:
-        print("Failed to delete issue")
-    """
+
     issue = ju.get_issue(ticket)
     issue_id = ju.get_issue_id(project="DRP", key=ticket)
-    print("issueId=", issue_id)
+    print(f"issueId={issue_id}")
     desc = ju.get_description(issue)
-    print("desc:", desc)
+    LOG.info(f"desc:{desc}")
     " Let's make attachment if not exists"
     att_file = "./table.html"
     ju.update_attachment(jira, issue, att_file)
-    print("issue fields attachment:", issue.fields.attachment)
+    print(f"issue fields attachment:{issue.fields.attachment}")
     " Now create or update a comment"
     comment_s = """ The test comment for pandaStat and PREOPS-910"""
     tokens = ["pandaStat", "PREOPS-910"]

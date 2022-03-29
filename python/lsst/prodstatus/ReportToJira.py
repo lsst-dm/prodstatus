@@ -21,8 +21,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import yaml
 from .JiraUtils import JiraUtils
+from lsst.prodstatus import LOG
 
-__all__ = ["ReportToJira"]
+__all__ = ['ReportToJira']
 
 
 class ReportToJira:
@@ -35,56 +36,54 @@ class ReportToJira:
 
             project: 'Pre-Operations'
             Jira: PREOPS-911
-            comments:
-            - file: /Users/kuropat/devel/reports/pandaWfStat-PREOPS-911.txt
-              tokens:
+            comments: 'list'
+            - file: 'str' - /tmp/pandaWfStat-PREOPS-911.txt
+              tokens: 'list'
                  - 'pandaWfStat'
                  - 'workflow'
-            - file: /Users/kuropat/devel/reports/pandaStat-PREOPS-911.txt
-              tokens:
+            - file: 'str' - /tmp/pandaStat-PREOPS-911.txt
+              tokens: 'list'
                  - 'pandaStat'
                  - 'campaign'
-            - file: /home/kuropat/devel/reports/butlerStat-PREOPS-911_step1.txt
-              tokens:
+            - file: 'str' - /tmp/butlerStat-PREOPS-911_step1.txt
+              tokens: 'list'
                 - 'butlerStat'
                 - 'Campaign'
-            attachments:
-              - /Users/kuropat/devel/reports/pandaWfStat-PREOPS-911.html
+            attachments: 'list'
+              - /tmp/pandaWfStat-PREOPS-911.html
     """
 
     def __init__(self, inp_file):
+        self.log = LOG
         self.ju = JiraUtils()
         (self.a_jira, account) = self.ju.get_login()
         with open(inp_file) as pf:
             in_pars = yaml.safe_load(pf)
-        self.ticket = in_pars["Jira"]
-        if "comments" in in_pars:
-            self.comments = in_pars["comments"]
+        self.ticket = in_pars['Jira']
+        if 'comments' in in_pars:
+            self.comments = in_pars['comments']
         else:
             self.comments = list()
-        print(self.comments)
-        if "attachments" in in_pars:
-            self.attachments = in_pars["attachments"]
+        if 'attachments' in in_pars:
+            self.attachments = in_pars['attachments']
         else:
             self.attachments = list()
-        print(self.attachments)
-        self.project = in_pars["project"]
+        self.project = in_pars['project']
 
     def run(self):
         """Update the jira ticket."""
-        print("The summary for ticket:", self.ticket)
+        self.log.info(f"The summary for ticket:{self.ticket}")
         issue_id = self.ju.get_issue_id(self.project, self.ticket)
         issue = self.ju.get_issue(self.ticket)
         summary = self.ju.get_summary(issue)
-        print(summary)
+        self.log.info(summary)
         for comment in self.comments:
-            com_file = comment["file"]
-            tokens = comment["tokens"]
-            str_buff = ""
-            for line in open(com_file, "r"):
+            com_file = comment['file']
+            tokens = comment['tokens']
+            str_buff = ''
+            for line in open(com_file, 'r'):
                 str_buff += line
             self.ju.update_comment(self.a_jira, self.ticket, issue_id, tokens, str_buff)
         for attachment in self.attachments:
             att_file = str(attachment)
-            #            att_name = att_file.split('/')[-1]
             self.ju.update_attachment(self.a_jira, issue, att_file)

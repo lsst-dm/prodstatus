@@ -33,7 +33,7 @@ import numpy as np
 import pandas as pd
 
 from lsst.ctrl.bps import BpsConfig
-from . import LOG
+from lsst.prodstatus import LOG
 
 # constants
 
