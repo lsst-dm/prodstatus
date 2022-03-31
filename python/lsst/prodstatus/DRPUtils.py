@@ -492,6 +492,7 @@ class DRPUtils:
         pattern1b = re.compile("(.*)tract *>=([0-9]*) and tract *<=( *[0-9]*)")
         pattern2 = re.compile("(.*)exposure >=([0-9]*) and exposure <=( *[0-9]*)")
         pattern2b = re.compile("(.*)visit >=([0-9]*) and visit <=( *[0-9]*)")
+        pattern2c = re.compile("(.*)visit>=([0-9]*) and visit<=([0-9]*)")
         pattern2a = re.compile(
             "(.*)detector>=([0-9]*).*exposure >=( *[0-9]*) and exposure <=( *[0-9]*)"
         )
@@ -529,6 +530,10 @@ class DRPUtils:
             if n2b:
                 print("visitlo:", n2b.group(2), " visthigh:", n2b.group(3), ":end")
                 hilow = "(" + str(int(n2b.group(2))) + "," + str(int(n2b.group(3))) + ")"
+            n2c = pattern2c.match(ls)
+            if n2c:
+                print("visitlo:", n2c.group(2), " visthigh:", n2c.group(3), ":end")
+                hilow = "(" + str(int(n2c.group(2))) + "," + str(int(n2c.group(3))) + ")"
             # print("no match to l",l)
             n2a = pattern2a.match(ls)
             if n2a:
