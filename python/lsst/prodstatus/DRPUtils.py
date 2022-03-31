@@ -27,11 +27,11 @@ import datetime
 import json
 import numpy as np
 import pandas as pd
-from lsst.prodstatus.GetButlerStat import GetButlerStat
-from lsst.prodstatus.GetPanDaStat import GetPanDaStat
-from lsst.prodstatus.JiraUtils import JiraUtils
+from .GetButlerStat import GetButlerStat
+from .GetPanDaStat import GetPanDaStat
+from .JiraUtils import JiraUtils
 
-__all__ = ['DRPUtils']
+__all__ = ["DRPUtils"]
 
 
 class DRPUtils:
@@ -39,7 +39,7 @@ class DRPUtils:
 
     def __init__(self):
         self.ju = JiraUtils()
-        (self.ajira, self.user_name) = self.ju.get_login()
+        self.ajira, self.user_name = self.ju.get_login()
 
     @staticmethod
     def parse_yaml(bps_yaml_file, ts):
@@ -65,7 +65,13 @@ class DRPUtils:
         ts : `str`
             Timestamp in %Y%m%dT%H%M%SZ format
         """
-        kwlist = ["campaign", "project", "payload", "pipelineYaml", "extraQgraphOptions"]
+        kwlist = [
+            "campaign",
+            "project",
+            "payload",
+            "pipelineYaml",
+            "extraQgraphOptions",
+        ]
         kw = {
             "payload": [
                 "payloadName",
@@ -357,7 +363,7 @@ class DRPUtils:
         in_pars["collType"] = ts.upper()
         in_pars["workNames"] = ""
         in_pars["maxtask"] = 100
-        in_pars["start_date"] = '1970-01-01'
+        in_pars["start_date"] = "1970-01-01"
         in_pars["stop_date"] = datetime.datetime.now().isoformat()[:10]
         get_butler_stat = GetButlerStat(**in_pars)
         get_butler_stat.run()
@@ -512,12 +518,14 @@ class DRPUtils:
             n1a = pattern1a.match(ls)
             if n1a:
                 # print("Tract range:",n1.group(2),":end")
-                hilow = "("+n1a.group(2)+")"
+                hilow = "(" + n1a.group(2) + ")"
                 # print("hilow:",hilow)
             n1b = pattern1b.match(ls)
             if n1b:
                 print("tractlo:", n1b.group(2), " tracthigh:", n1b.group(3), ":end")
-                hilow = "(" + str(int(n1b.group(2))) + "," + str(int(n1b.group(3))) + ")"
+                hilow = (
+                    "(" + str(int(n1b.group(2))) + "," + str(int(n1b.group(3))) + ")"
+                )
                 # print("hilow:",hilow)
             n2 = pattern2.match(ls)
             if n2:
@@ -528,7 +536,9 @@ class DRPUtils:
             n2b = pattern2b.match(ls)
             if n2b:
                 print("visitlo:", n2b.group(2), " visthigh:", n2b.group(3), ":end")
-                hilow = "(" + str(int(n2b.group(2))) + "," + str(int(n2b.group(3))) + ")"
+                hilow = (
+                    "(" + str(int(n2b.group(2))) + "," + str(int(n2b.group(3))) + ")"
+                )
             # print("no match to l",l)
             n2a = pattern2a.match(ls)
             if n2a:
@@ -605,7 +615,7 @@ class DRPUtils:
                 scolor = "green"
             if int(nFail) == 0 and int(nFile) == 0:
                 scolor = "blue"
-            if int(nT) > int(nFin)+int(nFail)+int(nSubF):
+            if int(nT) > int(nFin) + int(nFail) + int(nSubF):
                 scolor = "blue"
 
             longdatetime = ts
@@ -837,7 +847,9 @@ class DRPUtils:
 
         # Add a new column to the DataFrame with group ids
         num_exposures = len(exposures)
-        exposures["group_id"] = np.floor(np.arange(num_exposures) / groupsize).astype(int)
+        exposures["group_id"] = np.floor(np.arange(num_exposures) / groupsize).astype(
+            int
+        )
 
         for group_id in range(skipgroups, skipgroups + ngroups):
             group_exposures = exposures.query(f"group_id == {group_id}")
@@ -927,10 +939,22 @@ class DRPUtils:
         tasktable += "PanDA PREOPS: " + str(pissue) + " link:" + a_link + "\n"
         for s in sl:
             tasktable += (
-                "|" + s[0] + "|" + s[1]
-                + "|" + " " + "|" + " "
-                + "|" + " " + "|" + " "
-                + "|" + " " + "|" + "\n"
+                "|"
+                + s[0]
+                + "|"
+                + s[1]
+                + "|"
+                + " "
+                + "|"
+                + " "
+                + "|"
+                + " "
+                + "|"
+                + " "
+                + "|"
+                + " "
+                + "|"
+                + "\n"
             )
 
         tasktable += "\n"
@@ -943,7 +967,7 @@ class DRPUtils:
                 issuetype="Task",
                 summary="a new issue",
                 description=bpsstr + tasktable,
-                components=[{"name": "Test"}]
+                components=[{"name": "Test"}],
             )
         else:
             issue = self.ajira.issue(drpi)
