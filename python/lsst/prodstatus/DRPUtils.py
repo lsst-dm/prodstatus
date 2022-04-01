@@ -30,6 +30,10 @@ import pandas as pd
 from .GetButlerStat import GetButlerStat
 from .GetPanDaStat import GetPanDaStat
 from .JiraUtils import JiraUtils
+from .Campaign import Campaign
+from .Step import Step
+from .Workflow import Workflow
+
 
 __all__ = ["DRPUtils"]
 
@@ -813,7 +817,8 @@ class DRPUtils:
         print("Summary updated, see DRP-55 or DRP-53")
 
     @staticmethod
-    def make_prod_groups(template, band, groupsize, skipgroups, ngroups, explist):
+    def make_prod_groups(template, band, groupsize, skipgroups,
+                         ngroups, explist):
         """Split a list of exposures into groups defined in yaml files.
 
         Parameters
@@ -975,3 +980,67 @@ class DRPUtils:
             fields={"summary": stepcut + "#" + upn, "description": bpsstr + tasktable}
         )
         print("issue:" + str(issue))
+
+    @staticmethod
+    def update_campaign(campaign_yaml, campaign_issue, campaign_name):
+        """Update or create a DRP campaign.
+
+            Parameters
+            ----------
+            campaign_yaml : `str`
+                File name for yaml file with BPS campaign data.
+            campaign_issue : `str`
+                The campaign issue ticket name (e.g. ``"DRP-186"``).
+            campaign_name : `str`
+                The name of campaign (e.g. "DRP-185"). If not specified can
+                 be taken from campaign_yaml file
+            """
+        print(campaign_yaml, campaign_issue, campaign_name)
+        campaign = Campaign()
+        print(campaign.name)
+
+    @staticmethod
+    def update_step(step_yaml, step_issue, campaign_name, step_name):
+        """Update or create a DRP step.
+
+            Parameters
+            ----------
+            step_yaml : `str`
+                File name for yaml file with BPS step data.
+            step_issue : `str`
+                The campaign issue ticket name (e.g. ``"DRP-186"``).
+            campaign_name : `str`
+                The name of campaign (e.g. "DRP-185").  if specified then
+            it should somehow attach this step.yaml to the
+            campaign, it would be nice to allow that to specify
+            the campaign by name rather than DRP number,
+            but we can work on that later.
+            step_name : `str`
+            """
+        print(step_yaml, step_issue, campaign_name, step_name)
+        step = Step()
+        print(step.name)
+
+    @staticmethod
+    def update_workflow(workflow_yaml, workflow_issue, step_issue, workflow_name):
+        """Creates workflow
+         It overwrites the existing DRP-187 ticket
+         (or makes a new one if --issue isn't given),
+         it adds the workflow to the list of steps in the
+          stepIssue.
+          It looks reads the 'full bps yaml' with all includes
+          and saves that as an attachment.
+
+        Parameters
+        ----------
+        workflow_yaml : `str`
+            A yaml file from which to get step parameters.
+        workflow_issue : `str`
+            if specified  it overwrite a pre-existing DRP ticket,
+            if not, it creates a new JIRA issue.
+        step_issue : `str`
+        workflow_name : `str`
+            """
+        print(workflow_yaml, workflow_issue, step_issue, workflow_name)
+        workflow = Workflow()
+        print(workflow.name)

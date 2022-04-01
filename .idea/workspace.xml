@@ -7,8 +7,11 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="444ec5a6-8209-4cfc-9e67-a590c2f749f6" name="Changes" comment="Some changes with CLI">
+    <list default="true" id="444ec5a6-8209-4cfc-9e67-a590c2f749f6" name="Changes" comment="Cleaning flake8 errors">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/DRPUtils.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/DRPUtils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/commands.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/commands.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,7 +76,12 @@
       <workItem from="1647444753410" duration="2015000" />
       <workItem from="1647716924059" duration="2157000" />
       <workItem from="1647819855522" duration="544000" />
-      <workItem from="1647873614901" duration="3041000" />
+      <workItem from="1647873614901" duration="5015000" />
+      <workItem from="1647896068688" duration="4908000" />
+      <workItem from="1647957991989" duration="596000" />
+      <workItem from="1648148828124" duration="40000" />
+      <workItem from="1648751867772" duration="11957000" />
+      <workItem from="1648823167146" duration="4330000" />
     </task>
     <task id="LOCAL-00001" summary="Some changes with LOG">
       <created>1647271076826</created>
@@ -194,7 +202,70 @@
       <option name="project" value="LOCAL" />
       <updated>1647877656133</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Some changes with CLI">
+      <created>1647882414514</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1647882414514</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Cleaning flake8 errors">
+      <created>1647904911950</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1647904911950</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Cleaning flake8 errors">
+      <created>1647904941468</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1647904941468</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Cleaning flake8 errors">
+      <created>1647904964370</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1647904964370</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Cleaning flake8 errors">
+      <created>1647904984813</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1647904984813</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Cleaning flake8 errors">
+      <created>1647905004647</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1647905004647</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Cleaning flake8 errors">
+      <created>1647905026783</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1647905026783</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Cleaning flake8 errors">
+      <created>1647905046587</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1647905046587</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Cleaning flake8 errors">
+      <created>1647958085481</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1647958085481</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -210,6 +281,7 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Reformatted clicl with include MWCommand." />
@@ -218,6 +290,7 @@
     <MESSAGE value="Set protection for missing jobs." />
     <MESSAGE value="Some changes with LOG" />
     <MESSAGE value="Some changes with CLI" />
-    <option name="LAST_COMMIT_MESSAGE" value="Some changes with CLI" />
+    <MESSAGE value="Cleaning flake8 errors" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cleaning flake8 errors" />
   </component>
 </project>
