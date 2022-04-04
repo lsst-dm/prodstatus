@@ -27,13 +27,15 @@ import datetime
 import json
 import numpy as np
 import pandas as pd
-from .GetButlerStat import GetButlerStat
-from .GetPanDaStat import GetPanDaStat
-from .JiraUtils import JiraUtils
-from .Campaign import Campaign
-from .Step import Step
-from .Workflow import Workflow
+from lsst.prodstatus.GetButlerStat import GetButlerStat
+from lsst.prodstatus.GetPanDaStat import GetPanDaStat
+from lsst.prodstatus.JiraUtils import JiraUtils
 
+from lsst.ctrl.bps import BpsConfig
+from lsst.prodstatus.Workflow import Workflow
+from lsst.prodstatus.Step import Step
+from lsst.prodstatus.Campaign import Campaign
+from lsst.prodstatus import LOG
 
 __all__ = ["DRPUtils"]
 
@@ -995,9 +997,18 @@ class DRPUtils:
                 The name of campaign (e.g. "DRP-185"). If not specified can
                  be taken from campaign_yaml file
             """
-        print(campaign_yaml, campaign_issue, campaign_name)
-        campaign = Campaign()
-        print(campaign.name)
+        LOG.info(f" Campaign name: {campaign_yaml}")
+        LOG.info(f"Campaign issue: {campaign_issue}")
+        LOG.info(f"Input campaign name: {campaign_name}")
+        """ Workflows should be created from campaign.yaml
+           if we need to create steps here or just take list of steps from
+           the campaign_yaml """
+        campaign_workflows = list()
+        LOG.info(campaign_workflows)
+        campaign_steps = list()
+
+        campaign = Campaign(campaign_name, steps=campaign_steps)
+        LOG.info(f"Campaign name: {campaign.name}")
 
     @staticmethod
     def update_step(step_yaml, step_issue, campaign_name, step_name):
@@ -1017,9 +1028,15 @@ class DRPUtils:
             but we can work on that later.
             step_name : `str`
             """
-        print(step_yaml, step_issue, campaign_name, step_name)
-        step = Step()
-        print(step.name)
+        LOG.info(f"Step yaml:{step_yaml}")
+        LOG.info(f"Step issue: {step_issue}")
+        LOG.info(f"Campaign name: {campaign_name}")
+        LOG.info(f"Input step name: {step_name}")
+        "Get workflows for the step from step_yaml"
+        workflows = list()
+
+        step = Step(step_name, workflows)
+        LOG.info(f"Step name: {step.name}")
 
     @staticmethod
     def update_workflow(workflow_yaml, workflow_issue, step_issue, workflow_name):
@@ -1041,6 +1058,10 @@ class DRPUtils:
         step_issue : `str`
         workflow_name : `str`
             """
-        print(workflow_yaml, workflow_issue, step_issue, workflow_name)
-        workflow = Workflow()
-        print(workflow.name)
+        LOG.info(f"Workflow yaml: {workflow_yaml}")
+        LOG.info(f"Workflow issue: {workflow_issue}")
+        LOG.info(f"Step issue: {step_issue}")
+        LOG.info(f"input workflow name: {workflow_name}")
+        bps_config = BpsConfig(workflow_yaml)
+        workflow = Workflow(bps_config, workflow_name)
+        LOG.info(f"workflow name: {workflow.name}")
