@@ -304,8 +304,8 @@ def plot_data(param_file):
 
 @click.command(cls=ProdstatusCommand)
 @click.argument("campaign_yaml", type=click.Path(exists=True))
-@click.option('--campaign_issue', required=False, type=str, default="DRP-186")
-@click.option('--campaign_name', required=False, type=str, default="DRP-185")
+@click.option('--campaign_issue', required=False, type=str, default="")
+@click.option('--campaign_name', required=False, type=str, default="")
 def update_campaign(campaign_yaml, campaign_issue, campaign_name):
     """Creates or updates campaign.
 
@@ -331,9 +331,9 @@ def update_campaign(campaign_yaml, campaign_issue, campaign_name):
 
 @click.command(cls=ProdstatusCommand)
 @click.argument("step_yaml", type=click.Path(exists=True))
-@click.option('--step_issue', required=False, type=str, default="DRP-186")
-@click.option('--camp_name', required=False, type=str, default="DRP-185")
-@click.option('--step_name', required=False, type=str, default="DRP-185")
+@click.option('--step_issue', required=False, type=str, default="")
+@click.option('--camp_name', required=False, type=str, default="")
+@click.option('--step_name', required=False, type=str, default="")
 def update_step(step_yaml, step_issue, camp_name, step_name):
     """Creates/updates step.
 
@@ -362,9 +362,9 @@ def update_step(step_yaml, step_issue, camp_name, step_name):
 
 @click.command(cls=ProdstatusCommand)
 @click.argument("workflow_yaml", type=click.Path(exists=True))
-@click.option('--workflow_issue', required=False, type=str, default="DRP-186")
-@click.option('--step_issue', required=False, type=str, default="DRP-185")
-@click.option('--workflow_name', required=False, type=str, default="DRP-185")
+@click.option('--workflow_issue', required=False, type=str, default="")
+@click.option('--step_issue', required=False, type=str, default="")
+@click.option('--workflow_name', required=False, type=str, default="")
 def update_workflow(workflow_yaml, workflow_issue, step_issue, workflow_name):
     """Creates/updates workflow.
         It overwrites the existing DRP-187 ticket
