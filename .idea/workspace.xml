@@ -7,10 +7,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="444ec5a6-8209-4cfc-9e67-a590c2f749f6" name="Changes" comment="Cleaning flake8 errors">
+    <list default="true" id="444ec5a6-8209-4cfc-9e67-a590c2f749f6" name="Changes" comment="Added commands for update_campaign, update_step, update_workflow">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/DRPUtils.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/DRPUtils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/commands.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/commands.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -31,6 +30,14 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
   </component>
   <component name="ProjectId" id="25tPnPn0EYn0qfwnC4kfrFtJe7g" />
   <component name="ProjectViewState">
@@ -81,7 +88,8 @@
       <workItem from="1647957991989" duration="596000" />
       <workItem from="1648148828124" duration="40000" />
       <workItem from="1648751867772" duration="11957000" />
-      <workItem from="1648823167146" duration="4330000" />
+      <workItem from="1648823167146" duration="5663000" />
+      <workItem from="1649083288762" duration="4562000" />
     </task>
     <task id="LOCAL-00001" summary="Some changes with LOG">
       <created>1647271076826</created>
@@ -265,7 +273,21 @@
       <option name="project" value="LOCAL" />
       <updated>1647958085481</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="Added commands for update_campaign, update_step, update_workflow">
+      <created>1648833700147</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1648833700147</updated>
+    </task>
+    <task id="LOCAL-00028" summary="Added commands for update_campaign, update_step, update_workflow">
+      <created>1648833714074</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1648833714074</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -291,6 +313,7 @@
     <MESSAGE value="Some changes with LOG" />
     <MESSAGE value="Some changes with CLI" />
     <MESSAGE value="Cleaning flake8 errors" />
-    <option name="LAST_COMMIT_MESSAGE" value="Cleaning flake8 errors" />
+    <MESSAGE value="Added commands for update_campaign, update_step, update_workflow" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added commands for update_campaign, update_step, update_workflow" />
   </component>
 </project>
