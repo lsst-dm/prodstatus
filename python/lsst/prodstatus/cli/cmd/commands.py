@@ -353,7 +353,7 @@ def update_step(step_yaml, step_issue, camp_name, step_name):
     step_name : `str`
     """
     click.echo("Start with update_step")
-    drpu = DRPUtils.DRPUtils
+    drpu = DRPUtils.DRPUtils()
     click.echo(step_issue)
     click.echo(camp_name)
     drpu.update_step(step_yaml, step_issue, camp_name, step_name)

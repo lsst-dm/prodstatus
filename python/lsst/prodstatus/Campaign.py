@@ -94,6 +94,15 @@ class Campaign:
             else:
                 exposures = None
 
+            if "tracts" in campaign_spec:
+                tracts_path = campaign_spec["tracts"]
+                tracts= pd.read_csv(
+                    tracts_path, names=["band", "tract_id"], delimiter=r"\s+"
+                )
+                tracts.sort_values("tract_id",inplace=True)
+            else:
+                tracts = None
+
             for step_name, step_specs in campaign_spec["steps"].items():
                 step_workflow_base_name = f"{name}"
                 base_bps_config = BpsConfig(step_specs["base_bps_config"])
@@ -103,15 +112,24 @@ class Campaign:
                 # by the BpsConfig instance.
                 step_spec_kwargs = deepcopy(step_specs)
                 step_spec_kwargs["base_bps_config"] = base_bps_config
-                step = Step.generate_new(
+                if "generate_groups" in step_specs:
+                  step = Step.generate_new(
                     step_name,
                     exposures=exposures,
                     workflow_base_name=step_workflow_base_name,
                     **step_spec_kwargs,
-                )
+                  )
+                else:
+                  step=Step.from_jira(step_specs["issue_name"],drp.ju)
                 steps.append(step)
 
-        campaign = cls(name, steps, exposures, issue_name)
+        #print("name:",name," steps:",steps," issue_name: ",issue_name)
+        campaign = cls(name, steps, exposures, issue_name,jira)
+        print("campaign is:",campaign)
+        print("name is:",name)
+        print("issue_name is:",issue_name)
+        print("steps are:",steps)
+        print("jira is:",jira)
 
         return campaign
 

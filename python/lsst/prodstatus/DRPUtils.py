@@ -22,7 +22,7 @@
 import glob
 import os
 import re
-from yaml import load, FullLoader
+from yaml import safe_load, load, FullLoader
 import datetime
 import json
 import numpy as np
@@ -1010,8 +1010,7 @@ class DRPUtils:
         campaign = Campaign(campaign_name, steps=campaign_steps)
         LOG.info(f"Campaign name: {campaign.name}")
 
-    @staticmethod
-    def update_step(step_yaml, step_issue, campaign_name, step_name):
+    def update_step(self, step_yaml, step_issue, campaign_name, step_name):
         """Update or create a DRP step.
 
             Parameters
@@ -1034,10 +1033,25 @@ class DRPUtils:
         LOG.info(f"Input step name: {step_name}")
         "Get workflows for the step from step_yaml"
         workflows = list()
-
-        step = Step(step_name, workflows)
+        print("ready to read",step_yaml)
+        with open(step_yaml,"r") as stream:
+          step_spec=safe_load(stream)
+        print(step_spec)
+        print(step_spec["workflows"])
+        for element in step_spec["workflows"]:
+         #print(element["name"],element["bps_config_yaml"])
+         #workflow=Workflow(element["bps_config_yaml"],element["name"],step=None,band="all",issue_name=element["issue_name"])
+         #print("workflo issue_name is:",workflow.issue_name)
+         workflows.append(element)
+        print("workflows is:",workflows)
+        step = Step(step_name, False, None, workflows,issue_name=step_spec["step_issue"])
+        print("step workflows:",step.workflows)
         LOG.info(f"Step name: {step.name}")
+        print("here")
+        jira_step_issue=step.to_jira(self.ajira,step.issue_name,replace=True)
+        #print(jira_step_issue)
 
+	
     @staticmethod
     def update_workflow(workflow_yaml, workflow_issue, step_issue, workflow_name):
         """Creates workflow
