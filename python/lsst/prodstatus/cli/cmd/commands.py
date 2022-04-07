@@ -26,10 +26,15 @@ import yaml
 from lsst.daf.butler.cli.utils import MWCommand
 
 from lsst.prodstatus import DRPUtils
-from lsst.prodstatus import GetButlerStat
-from lsst.prodstatus import GetPanDaStat
-from lsst.prodstatus import ReportToJira
-from lsst.prodstatus import MakePandaPlots
+from lsst.prodstatus.JiraUtils import JiraUtils
+from lsst.prodstatus.GetButlerStat import GetButlerStat
+from lsst.prodstatus.GetPanDaStat import GetPanDaStat
+from lsst.prodstatus.ReportToJira import ReportToJira
+from lsst.prodstatus.MakePandaPlots import MakePandaPlots
+from lsst.prodstatus.Workflow import Workflow
+from lsst.prodstatus.Step import Step
+from lsst.prodstatus.Campaign import Campaign
+from lsst.ctrl.bps import BpsConfig
 
 
 class ProdstatusCommand(MWCommand):
@@ -308,7 +313,7 @@ def plot_data(param_file):
 @click.option('--campaign_name', required=False, type=str, default="")
 def update_campaign(campaign_yaml, campaign_issue, campaign_name):
     """Creates or updates campaign.
-
+    \b
     Parameters
     ----------
     campaign_yaml : `str`
@@ -322,21 +327,22 @@ def update_campaign(campaign_yaml, campaign_issue, campaign_name):
         file for a keyword campaignName.
     """
     click.echo("Start with update_campaign")
-    drp = DRPUtils.DRPUtils
     click.echo(campaign_issue)
     click.echo(campaign_name)
-    drp.update_campaign(campaign_yaml, campaign_issue, campaign_name)
+    campaign = Campaign()
+    print(campaign)
+#    drp.update_campaign(campaign_yaml, campaign_issue, campaign_name)
     click.echo("Finish with update_campaign")
 
 
 @click.command(cls=ProdstatusCommand)
 @click.argument("step_yaml", type=click.Path(exists=True))
 @click.option('--step_issue', required=False, type=str, default="")
-@click.option('--camp_name', required=False, type=str, default="")
+@click.option('--campaign_name', required=False, type=str, default="")
 @click.option('--step_name', required=False, type=str, default="")
-def update_step(step_yaml, step_issue, camp_name, step_name):
+def update_step(step_yaml, step_issue, campaign_name, step_name):
     """Creates/updates step.
-
+    \b
     Parameters
     ----------
     step_yaml : `str`
@@ -344,7 +350,7 @@ def update_step(step_yaml, step_issue, camp_name, step_name):
     step_issue : `str`
         if specified  it overwrite a pre-existing DRP ticket,
         if not, it creates a new JIRA issue.
-    camp_name : `str`
+    campaign_name : `str`
         jira ticket name of the campaign, if specified then
         it should somehow attach this step.yaml to the
         campaign, it would be nice to allow that to specify
@@ -353,31 +359,44 @@ def update_step(step_yaml, step_issue, camp_name, step_name):
     step_name : `str`
     """
     click.echo("Start with update_step")
-    drpu = DRPUtils.DRPUtils()
-    click.echo(step_issue)
-    click.echo(camp_name)
-    drpu.update_step(step_yaml, step_issue, camp_name, step_name)
+    click.echo(f"Step issue {step_issue}")
+    click.echo(f"Campaign name {campaign_name}")
+    click.echo(f"Step yaml {step_yaml}")
+    click.echo(f"Step name {step_name}")
+    split_bands = False
+    base_bps_config = '~/devel/DATA/step1_detectors0_62_all_1.yaml'
+    bps_config = BpsConfig(base_bps_config)
+    step = Step.generate_new(step_name, bps_config, split_bands, None, None, "")
+    print(step)
+    jira = JiraUtils()
+    (auth_jira, user) = jira.get_login()
+    if step_issue is not None:
+        issue = auth_jira.issue(step_issue)
+        print(f"Issue is: {issue}")
+    step.to_jira(auth_jira, issue, replace=True, cascade=True)
     click.echo("Finish with update_step")
 
 
 @click.command(cls=ProdstatusCommand)
 @click.argument("workflow_yaml", type=click.Path(exists=True))
+@click.option("--step_name", required=False, type=str, default="")
 @click.option('--workflow_issue', required=False, type=str, default="")
 @click.option('--step_issue', required=False, type=str, default="")
 @click.option('--workflow_name', required=False, type=str, default="")
-def update_workflow(workflow_yaml, workflow_issue, step_issue, workflow_name):
+def update_workflow(workflow_yaml, step_name, workflow_issue, step_issue, workflow_name):
     """Creates/updates workflow.
-        It overwrites the existing DRP-187 ticket
-        (or makes a new one if --issue isn't given),
-        it adds the workflow to the list of steps in the
-        step_issue.
-        It looks reads the 'full bps yaml' with all includes
+        It overwrites the existing DRP ticket
+        (or makes a new one if --workflow_issue isn't given),.
+        It reads the 'full bps yaml' with all includes
         and saves that as an attachment.
-
+    \b
     Parameters
     ----------
+
     workflow_yaml : `str`
         A yaml file from which to get step parameters.
+    step_name : `str`
+        A name of the step the workflow belong to
     workflow_issue : `str`
         if specified  it overwrite a pre-existing DRP ticket,
         if not, it creates a new JIRA issue.
@@ -385,8 +404,17 @@ def update_workflow(workflow_yaml, workflow_issue, step_issue, workflow_name):
     workflow_name : `str`
     """
     click.echo("Start with update_workflow")
-    drp = DRPUtils.DRPUtils
-    click.echo(workflow_issue)
-    click.echo(step_issue)
-    drp.update_workflow(workflow_yaml, workflow_issue, step_issue, workflow_name)
+    click.echo(f"Workflow issue:{workflow_issue}")
+    click.echo(f"Step issue {step_issue}")
+    click.echo(f"Step name: {step_name}")
+    jira = JiraUtils()
+    (auth_jira, user) = jira.get_login()
+    if workflow_issue is not None:
+        issue = auth_jira.issue(workflow_issue)
+        print(f"Issue is: {issue}")
+    bps_config = BpsConfig(workflow_yaml)
+    workflow = Workflow(bps_config, workflow_name, step_name, step_issue, issue_name=workflow_issue)
+    workflow.to_jira(auth_jira, issue=issue, replace=False)
+    click.echo("created workflow")
+    print(workflow)
     click.echo("Finish with update_workflow")
