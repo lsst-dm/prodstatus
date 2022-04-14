@@ -274,6 +274,7 @@ class Workflow:
         bps_config_path = dir.joinpath(BPS_CONFIG_FNAME)
         with open(bps_config_path, "wt") as bps_config_io:
             self.bps_config.dump(bps_config_io)
+#            yaml.dump(self.bps_config, bps_config_io)
             LOG.debug(f"Wrote {bps_config_path}")
 
         workflow_params = {
@@ -298,7 +299,7 @@ class Workflow:
         Parameters
         ----------
         dir : `pathlib.Path`
-            Directory into which to save files.
+            Directory into which files were saved.
         name : `str`
             The name of the workflow (which deterimenes the subdirectory
             of dir from which the workflows is to be read). Defaults to None,
