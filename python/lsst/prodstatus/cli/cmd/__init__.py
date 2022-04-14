@@ -21,8 +21,10 @@
 
 __all__ = ["get_butler_stat", "update_issue", "add_job_to_summary", "update_stat",
            "get_panda_stat", "report_to_jira", "prep_timing_data", "plot_data",
-           "update_campaign", "update_step", "update_workflow"]
+           "update_campaign", "update_step", "update_workflow",
+           "make_workflow_yaml", "create_campaign_yaml"]
 
 from .commands import get_butler_stat, update_issue, add_job_to_summary, update_stat,\
     get_panda_stat, report_to_jira, prep_timing_data, plot_data,\
-    update_campaign, update_step, update_workflow
+    update_campaign, update_step, update_workflow, make_workflow_yaml,\
+    create_campaign_yaml

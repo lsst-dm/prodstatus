@@ -7,9 +7,13 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="444ec5a6-8209-4cfc-9e67-a590c2f749f6" name="Changes" comment="Added commands for update_campaign, update_step, update_workflow">
+    <list default="true" id="444ec5a6-8209-4cfc-9e67-a590c2f749f6" name="Changes" comment="Working on commands to test new classes.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/Campaign.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/Campaign.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/DRPUtils.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/DRPUtils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/Step.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/Step.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/Workflow.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/Workflow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/commands.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/commands.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -89,7 +93,14 @@
       <workItem from="1648148828124" duration="40000" />
       <workItem from="1648751867772" duration="11957000" />
       <workItem from="1648823167146" duration="5663000" />
-      <workItem from="1649083288762" duration="4562000" />
+      <workItem from="1649083288762" duration="10886000" />
+      <workItem from="1649205824834" duration="3279000" />
+      <workItem from="1649255819871" duration="6567000" />
+      <workItem from="1649357088567" duration="5100000" />
+      <workItem from="1649427598328" duration="1883000" />
+      <workItem from="1649686859351" duration="10505000" />
+      <workItem from="1649772739566" duration="14575000" />
+      <workItem from="1649858428453" duration="7956000" />
     </task>
     <task id="LOCAL-00001" summary="Some changes with LOG">
       <created>1647271076826</created>
@@ -287,7 +298,35 @@
       <option name="project" value="LOCAL" />
       <updated>1648833714074</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="Some modifications in commands to set empty defaults">
+      <created>1649099236323</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1649099236323</updated>
+    </task>
+    <task id="LOCAL-00030" summary="Some examples of update-campauign command">
+      <created>1649099294474</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1649099294474</updated>
+    </task>
+    <task id="LOCAL-00031" summary="Some examples of update-campauign command">
+      <created>1649099311006</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1649099311006</updated>
+    </task>
+    <task id="LOCAL-00032" summary="Working on commands to test new classes.">
+      <created>1649370925211</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1649370925211</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -314,6 +353,9 @@
     <MESSAGE value="Some changes with CLI" />
     <MESSAGE value="Cleaning flake8 errors" />
     <MESSAGE value="Added commands for update_campaign, update_step, update_workflow" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added commands for update_campaign, update_step, update_workflow" />
+    <MESSAGE value="Some modifications in commands to set empty defaults" />
+    <MESSAGE value="Some examples of update-campauign command" />
+    <MESSAGE value="Working on commands to test new classes." />
+    <option name="LAST_COMMIT_MESSAGE" value="Working on commands to test new classes." />
   </component>
 </project>

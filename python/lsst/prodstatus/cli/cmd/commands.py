@@ -23,6 +23,8 @@
 """
 import click
 import yaml
+import os
+import io
 from lsst.daf.butler.cli.utils import MWCommand
 
 from lsst.prodstatus import DRPUtils
@@ -308,6 +310,70 @@ def plot_data(param_file):
 
 
 @click.command(cls=ProdstatusCommand)
+@click.argument("campaign_name", type=str)
+@click.argument("campaign_yaml", type=click.Path())
+@click.option('--campaign_issue', required=False, type=str, default="")
+@click.option('--steps_list', required=False, type=str, default=None)
+def create_campaign_yaml(campaign_name, campaign_yaml, campaign_issue, steps_list):
+    """Creates or updates campaign.
+    \b
+    Parameters
+    ----------
+    campaign_name : `str`
+        An arbitrary name of the campaign.
+    campaign_yaml : `str`
+        A yaml file to which  campaign parameters will be written.
+    campaign_issue : `str`
+        if specified  the campaing yaml will be loaded from the
+        ticket and updated with input parameters
+    """
+    steps = ['step1', 'step2', 'step3', 'step4', 'step5',
+             'step6', 'step7']
+    click.echo("Start with create_campaign_yaml")
+    click.echo(f"Campaign issue {campaign_issue}")
+    click.echo(f"Campaign name {campaign_name}")
+    click.echo(f"Campaign yaml {campaign_yaml}")
+    campaign_template = dict()
+    if campaign_issue is not None:
+        "Read campaign yaml from ticket"
+        ju = JiraUtils()
+        auth_jira, username = ju.get_login()
+        issue = ju.get_issue(campaign_issue)
+        print(issue)
+        all_attachments = ju.get_attachments(issue)
+        print(all_attachments)
+        for aid in all_attachments:
+            print(aid, all_attachments[aid])
+            att_file = all_attachments[aid]
+            if att_file == "campaign.yaml":
+                attachment = auth_jira.attachment(aid)  #
+                a_yaml = io.BytesIO(attachment.get()).read()
+                campaign_template = yaml.safe_load(a_yaml)
+                print(campaign_template)
+    else:
+        campaign_template['name'] = campaign_name
+        campaign_template['issue'] = campaign_issue
+        campaign_template['steps'] = list()
+    step_data = list()
+    if steps_list is None:
+        " create default steps "
+        for step in steps:
+            step_dict = dict()
+            step_dict['issue'] = ''
+            step_dict['name'] = step
+            step_dict['split_bands'] = False
+            step_dict['workflows'] = list()
+            step_data.append(step_dict)
+    else:
+        with open(steps_list, 'r') as sl:
+            step_data = yaml.safe_load(sl)
+    campaign_template['steps'] = step_data
+    with open(campaign_yaml, 'w') as cf:
+        yaml.dump(campaign_template, cf)
+    click.echo("Finish with create_campaign_yaml")
+
+
+@click.command(cls=ProdstatusCommand)
 @click.argument("campaign_yaml", type=click.Path(exists=True))
 @click.option('--campaign_issue', required=False, type=str, default="")
 @click.option('--campaign_name', required=False, type=str, default="")
@@ -327,11 +393,13 @@ def update_campaign(campaign_yaml, campaign_issue, campaign_name):
         file for a keyword campaignName.
     """
     click.echo("Start with update_campaign")
-    click.echo(campaign_issue)
-    click.echo(campaign_name)
-    campaign = Campaign()
+    click.echo(f"Campaign yaml {campaign_yaml}")
+    click.echo(f"Campaign issue {campaign_issue}")
+    click.echo(f"Campaign name {campaign_name}")
+    campaign = Campaign.create_from_yaml(campaign_yaml)
     print(campaign)
-#    drp.update_campaign(campaign_yaml, campaign_issue, campaign_name)
+    dest = '/Users/kuropat/devel/temp'
+    campaign.to_files(dest)
     click.echo("Finish with update_campaign")
 
 
@@ -380,9 +448,9 @@ def update_step(step_yaml, step_issue, campaign_name, step_name):
 @click.command(cls=ProdstatusCommand)
 @click.argument("workflow_yaml", type=click.Path(exists=True))
 @click.option("--step_name", required=False, type=str, default="")
-@click.option('--workflow_issue', required=False, type=str, default="")
-@click.option('--step_issue', required=False, type=str, default="")
-@click.option('--workflow_name', required=False, type=str, default="")
+@click.option('--workflow_issue', required=False, type=str, default=None)
+@click.option('--step_issue', required=False, type=str, default=None)
+@click.option('--workflow_name', required=False, type=str, default=None)
 def update_workflow(workflow_yaml, step_name, workflow_issue, step_issue, workflow_name):
     """Creates/updates workflow.
         It overwrites the existing DRP ticket
@@ -406,15 +474,100 @@ def update_workflow(workflow_yaml, step_name, workflow_issue, step_issue, workfl
     click.echo("Start with update_workflow")
     click.echo(f"Workflow issue:{workflow_issue}")
     click.echo(f"Step issue {step_issue}")
-    click.echo(f"Step name: {step_name}")
     jira = JiraUtils()
     (auth_jira, user) = jira.get_login()
+    temp_dir = '/Users/kuropat/devel/temp/'
+    with open(workflow_yaml, 'r') as wf:
+        workflows = yaml.safe_load(wf)
+    " Update workflow.yaml with one particular issue "
     if workflow_issue is not None:
         issue = auth_jira.issue(workflow_issue)
         print(f"Issue is: {issue}")
-    bps_config = BpsConfig(workflow_yaml)
-    workflow = Workflow(bps_config, workflow_name, step_name, step_issue, issue_name=workflow_issue)
-    workflow.to_jira(auth_jira, issue=issue, replace=False)
+        all_attachments = jira.get_attachments(issue)
+        print(all_attachments)
+        for aid in all_attachments:
+            print(aid, all_attachments[aid])
+            att_file = all_attachments[aid]
+            if att_file == "workflow.yaml":
+                attachment = auth_jira.attachment(aid)  #
+                a_yaml = io.BytesIO(attachment.get()).read()
+                wf_sub = yaml.safe_load(a_yaml)
+                print(wf_sub)
+                if workflows is not None:
+                    for workflow_name in workflows:
+                        wf_dict = workflows[workflow_name]
+                        if wf_sub['name'] == workflow_name:
+                            bps_config = BpsConfig(wf_dict['path'])
+                            wf_issue = wf_sub['issue_name']
+                        workflow = Workflow(bps_config, wf_name,
+                                        step_name, step_issue,
+                                        issue_name=wf_issue)
+                        workflow.to_files(temp_dir)
+    else:
+        if workflows is not None:
+            for workflow_name in workflows:
+                wf_dict = workflows[workflow_name]
+                bps_config = BpsConfig(wf_dict['path'])
+                wf_name = wf_dict['name']
+                wf_issue = wf_dict['issue_name']
+                workflow = Workflow(bps_config, wf_name, step_name, step_issue, issue_name=wf_issue)
+                workflow.to_files(temp_dir)
+
+    click.echo("Finish with update_workflow")
+
+
+@click.command(cls=ProdstatusCommand)
+@click.argument("step_dir", type=click.Path(exists=True))
+@click.argument("step_name_base", type=str, default="")
+@click.argument("workflow_yaml", type=click.Path(exists=False))
+def make_workflow_yaml(step_dir, step_name_base, workflow_yaml):
+    """Creates/updates workflow.yaml for update_workflow command
+       It read all step yaml files in a directory and creates new entry
+       in the workflow yaml file
+    \b
+    Parameters
+    ----------
+
+    step_dir : `str`
+        A directory path where the step yaml files are
+    step_name_base : `str`
+        A base name to create unique step names
+    workflow_yaml : `str`
+        A yaml file name where workflow names and step yaml files are stored
+        If exists workflow parameters will be updated.
+    """
+    click.echo("Start with make-workflow-yaml")
+    click.echo(f"Step dir:{step_dir}")
+    click.echo(f"Step base name {step_name_base}")
+    click.echo(f"Workflow yaml: {workflow_yaml}")
+    if os.path.exists(workflow_yaml):
+        with open(workflow_yaml) as wf:
+            workflows = yaml.safe_load(wf)
+            print(workflows)
+        if workflows is None:
+            workflows = dict()
+    else:
+        workflows = dict()
+    " Get list of yaml files in step directory"
+    step_files = list()
+    for file in os.listdir(step_dir):
+        # check the files which  start with step token
+        if file.startswith("step"):
+            # print path name of selected files
+            step_files.append(file)
+    for file_name in step_files:
+        wf_dict = dict()
+        wf_name = file_name.split('.yaml')[0]
+        wf_dict['name'] = wf_name
+        wf_dict['bps_name'] = ''
+        wf_dict['issue_name'] = None
+        wf_dict['band'] = 'all'
+        wf_dict['step_name'] = step_name_base
+        wf_dict['path'] = os.path.join(step_dir, file_name)
+        if wf_name not in workflows:
+            workflows[wf_name] = wf_dict
     click.echo("created workflow")
-    print(workflow)
+    with open(workflow_yaml, 'w') as wf:
+        yaml.dump(workflows, wf)
+    print(workflows)
     click.echo("Finish with update_workflow")

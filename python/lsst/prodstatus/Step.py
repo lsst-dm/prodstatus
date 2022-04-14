@@ -28,7 +28,6 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import yaml
 import pandas as pd
-import re
 
 from lsst.prodstatus.Workflow import Workflow
 from lsst.prodstatus import LOG
@@ -94,7 +93,7 @@ class Step:
                 The filter for the exposure.
             ``"exp_id"``
                 The exposures id
-        base_name : `str`
+        workflow_base_name : `str`
             The base for the name of the workflows.
 
         Returns
@@ -161,17 +160,6 @@ class Step:
             else:
                 self.workflows.extend(band_workflows)
 
-    def wflist_to_table(in_dict,sorton):
-
-        table_out="|Name| Issue|\n"
-        print("indict:",in_dict)
-        lendict=len(in_dict)
-        for i in range(0,lendict):
-          elem=in_dict[i]
-          table_out += "|"+elem['name']+"|"+elem['issue_name']+"|\n"
-
-        return table_out
-
     def to_files(self, dir):
         """Save step data to files in a directory.
 
@@ -186,17 +174,11 @@ class Step:
             dir = dir.joinpath(self.name)
             dir.mkdir(exist_ok=True)
 
-        print("in to files",self.workflows)
-        for w in self.workflows:
-          print(w['name'],w['issue_name'])
         step_spec = {
             "name": self.name,
             "split_bands": self.split_bands,
-            #"workflows": [
-                #{"name": w.name, "issue": w.issue_name} for w in self.workflows
-            #],
             "workflows": [
-                {"name": w['name'], "issue": w['issue_name']} for w in self.workflows
+                {"name": w.name, "issue": w.issue_name} for w in self.workflows
             ],
         }
 
@@ -216,10 +198,10 @@ class Step:
             self.exposures.to_csv(explist_path, header=False, index=False, sep=" ")
             LOG.debug(f"Wrote {explist_path}")
 
-        #workflows_path = dir.joinpath("workflows")
-        #workflows_path.mkdir(exist_ok=True)
-        #for workflow in self.workflows:
-            #workflow.to_files(workflows_path)
+        workflows_path = dir.joinpath("workflows")
+        workflows_path.mkdir(exist_ok=True)
+        for workflow in self.workflows:
+            workflow.to_files(workflows_path)
 
     @classmethod
     def from_files(cls, dir, name=None, load_workflows=True):
@@ -298,43 +280,15 @@ class Step:
             The issue to which the workflow was written.
         """
         # raise NotImplementedError("This code is untested")
-        print("issue",issue,self.issue_name,"wf:",self.workflows)
-        #if issue is None and self.issue_name is not None:
-        wf=self.workflows
-        print(type(wf))
-        print("wf:",wf)
-        tableout="|Name| Issue|WF|\n"
-        for i in range(0,len(wf)):
-          elem=wf[i]
-          wfissue=jira.issue(elem['issue_name'])
-          wfdesc=str(wfissue.raw['fields']['description'])
-          dlines=iter(wfdesc.splitlines())
-          pattern=re.compile('bps_submit_yaml_file:(.*).yaml')
-          pattern2=re.compile('uniqProcName:(.*)')
-          bpsyamlname=elem['name']
-          uniqProcName='place'
-          for aline in dlines:
-           m=re.match(pattern,aline)
-           if m:
-            bpsyamlname=m.group(1)
-           print(aline)
-           m=re.match(pattern2,aline)
-           if m:
-            print("match")
-            uniqProcName=m.group(1)
-            
-          tableout += "|"+bpsyamlname+"|"+elem['issue_name']+"|"+uniqProcName+"|\n"
-        if self.issue_name is not None:
+        if issue is None and self.issue_name is not None:
             issue = jira.issue(self.issue_name)
-            issue.update(fields={"description": tableout, "summary": "Step: "+str(self.name)})
 
         if issue is None:
-            print(self.name)
             issue = jira.create_issue(
                 project="DRP",
                 issuetype="Task",
-                summary=f"Step: {self.name}",
-                description=tableout,
+                summary=f"Step {self.name}",
+                description=f"Step {self.name}",
                 components=[{"name": "Test"}],
             )
             LOG.info(f"Created issue {issue}")
@@ -362,7 +316,6 @@ class Step:
             for file_name in ALL_STEP_FNAMES:
                 full_file_path = dir.joinpath(file_name)
                 if full_file_path.exists():
-                    print("issue.fields.attachment:",issue)
                     for attachment in issue.fields.attachment:
                         if file_name == attachment.filename:
                             if replace:
@@ -442,8 +395,8 @@ split bands: {self.split_bands}
 exposure groups: {str(self.exposure_groups)}
 workflows:"""
 
-        #for wf in self.workflows:
-            #output += f"\n - {wf.name} (issue {wf.issue_name})"
-            #output += f" with dataQuery {wf.bps_config['payload']['dataQuery']}"
+        for wf in self.workflows:
+            output += f"\n - {wf.name} (issue {wf.issue_name})"
+            output += f" with dataQuery {wf.bps_config['payload']['dataQuery']}"
 
         return output
