@@ -300,20 +300,21 @@ class DRPUtils:
         taskdict = dict()
         stepdict = dict()
         stepdesdict = dict()
-        subsets = drpyaml["subsets"]
-        for k, v in subsets.items():
-            stepname = k
-            tasklist = v["subset"]
-            tasklist.insert(0, "pipetaskInit")
-            tasklist.append("mergeExecutionButler")
-            # print(len(tasklist))
-            # print('tasklist:',tasklist)
-            taskdict["pipetaskInit"] = stepname
-            for t in tasklist:
-                taskdict[t] = stepname
-            taskdict["mergeExecutionButler"] = stepname
-            stepdict[stepname] = tasklist
-            stepdesdict[stepname] = v["description"]
+        if 'subset' in drpyaml:
+            subsets = drpyaml["subsets"]
+            for k, v in subsets.items():
+                stepname = k
+                tasklist = v["subset"]
+                tasklist.insert(0, "pipetaskInit")
+                tasklist.append("mergeExecutionButler")
+                # print(len(tasklist))
+                # print('tasklist:',tasklist)
+                taskdict["pipetaskInit"] = stepname
+                for t in tasklist:
+                    taskdict[t] = stepname
+                taskdict["mergeExecutionButler"] = stepname
+                stepdict[stepname] = tasklist
+                stepdesdict[stepname] = v["description"]
         # assumes tasknames are unique
         # i.e. that there's not more than one step
         # with the same taskname
