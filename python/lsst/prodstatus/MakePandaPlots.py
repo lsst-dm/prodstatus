@@ -125,7 +125,7 @@ class MakePandaPlots:
             workflow = self.workflows[key]
             for wf in workflow:
                 created = datetime.datetime.strptime(
-                    wf["created_at"].slpit('.')[0], "%Y-%m-%d %H:%M:%S"
+                    wf["created_at"].split('.')[0], "%Y-%m-%d %H:%M:%S"
                 ).timestamp()
                 r_status = wf["r_status"]
                 total_tasks = wf["total_tasks"]
