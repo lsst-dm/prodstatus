@@ -27,6 +27,7 @@ import os
 import io
 from lsst.daf.butler.cli.utils import MWCommand
 
+from tempfile import TemporaryDirectory
 from lsst.prodstatus import DRPUtils
 from lsst.prodstatus.JiraUtils import JiraUtils
 from lsst.prodstatus.GetButlerStat import GetButlerStat
@@ -362,6 +363,7 @@ def create_campaign_yaml(campaign_name, campaign_yaml, campaign_issue, steps_lis
             step_dict['issue'] = ''
             step_dict['name'] = step
             step_dict['split_bands'] = False
+            step_dict['forkflow_dir']
             step_dict['workflows'] = list()
             step_data.append(step_dict)
     else:
@@ -398,9 +400,61 @@ def update_campaign(campaign_yaml, campaign_issue, campaign_name):
     click.echo(f"Campaign name {campaign_name}")
     campaign = Campaign.create_from_yaml(campaign_yaml)
     print(campaign)
-    dest = '/Users/kuropat/devel/temp'
+    dest = TemporaryDirectory()
     campaign.to_files(dest)
     click.echo("Finish with update_campaign")
+
+
+@click.command(cls=ProdstatusCommand)
+@click.argument("step_yaml", type=click.Path())
+@click.argument("step_name", type=str)
+@click.option('--step_issue', required=False, type=str, default="")
+@click.option('--workflow_dir', required=False, type=str, default=None)
+def create_step_yaml(step_yaml, step_name, step_issue, workflow_dir):
+    """Creates step yaml.
+        \b
+        Parameters
+        ----------
+        step_yaml : `str`
+            A name of the step yaml with path
+
+        step_name : `str`
+            A name of the step.
+        step_issue : `str`
+            if specified  the step yaml will be loaded from the
+            ticket and updated with input parameters
+        workflow_dir: `str`
+            A name of the directory where workflow bps yaml files are,
+            including path
+        """
+    click.echo("Start with create_step_yaml")
+    click.echo(f"step issue {step_issue}")
+    click.echo(f"step name {step_name}")
+    click.echo(f"step yaml {step_yaml}")
+    click.echo(f"Workflow_dir {workflow_dir}")
+    step_template = dict()
+    if step_issue is not None:
+        "Read step yaml from ticket"
+        ju = JiraUtils()
+        auth_jira, username = ju.get_login()
+        issue = ju.get_issue(step_issue)
+        print(issue)
+        all_attachments = ju.get_attachments(issue)
+        print(all_attachments)
+        for aid in all_attachments:
+            print(aid, all_attachments[aid])
+            att_file = all_attachments[aid]
+            if att_file == "step.yaml":
+                attachment = auth_jira.attachment(aid)  #
+                a_yaml = io.BytesIO(attachment.get()).read()
+                step_template = yaml.safe_load(a_yaml)
+                print(step_template)
+    else:
+        step_template['name'] = step_name
+        step_template['issue'] = step_issue
+        step_template['workflows'] = list()
+    workflow_data = list()
+    print(workflow_data)
 
 
 @click.command(cls=ProdstatusCommand)
@@ -476,7 +530,7 @@ def update_workflow(workflow_yaml, step_name, workflow_issue, step_issue, workfl
     click.echo(f"Step issue {step_issue}")
     jira = JiraUtils()
     (auth_jira, user) = jira.get_login()
-    temp_dir = '/Users/kuropat/devel/temp/'
+    temp_dir = TemporaryDirectory()
     with open(workflow_yaml, 'r') as wf:
         workflows = yaml.safe_load(wf)
     " Update workflow.yaml with one particular issue "
@@ -497,11 +551,12 @@ def update_workflow(workflow_yaml, step_name, workflow_issue, step_issue, workfl
                     for workflow_name in workflows:
                         wf_dict = workflows[workflow_name]
                         if wf_sub['name'] == workflow_name:
+                            wf_name = wf_sub['name']
                             bps_config = BpsConfig(wf_dict['path'])
                             wf_issue = wf_sub['issue_name']
                         workflow = Workflow(bps_config, wf_name,
-                                        step_name, step_issue,
-                                        issue_name=wf_issue)
+                                            step_name, step_issue,
+                                            issue_name=wf_issue)
                         workflow.to_files(temp_dir)
     else:
         if workflows is not None:
