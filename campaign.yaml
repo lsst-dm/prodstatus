@@ -1,0 +1,31 @@
+issue: DRP-185
+name: testcampaign
+steps:
+- issue: ''
+  name: step1
+  split_bands: false
+  workflows: []
+- issue: ''
+  name: step2
+  split_bands: false
+  workflows: []
+- issue: ''
+  name: step3
+  split_bands: false
+  workflows: []
+- issue: ''
+  name: step4
+  split_bands: false
+  workflows: []
+- issue: ''
+  name: step5
+  split_bands: false
+  workflows: []
+- issue: ''
+  name: step6
+  split_bands: false
+  workflows: []
+- issue: ''
+  name: step7
+  split_bands: false
+  workflows: []
