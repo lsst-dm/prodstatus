@@ -22,6 +22,8 @@
 import sys
 import json
 import re
+import pdb
+import urllib.parse
 import urllib.error as url_error
 from urllib.request import urlopen
 import time
@@ -78,10 +80,15 @@ class GetPanDaStat:
 
     def get_workflows(self):
         """First lets get all workflows with given keys."""
-        "it was http://panda-doma.cern.ch/idds/wfprogress_gcp/?json"
+        "http://panda-doma.cern.ch/idds/wfprogress_gcp/?json"
+        "it was http://panda-doma.cern.ch/idds/wfprogress/?json"
+
+        panda_query = u"http://panda-doma.cern.ch/idds/wfprogress_gcp/?json"
         workflow_data = self.query_panda(
-            "http://panda-doma.cern.ch/idds/wfprogress_gcp/?json"
+            panda_query
         )
+#        except KeyError:
+#            pdb.set_trace()
         comp = str(self.Jira).lower()
         comp1 = str(self.collection_type)
         nwf = 0
@@ -389,7 +396,7 @@ class GetPanDaStat:
         result = dict()
         while not success:
             try:
-                with urlopen(url_string) as url:
+                with urlopen(urllib.parse.url_string) as url:
                     result = json.loads(url.read().decode())
                 success = True
             except url_error.URLError:
