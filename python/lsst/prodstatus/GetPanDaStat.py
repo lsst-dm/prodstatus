@@ -78,9 +78,9 @@ class GetPanDaStat:
 
     def get_workflows(self):
         """First lets get all workflows with given keys."""
-
+        "it was http://panda-doma.cern.ch/idds/wfprogress_gcp/?json"
         workflow_data = self.query_panda(
-            "http://panda-doma.cern.ch/idds/wfprogress/?json"
+            "http://panda-doma.cern.ch/idds/wfprogress_gcp/?json"
         )
         comp = str(self.Jira).lower()
         comp1 = str(self.collection_type)
@@ -643,7 +643,7 @@ class GetPanDaStat:
             wflist.append(self.workflow_info[key])
 
         pd.set_option("max_colwidth", 500)
-        pd.set_option("precision", 1)
+        pd.set_option("display.precision", 1)
         dataframe = pd.DataFrame(wflist, index=wfind)
         comment = " workflow status " + self.Jira
         index_name = "workflow"
