@@ -22,8 +22,6 @@
 import sys
 import json
 import re
-import pdb
-import urllib.parse
 import urllib.error as url_error
 from urllib.request import urlopen
 import time
@@ -119,7 +117,7 @@ class GetPanDaStat:
             workflow = self.workflows[key]
             for wf in workflow:
                 created = datetime.datetime.strptime(
-                    wf["created_at"], "%Y-%m-%d %H:%M:%S"
+                    wf["created_at"].split('.')[0], "%Y-%m-%d %H:%M:%S"
                 ).timestamp()
                 r_status = wf["r_status"]
                 total_tasks = wf["total_tasks"]
@@ -396,7 +394,8 @@ class GetPanDaStat:
         result = dict()
         while not success:
             try:
-                with urlopen(urllib.parse.url_string) as url:
+
+                with urlopen(url_string) as url:
                     result = json.loads(url.read().decode())
                 success = True
             except url_error.URLError:

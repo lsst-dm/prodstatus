@@ -76,7 +76,7 @@ def get_butler_stat(param_file):
     click.echo("Start with GetButlerStat")
     with open(param_file) as p_file:
         in_pars = yaml.safe_load(p_file)
-    butler_stat = GetButlerStat.GetButlerStat(**in_pars)
+    butler_stat = GetButlerStat(**in_pars)
     butler_stat.run()
     click.echo("End with GetButlerStat")
 
@@ -104,7 +104,7 @@ def update_issue(bps_submit_fname, production_issue, drp_issue, ts):
     ts : `str`
         unknown
     """
-    drp = DRPUtils.DRPUtils()
+    drp = DRPUtils()
     drp.drp_issue_update(bps_submit_fname, production_issue, drp_issue, ts)
 
 
@@ -141,7 +141,7 @@ def add_job_to_summary(production_issue, drp_issue, reset, remove):
     frontend = "DRP-53"
     frontend1 = "DRP-55"
     backend = "DRP-54"
-    drp = DRPUtils.DRPUtils()
+    drp = DRPUtils()
     drp.drp_add_job_to_summary(
         first, production_issue, drp_issue, frontend, frontend1, backend
     )
@@ -162,7 +162,7 @@ def update_stat(production_issue, drp_issue):
         leave off if you want a new issue generated, to redo,
         include the DRP-issue generated last time
     """
-    drp_utils = DRPUtils.DRPUtils()
+    drp_utils = DRPUtils()
     drp_utils.drp_stat_update(production_issue, drp_issue)
 
 
@@ -193,7 +193,7 @@ def get_panda_stat(param_file):
     click.echo("Start with GetPandaStat")
     with open(param_file, "r") as p_file:
         in_pars = yaml.safe_load(p_file)
-    panda_stat = GetPanDaStat.GetPanDaStat(**in_pars)
+    panda_stat = GetPanDaStat(**in_pars)
     panda_stat.run()
     click.echo("End with GetPanDaStat")
 
@@ -226,7 +226,7 @@ def report_to_jira(param_file):
     :return:
     """
     click.echo("Start with ReportToJira")
-    report = ReportToJira.ReportToJira(param_file)
+    report = ReportToJira(param_file)
     report.run()
     click.echo("End with ReportToJira")
 
@@ -266,7 +266,7 @@ def prep_timing_data(param_file):
     click.echo("Start with MakePandaPlots")
     with open(param_file, "r") as p_file:
         params = yaml.safe_load(p_file)
-    panda_plot_maker = MakePandaPlots.MakePandaPlots(**params)
+    panda_plot_maker = MakePandaPlots(**params)
     panda_plot_maker.prep_data()
     click.echo("Finish with prep_timing_data")
 
@@ -305,7 +305,7 @@ def plot_data(param_file):
     click.echo("Start with plot_data")
     with open(param_file, "r") as p_file:
         params = yaml.safe_load(p_file)
-    panda_plot_maker = MakePandaPlots.MakePandaPlots(**params)
+    panda_plot_maker = MakePandaPlots(**params)
     panda_plot_maker.plot_data()
     click.echo("Finish with plot_data")
 

@@ -7,9 +7,12 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="444ec5a6-8209-4cfc-9e67-a590c2f749f6" name="Changes" comment="Working on commands to test new classes.">
+    <list default="true" id="444ec5a6-8209-4cfc-9e67-a590c2f749f6" name="Changes" comment="Updated pandas set_option for newer version">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/DRPUtils.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/DRPUtils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/GetPanDaStat.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/GetPanDaStat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/commands.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/commands.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/data/panda_query_results.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_get_panda_stat.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_get_panda_stat.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,7 +101,9 @@
       <workItem from="1649858428453" duration="8085000" />
       <workItem from="1649963596709" duration="2770000" />
       <workItem from="1650034869568" duration="5375000" />
-      <workItem from="1650292690193" duration="2633000" />
+      <workItem from="1650292690193" duration="9902000" />
+      <workItem from="1650311837081" duration="111000" />
+      <workItem from="1650312026063" duration="1944000" />
     </task>
     <task id="LOCAL-00001" summary="Some changes with LOG">
       <created>1647271076826</created>
@@ -345,7 +350,63 @@
       <option name="project" value="LOCAL" />
       <updated>1650293787268</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="Check subset in DPRUtils">
+      <created>1650297764722</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1650297764722</updated>
+    </task>
+    <task id="LOCAL-00037" summary="Updated pandas set_option for newer version">
+      <created>1650298470001</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1650298470001</updated>
+    </task>
+    <task id="LOCAL-00038" summary="Updated pandas set_option for newer version">
+      <created>1650308610204</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1650308610204</updated>
+    </task>
+    <task id="LOCAL-00039" summary="Updated pandas set_option for newer version">
+      <created>1650308619390</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1650308619390</updated>
+    </task>
+    <task id="LOCAL-00040" summary="Updated pandas set_option for newer version">
+      <created>1650308661348</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1650308661349</updated>
+    </task>
+    <task id="LOCAL-00041" summary="Updated pandas set_option for newer version">
+      <created>1650309814139</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1650309814139</updated>
+    </task>
+    <task id="LOCAL-00042" summary="Updated pandas set_option for newer version">
+      <created>1650310446432</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1650310446433</updated>
+    </task>
+    <task id="LOCAL-00043" summary="Updated pandas set_option for newer version">
+      <created>1650311269912</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1650311269912</updated>
+    </task>
+    <option name="localTasksCounter" value="44" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -375,6 +436,8 @@
     <MESSAGE value="Some modifications in commands to set empty defaults" />
     <MESSAGE value="Some examples of update-campauign command" />
     <MESSAGE value="Working on commands to test new classes." />
-    <option name="LAST_COMMIT_MESSAGE" value="Working on commands to test new classes." />
+    <MESSAGE value="Check subset in DPRUtils" />
+    <MESSAGE value="Updated pandas set_option for newer version" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated pandas set_option for newer version" />
   </component>
 </project>
