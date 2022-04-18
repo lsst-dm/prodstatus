@@ -193,7 +193,7 @@ def get_panda_stat(param_file):
     click.echo("Start with GetPandaStat")
     with open(param_file, "r") as p_file:
         in_pars = yaml.safe_load(p_file)
-    panda_stat = GetPanDaStat(**in_pars)
+    panda_stat = GetPanDaStat.GetPanDaStat(**in_pars)
     panda_stat.run()
     click.echo("End with GetPanDaStat")
 
@@ -453,7 +453,7 @@ def create_step_yaml(step_yaml, step_name, step_issue, workflow_dir):
         step_template['name'] = step_name
         step_template['issue'] = step_issue
         step_template['workflows'] = list()
-    workflow_data = list()96
+    workflow_data = list()
     print(workflow_data)
 
 
