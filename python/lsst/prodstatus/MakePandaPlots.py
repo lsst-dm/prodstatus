@@ -93,7 +93,9 @@ class MakePandaPlots:
         """
 
         workflow_data = self.query_panda(
-            url_string="http://panda-doma.cern.ch/idds/wfprogress_gcp/?json"
+            # url_string="http://panda-doma.cern.ch/idds/wfprogress_gcp/?json"
+            # TBD: need to allow IDDS URL be a variable
+            url_string="http://panda-doma.cern.ch/idds/wfprogress/?json"
         )
         comp = str(self.jira_ticket).lower()
         comp1 = str(self.collection_type)

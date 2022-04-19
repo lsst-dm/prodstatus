@@ -45,6 +45,8 @@ __all__ = ["DRPUtils"]
 class DRPUtils:
     """Collection of DRP utilities."""
 
+    # Create a JIRA class object instance for handling read/writes
+    # to JIRA issues and JIRA issue creation
     def __init__(self):
         self.ju = JiraUtils()
         self.ajira, self.user_name = self.ju.get_login()
@@ -58,7 +60,7 @@ class DRPUtils:
         bps_yaml_file : `str`
             File name for yaml file with BPS connection data.
         ts: `str`
-            Timestamp in %Y%m%dT%H%M%SZ format, or "0" to use first
+            TimeStamp in %Y%m%dT%H%M%SZ format, or "0" to use first
             available time.
 
         Returns
@@ -66,13 +68,19 @@ class DRPUtils:
         bpsstr : `str`
             Description of the BPS connection data.
         kwd : `dict` [`str`, `str`]
-            Some values extracted from the yaml file.
+            Some values extracted from the yaml file, into a Key
+            Word Dictionary.
         akwd : `dict`
             Additional data, mostly extracted from other files
-            pointed to by the provided yaml file.
+            pointed to by the provided yaml file, entered into Another
+            Key Word Dictionary.
         ts : `str`
-            Timestamp in %Y%m%dT%H%M%SZ format
+            TimeStamp in %Y%m%dT%H%M%SZ format
         """
+        # KeyWord list of keys extracted from the bps submit yaml which will
+        # be displayed in the JIRA issue description
+        # This is a subset of the important keywords for easy reference by
+        # the JIRA issue viewer
         kwlist = [
             "campaign",
             "project",
@@ -80,6 +88,7 @@ class DRPUtils:
             "pipelineYaml",
             "extraQgraphOptions",
         ]
+        # 2nd level keywords important to display in the JIRA issue description
         kw = {
             "payload": [
                 "payloadName",
@@ -90,11 +99,14 @@ class DRPUtils:
                 "output",
             ]
         }
-        f = open(bps_yaml_file, "r")
-        d = load(f, Loader=FullLoader)
-        f.close()
+        # TBD:  use the BPS API to read this BPS yaml in rather than
+        # direct yaml load.
+        with open(bps_yaml_file, 'r') as f:
+            d = load(f, Loader=FullLoader)
         kwd = dict()
         bpsstr = "BPS Submit Keywords:\n{code}\n"
+        # Format the essential keywords from the BPS submit yaml
+        # into readable form for the JIRA issue description
         for k, v in d.items():
             if k in kwlist:
                 if k in kw:
@@ -109,12 +121,17 @@ class DRPUtils:
             v = kwd[k]
             uniqid = uniqid.replace("{" + str(k) + "}", v)
         print(uniqid)
+        # find the 'long form' expanded bps submit yaml, with all includes
+        # use the given timestamp if provided or else pick the most recent
+        # one in the operator's
+        # submit directory by sorting all timestamps in the directory
         if ts == "0":
             allpath = glob.glob(uniqid + "/*")
             allpath.sort()
             longpath = allpath[-1]
             ts = os.path.basename(longpath)
         else:
+            # this needs to be upper case
             ts = ts.upper()
             longpath = uniqid + "/" + ts
         # print(longpath)
@@ -128,6 +145,7 @@ class DRPUtils:
         origyamlfile = longpath + "/" + os.path.basename(bps_yaml_file)
         bpsstr = bpsstr + "bps_submit_yaml_file: " + str(bps_yaml_file) + "\n"
         akwd = dict()
+        # get unix file statistics (create time) for the original bps yaml file
         if os.path.exists(origyamlfile):
             (
                 mode,
@@ -141,6 +159,8 @@ class DRPUtils:
                 origyamlfilemtime,
                 ctime,
             ) = os.stat(origyamlfile)
+            # get unix file statistics (create time) for the expanded bps
+            # yaml file
             if os.path.exists(fullbpsyaml):
                 print(
                     "full bps yaml file exists -- updating start graph generation timestamp"
@@ -157,16 +177,20 @@ class DRPUtils:
                     origyamlfilemtime,
                     ctime,
                 ) = os.stat(fullbpsyaml)
-                # print(origyamlfile,origyamlfilemtime,time.ctime(origyamlfilemtime))
+                # print(origyamlfile,origyamlfilemtime,
+                # time.ctime(origyamlfilemtime))
+            # Submit KeyWords deemed important to be added to the JIRA issue
+            # description for this workflow
             skwlist = ["bps_defined", "executionButler", "computeSite", "cluster"]
+            # second level Submit KeyWords
             skw = {
                 "bps_defined": ["operator", "uniqProcName"],
                 "executionButler": ["queue"],
             }
-
-            f = open(fullbpsyaml)
-            d = load(f, Loader=FullLoader)
-            f.close()
+            # TBD: use the BPS API to read this
+            with open(fullbpsyaml, 'r') as f:
+                d = load(f, Loader=FullLoader)
+            # TBD: Consider using the logger here
             print("submityaml keys:", d)
             for k, v in d.items():
                 if k in skwlist:
@@ -178,9 +202,12 @@ class DRPUtils:
                         akwd[k] = v
                         bpsstr += str(k) + ": " + str(v) + "\n"
 
+            # TBD: Consider using the logger here
             print("akwd", akwd)
             print("kwd", kwd)
             print(bpsstr)
+            # Get the unix filesystem stats (size, createtime) on the
+            # qgraph file
             qgraphfile = longpath + "/" + submittedyaml + ".qgraph"
             (
                 mode,
@@ -194,7 +221,11 @@ class DRPUtils:
                 mtime,
                 ctime,
             ) = os.stat(qgraphfile)
-            # print(qgraphfile,qgraphfilesize)
+            # TBD: use the logger there
+            # print(qgraphfile, qgraphfilesize)
+            # add the size of the quantum graph (in MB) to the essential
+            # keyword list
+            # info in the JIRA issue description
             bpsstr += (
                 "qgraphsize:" + str("{:.1f}".format(qgraphfilesize / 1.0e6)) + "MB\n"
             )
@@ -209,11 +240,12 @@ class DRPUtils:
                 size,
                 atime,
                 qgraphoutmtime,
-                ctime,
+                ctime
             ) = os.stat(qgraphout)
-            f = open(qgraphout)
-            qgstat = f.read()
-            f.close()
+            with open(qgraphout, 'r') as f:
+                qgstat = f.read()
+            # Parse the quantum graph output file and extract the number
+            # of quanta, number of tasks for JIRA description
             m = re.search("QuantumGraph contains (.*) quanta for (.*) task", qgstat)
             if m:
                 nquanta = m.group(1)
@@ -221,8 +253,10 @@ class DRPUtils:
                 bpsstr += "nTotalQuanta:" + str("{:d}".format(int(nquanta))) + "\n"
                 bpsstr += "nTotalPanDATasks:" + str("{:d}".format(int(ntasks))) + "\n"
 
+            # example:
             # QuantumGraph contains 310365 quanta for 5 tasks
             # print(qgraphout,qgraphoutmtime,time.ctime(qgraphoutmtime))
+            # determine the size and create time of the exec butler file
             execbutlerdb = longpath + "/EXEC_REPO-" + submittedyaml + "/gen3.sqlite3"
             (
                 mode,
@@ -243,9 +277,12 @@ class DRPUtils:
                 + "MB"
                 + "\n"
             )
+            # compute the amount of time needed to create the qgraph
             timetomakeqg = qgraphoutmtime - origyamlfilemtime
+            # compute the amount of time needed to create the exec butler
             timetomakeexecbutlerdb = butlerdbmtime - qgraphoutmtime
             # print(timetomakeqg,timetomakeexecbutlerdb)
+            # add these keywords to the JIRA issue description
             bpsstr += (
                 "timeConstructQGraph:"
                 + str("{:.1f}".format(timetomakeqg / 60.0))
@@ -256,8 +293,8 @@ class DRPUtils:
                 + str("{:.1f}".format(timetomakeexecbutlerdb / 60.0))
                 + "min\n"
             )
+            # condsider logging this info
             print(bpsstr)
-        # sys.exit(1)
         return bpsstr, kwd, akwd, ts
 
     @staticmethod
@@ -284,6 +321,7 @@ class DRPUtils:
         -- this file should be updated.
         It is in  $OBS_LSST_DIR/pipelines/imsim/DRP.yaml
         """
+        # TBD:  use the BPS API to parse this list of pipetasks within a step
         stepenvironsplit = steppath.split("}")
         if len(stepenvironsplit) > 1:
             envvar = stepenvironsplit[0][2:]
@@ -296,7 +334,7 @@ class DRPUtils:
         with open(os.environ.get(envvar) + restofpath) as drpfile:
             drpyaml = load(drpfile, Loader=FullLoader)
 
-        # eventually need to load the includes for more details
+        # TBD: use the BPS API
         taskdict = dict()
         stepdict = dict()
         stepdesdict = dict()
@@ -378,9 +416,8 @@ class DRPUtils:
         get_butler_stat.run()
         butfilename = "/tmp/butlerStat-" + str(pissue) + ".txt"
         if os.path.exists(butfilename):
-            fbstat = open(butfilename, "r")
-            butstat = fbstat.read()
-            fbstat.close()
+            with open(butfilename, 'r') as fbstat:
+                butstat = fbstat.read()
         else:
             butstat = "\n"
         panfilename = "/tmp/pandaStat-" + str(pissue) + ".txt"
@@ -388,14 +425,12 @@ class DRPUtils:
         get_panda_stat = GetPanDaStat(**in_pars)
         get_panda_stat.run()
         if os.path.exists(panfilename):
-            fpstat = open(panfilename, "r")
-            statstr = fpstat.read()
-            fpstat.close()
-            fstat = open("/tmp/pandaWfStat-" + str(pissue) + ".csv", "r")
-            fstat.readline()
-            line2 = fstat.readline()
-            a = line2.split(",")
-            fstat.close()
+            with open(panfilename, 'r') as fpstat:
+                statstr = fpstat.read()
+            with open("/tmp/pandaWfStat-" + str(pissue) + ".csv", "r") as fstat:
+                fstat.readline()
+                line2 = fstat.readline()
+                a = line2.split(",")
             # print(len(a),a)
             pstat = a[1]
             pntasks = int(a[2][:-2])

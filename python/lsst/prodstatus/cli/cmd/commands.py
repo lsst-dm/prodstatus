@@ -28,7 +28,7 @@ import io
 from lsst.daf.butler.cli.utils import MWCommand
 
 from tempfile import TemporaryDirectory
-from lsst.prodstatus import DRPUtils
+from lsst.prodstatus.DRPUtils import DRPUtils
 from lsst.prodstatus.JiraUtils import JiraUtils
 from lsst.prodstatus.GetButlerStat import GetButlerStat
 from lsst.prodstatus.GetPanDaStat import GetPanDaStat
@@ -101,8 +101,9 @@ def update_issue(bps_submit_fname, production_issue, drp_issue, ts):
         bps submissions
     drp_issue : `str`
         DRP issue created to track prodstatus for this bps submit
-    ts : `str`
-        unknown
+    --ts : `str`
+        use the given (optional) timestamp string ts to distinguish
+        between several
     """
     drp = DRPUtils()
     drp.drp_issue_update(bps_submit_fname, production_issue, drp_issue, ts)

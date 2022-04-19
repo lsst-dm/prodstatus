@@ -78,10 +78,12 @@ class GetPanDaStat:
 
     def get_workflows(self):
         """First lets get all workflows with given keys."""
-        "http://panda-doma.cern.ch/idds/wfprogress_gcp/?json"
-        "it was http://panda-doma.cern.ch/idds/wfprogress/?json"
+        # TBD: Need to allow the IDDS top level URL be defined as a variable
+        # "http://panda-doma.cern.ch/idds/wfprogress_gcp/?json"
+        # "it was http://panda-doma.cern.ch/idds/wfprogress/?json"
 
-        panda_query = u"http://panda-doma.cern.ch/idds/wfprogress_gcp/?json"
+        # panda_query = u"http://panda-doma.cern.ch/idds/wfprogress_gcp/?json"
+        panda_query = u"http://panda-doma.cern.ch/idds/wfprogress/?json"
         workflow_data = self.query_panda(
             panda_query
         )
