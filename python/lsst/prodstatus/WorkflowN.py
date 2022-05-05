@@ -149,7 +149,6 @@ class WorkflowN:
                 ----------
                 yaml_file : `str`
                     The file name to be created
-
                 """
         par_dict = dict()
         par_dict["bps_dir"] = self.bps_dir
