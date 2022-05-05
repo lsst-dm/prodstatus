@@ -7,12 +7,12 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="444ec5a6-8209-4cfc-9e67-a590c2f749f6" name="Changes" comment="Updated pandas set_option for newer version">
+    <list default="true" id="444ec5a6-8209-4cfc-9e67-a590c2f749f6" name="Changes" comment="Introduced modified classes for campaign, step, workflow">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/GetPanDaStat.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/GetPanDaStat.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/commands.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/cli/cmd/commands.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/data/panda_query_results.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_get_panda_stat.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_get_panda_stat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/campaign.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/issue: DRP-185&#10;name: Mary&#10;steps:&#10;    Larry:&#10;        exposure_groups: null&#10;        issue: DRP-186&#10;        split_bands: false&#10;" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/workflow.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/workflows.yaml" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -103,7 +103,21 @@
       <workItem from="1650034869568" duration="5375000" />
       <workItem from="1650292690193" duration="9902000" />
       <workItem from="1650311837081" duration="111000" />
-      <workItem from="1650312026063" duration="1944000" />
+      <workItem from="1650312026063" duration="4362000" />
+      <workItem from="1650377397609" duration="16345000" />
+      <workItem from="1650463806520" duration="3946000" />
+      <workItem from="1650563397285" duration="5116000" />
+      <workItem from="1650637065842" duration="14891000" />
+      <workItem from="1650895710138" duration="24533000" />
+      <workItem from="1650981085667" duration="15602000" />
+      <workItem from="1651068286669" duration="14714000" />
+      <workItem from="1651158204779" duration="12163000" />
+      <workItem from="1651243279047" duration="5727000" />
+      <workItem from="1651506760926" duration="16440000" />
+      <workItem from="1651593663703" duration="17342000" />
+      <workItem from="1651673621436" duration="5519000" />
+      <workItem from="1651760086501" duration="7786000" />
+      <workItem from="1651775735552" duration="578000" />
     </task>
     <task id="LOCAL-00001" summary="Some changes with LOG">
       <created>1647271076826</created>
@@ -406,7 +420,49 @@
       <option name="project" value="LOCAL" />
       <updated>1650311269912</updated>
     </task>
-    <option name="localTasksCounter" value="44" />
+    <task id="LOCAL-00044" summary="Updated pandas set_option for newer version">
+      <created>1650314377008</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1650314377009</updated>
+    </task>
+    <task id="LOCAL-00045" summary="Updated pandas set_option for newer version">
+      <created>1650314744403</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1650314744403</updated>
+    </task>
+    <task id="LOCAL-00046" summary="Drop subseconds in time stamp.">
+      <created>1650317340146</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1650317340146</updated>
+    </task>
+    <task id="LOCAL-00047" summary="Drop subseconds in time stamp.">
+      <created>1650317441815</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1650317441815</updated>
+    </task>
+    <task id="LOCAL-00048" summary="Introduced modified classes for campaign, step, workflow">
+      <created>1651773902601</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1651773902601</updated>
+    </task>
+    <task id="LOCAL-00049" summary="Introduced modified classes for campaign, step, workflow">
+      <created>1651774094358</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1651774094358</updated>
+    </task>
+    <option name="localTasksCounter" value="50" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -438,6 +494,8 @@
     <MESSAGE value="Working on commands to test new classes." />
     <MESSAGE value="Check subset in DPRUtils" />
     <MESSAGE value="Updated pandas set_option for newer version" />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated pandas set_option for newer version" />
+    <MESSAGE value="Drop subseconds in time stamp." />
+    <MESSAGE value="Introduced modified classes for campaign, step, workflow" />
+    <option name="LAST_COMMIT_MESSAGE" value="Introduced modified classes for campaign, step, workflow" />
   </component>
 </project>
