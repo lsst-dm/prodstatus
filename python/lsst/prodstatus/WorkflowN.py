@@ -40,7 +40,7 @@ BPS_CONFIG_FNAME = "bps_config.yaml"
 WORKFLOW_FNAME = "workflow.yaml"
 WORKFLOW_KEYWORDS = ("bps_dir", "name", "bps_name", "step_name", "issue_name",
                      "step_issue", "bps_config")
-ALL_WORKFLOW_FNAMES = (BPS_CONFIG_FNAME, WORKFLOW_FNAME)
+ALL_WORKFLOW_FNAMES = [WORKFLOW_FNAME]
 
 # exception classes
 
@@ -86,104 +86,6 @@ class WorkflowN:
     issue_name: Optional[str] = None
     step_issue: Optional[str] = None
     bps_config: Optional[BpsConfig] = None
-
-    def split_by_exposure(self, group_size=None, skip_groups=0, num_groups=None):
-        """Split the workflow by exposure number.
-
-        Parameters
-        ----------
-        group_size : `int` optional
-            The approximate size of the group. The default is None, which
-            causes the method to return a single workflow with all
-            exposures.
-        skip_groups : `int` optional
-            The number of groups to skip. The default is 0 (no skipped groups).
-        num_groups : `int` optional
-            The maximum number for groups. The default is None,
-            for all groups
-
-        Returns
-        -------
-        workflows : `List[Workflow]`
-            A list of workflows.
-        """
-        if self.exposures is None:
-            raise NoExposuresException
-        exp_ids = self.exposures["exp_id"].values
-
-        # If we do not need to split the workflow, just return a list
-        # containing only this workflow.
-        if group_size is None or not (0 < group_size < len(self.exposures)):
-            return [self]
-
-        workflows = []
-        base_query = self.bps_config["payload"]["dataQuery"]
-        num_subgroups = np.ceil(len(exp_ids) / group_size).astype(int)
-        exp_id_subgroups = np.array_split(np.sort(exp_ids), num_subgroups)
-        for subgroup_idx, these_exp_ids in enumerate(exp_id_subgroups):
-            min_exp_id = min(these_exp_ids)
-            max_exp_id = max(these_exp_ids)
-            data_query = f"({base_query}) and (exposure >= {min_exp_id}) and (exposure <= {max_exp_id})"
-            this_bps_config = self.bps_config.copy()
-            this_bps_config.update({"payload": {"dataQuery": data_query}})
-
-            this_band = self.band
-            these_exposures = self.exposures.query(
-                f"(exp_id >= {min_exp_id}) and (exp_id <= {max_exp_id})"
-            ).copy()
-            this_workflow = WorkflowN(
-                this_bps_config,
-                band=this_band,
-                exposures=these_exposures,
-                step=self.step,
-                name=f"{self.name}_{subgroup_idx+1}",
-            )
-            workflows.append(this_workflow)
-
-        if len(workflows) <= skip_groups:
-            return []
-
-        workflows = workflows[skip_groups:]
-        if num_groups is not None and len(workflows) > num_groups:
-            workflows = workflows[:num_groups]
-
-        return workflows
-
-    def split_by_band(self, bands="ugrizy"):
-        """Split the workflow by band.
-
-        Parameters
-        ----------
-        bands : `Iterable[ str ]`
-            The bands by which to divide exposures
-
-        Returns
-        -------
-        workflows : `List[Workflow]`
-            A list of workflows.
-        """
-        workflows = []
-        base_query = self.bps_config["payload"]["dataQuery"]
-        for band in bands:
-            data_query = f"({base_query}) and (band == '{band}')"
-            this_bps_config = self.bps_config.copy()
-            this_bps_config.update({"payload": {"dataQuery": data_query}})
-
-            if self.exposures is not None:
-                these_exposures = self.exposures.query(f"band=='{band}'").copy()
-            else:
-                these_exposures = None
-
-            this_workflow = WorkflowN(
-                this_bps_config,
-                band=band,
-                exposures=these_exposures,
-                step=self.step,
-                name=f"{self.name}_{band}",
-            )
-            workflows.append(this_workflow)
-
-        return workflows
 
     @classmethod
     def from_dict(cls, par_dict):
@@ -237,7 +139,7 @@ class WorkflowN:
         LOG.info(f" bps_name {bps_name} step_name {step_name}")
         LOG.info(f" step issue {step_issue} bps_dir {bps_dir}")
         workflow = cls(bps_dir, name, bps_name, step_name, issue_name, step_issue, bps_config)
-        print(workflow)
+        LOG.debug(workflow)
         return workflow
 
     def to_yaml(self, yaml_file):
@@ -347,14 +249,14 @@ class WorkflowN:
                 LOG.debug(f"Read {workflow_path}")
         return workflow
 
-    def to_jira(self, jira=None, issue=None, replace=True):
+    def to_jira(self, jira=None, issue_name=None, replace=True):
         """Save workflow data into a jira issue.
 
         Parameters
         ----------
         jira : `jira.JIRA`,
             The connection to Jira.
-        issue : `jira.resources.Issue`, optional
+        issue_name : `str`, optional
             This issue in which to save workflow data.
             If None, a new issue will be created.
         replace : `bool`
@@ -364,10 +266,10 @@ class WorkflowN:
         issue : `jira.resources.Issue`
             The issue to which the workflow was written.
         """
-        if issue is None and self.issue_name is not None:
+        if issue_name is None and self.issue_name is not None:
             issue = jira.issue(self.issue_name)
-
-        if issue is None:
+        "if new issue "
+        if issue_name is None:
             issue = jira.create_issue(
                 project="DRP",
                 issuetype="Task",
@@ -378,16 +280,16 @@ class WorkflowN:
             LOG.info(f"Created issue {issue}")
 
         self.issue_name = str(issue)
-
+        wf_dict = self.to_dict()
         with TemporaryDirectory() as staging_dir:
-            self.to_files(staging_dir)
-
             tmp_dir = Path(staging_dir)
             if self.name is not None:
                 tmp_dir = tmp_dir.joinpath(self.name)
-
             for file_name in ALL_WORKFLOW_FNAMES:
                 full_file_path = tmp_dir.joinpath(file_name)
+                " Create yaml file with workflow data"
+                with open(full_file_pat, 'w') as wf:
+                    yaml.dump(wf_dict, wf)
                 if full_file_path.exists():
                     for attachment in issue.fields.attachment:
                         if file_name == attachment.filename:
@@ -407,14 +309,14 @@ class WorkflowN:
         return issue
 
     @classmethod
-    def from_jira(cls, issue, jira=None):
+    def from_jira(cls, issue_name, jira=None):
         """Load workflow data from a jira issue.
 
 
         Parameters
         ----------
-        issue : `jira.resources.Issue`
-            This issue from which to load campaign data.
+        issue_name : `str`
+            This issue name from which to load campaign data.
         jira : `jira.JIRA`,
             The connection to Jira.
 
@@ -423,22 +325,14 @@ class WorkflowN:
         workflow : `Workflow`
             An initialized instance of a workflow.
         """
-        issue = jira.issue(issue) if isinstance(issue, str) else issue
-
-        with TemporaryDirectory() as staging_dir:
-            tmp_dir = Path(staging_dir)
-            for attachment in issue.fields.attachment:
-                if attachment.filename in ALL_WORKFLOW_FNAMES:
-                    file_content = attachment.get()
-                    LOG.debug(f"Read {attachment.filename} from {issue}")
-                    f_name = tmp_dir.joinpath(attachment.filename)
-                    with f_name.open("wb") as file_io:
-                        file_io.write(file_content)
-                        LOG.debug(f"Wrote {f_name}")
-
-            workflow = cls.from_files(staging_dir)
-            workflow.issue_name = str(issue)
-
+        issue = jira.issue(issue_name) if isinstance(issue_name, str) else issue
+        workflow = None
+        for attachment in issue.fields.attachment:
+            if attachment.filename in ALL_WORKFLOW_FNAMES:
+                a_yaml = io.BytesIO(attachment.get()).read()
+                workflow_specs = yaml.load(a_yaml, Loader=yaml.Loader)
+                workflow = cls.from_dict(workflow_specs)
+                workflow.issue_name = str(issue)
         return workflow
 
     def __str__(self):
