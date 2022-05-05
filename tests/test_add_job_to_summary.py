@@ -25,7 +25,7 @@ import json
 import unittest
 from unittest import mock
 
-from lsst.prodstatus import DRPUtils
+from lsst.prodstatus.DRPUtils import DRPUtils
 from ProdstatusTestBase import ProdstatusTestBase, MOCK_NETRC
 
 TEST_ISSUE_SUMMARY = "step1#v23_0_0_rc5/PREOPS-973/20220127T205042Z"
@@ -57,7 +57,7 @@ class TestAddJobToSummary(ProdstatusTestBase, unittest.TestCase):
         test_issue_fields.summary = TEST_ISSUE_SUMMARY
         test_issue_fields.description = TEST_ISSUE_DESCRIPTION
 
-        drp = DRPUtils.DRPUtils()
+        drp = DRPUtils()
         drp.drp_add_job_to_summary(
             first, production_issue, drp_issue, frontend, frontend1, backend
         )

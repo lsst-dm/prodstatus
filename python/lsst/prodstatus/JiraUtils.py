@@ -20,6 +20,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import netrc
+import io
+import yaml
 from jira import JIRA
 import argparse
 import datetime
@@ -29,6 +31,7 @@ __all__ = ["JiraUtils"]
 
 
 class JiraUtils:
+    """ Collection of methods to work with Jira"""
     def __init__(self):
         secrets = netrc.netrc()
         username, account, password = secrets.authenticators("lsstjira")
@@ -50,7 +53,7 @@ class JiraUtils:
         username, account, password = secrets.authenticators("lsstjira")
         self.user_name = username
         self.aut_jira = JIRA(options={"server": account}, basic_auth=(username, password))
-        return (self.aut_jira, self.user_name)
+        return self.aut_jira, self.user_name
 
     def get_issue(self, ticket):
         """Return issue object for given ticket.
@@ -62,7 +65,7 @@ class JiraUtils:
 
         Returns
         -------
-        issue_object : `jira.resouce.Issue`
+        issue_object : `jira.resource.Issue`
             The object representing the content of the issue.
         """
         issue_object = self.aut_jira.issue(ticket)
@@ -235,7 +238,7 @@ class JiraUtils:
             A work log dictionary with:
 
             ``"author"``
-                auther name (`str`)
+                author name (`str`)
             ``"created"``
                 timestamp (`str`)
             ``"comment"``
@@ -318,7 +321,7 @@ class JiraUtils:
         return com_str
 
     def update_attachment(self, jira, issue, attachment_file):
-        """Replate an attachment in an issue.
+        """Replace an attachment in an issue.
 
         Parameters
         ----------
@@ -352,6 +355,31 @@ class JiraUtils:
             self.add_attachment(jira, issue, attachment_file)
 
     @staticmethod
+    def get_yaml(jira, issue, yaml_file_name):
+        """Search for a yaml file in issue attachments
+         and return dictionary with its contents
+
+                Parameters
+                ----------
+                jira : `jira.client.JIRA`
+                    jira API instance
+                issue : `jira.resource.Issue`
+                    issue instance
+                yaml_file_name : `str`
+                    name of the attachment
+                """
+
+        auth_jira = jira
+        issue = auth_jira.get_issue(issue)
+        out_dict = dict()
+        for attachment in issue.fields.attachment:
+            att_file = attachment.filename
+            if att_file == yaml_file_name:
+                a_yaml = io.BytesIO(attachment.get()).read()
+                out_dict = yaml.load(a_yaml, Loader=yaml.Loader)
+        return out_dict
+
+    @staticmethod
     def get_description(issue):
         """Read issue description.
 
@@ -370,6 +398,7 @@ class JiraUtils:
 
 
 def main():
+    """ A simple test """
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -378,19 +407,19 @@ def main():
 
     options = parser.parse_args()
     ticket = options.ticket
-    print(f"ticket={ticket}")
+    LOG.info(f"ticket={ticket}")
     ju = JiraUtils()
     jira, username = ju.get_login()
 
     issue = ju.get_issue(ticket)
     issue_id = ju.get_issue_id(project="DRP", key=ticket)
-    print(f"issueId={issue_id}")
+    LOG.info(f"issueId={issue_id}")
     desc = ju.get_description(issue)
     LOG.info(f"desc:{desc}")
     " Let's make attachment if not exists"
     att_file = "./table.html"
     ju.update_attachment(jira, issue, att_file)
-    print(f"issue fields attachment:{issue.fields.attachment}")
+    LOG.info(f"issue fields attachment:{issue.fields.attachment}")
     " Now create or update a comment"
     comment_s = """ The test comment for pandaStat and PREOPS-910"""
     tokens = ["pandaStat", "PREOPS-910"]

@@ -23,25 +23,20 @@
 """
 import click
 import yaml
-import os
 import io
 from lsst.daf.butler.cli.utils import MWCommand
 
-from tempfile import TemporaryDirectory
-from lsst.prodstatus import DRPUtils
+from lsst.prodstatus.DRPUtils import DRPUtils
 from lsst.prodstatus.JiraUtils import JiraUtils
 from lsst.prodstatus.GetButlerStat import GetButlerStat
 from lsst.prodstatus.GetPanDaStat import GetPanDaStat
 from lsst.prodstatus.ReportToJira import ReportToJira
 from lsst.prodstatus.MakePandaPlots import MakePandaPlots
-from lsst.prodstatus.Workflow import Workflow
-from lsst.prodstatus.Step import Step
-from lsst.prodstatus.Campaign import Campaign
-from lsst.ctrl.bps import BpsConfig
+from lsst.prodstatus.WorkflowN import WorkflowN
 
 
 class ProdstatusCommand(MWCommand):
-    """Command subclass with prodst-command specific overrides."""
+    """Command subclass with prodstat-command specific overrides."""
 
     extra_epilog = "See 'prodstat --help' for more options."
 
@@ -249,7 +244,7 @@ def prep_timing_data(param_file):
         Jira: `str`
             campaign jira ticket for which to select data
         collType: `str`
-            token to help select data, like 2.2i or sttep2
+            token to help select data, like 2.2i or step2
         job_names: `list`
             list of task names for which to collect data
             - 'pipetaskInit'
@@ -289,7 +284,7 @@ def plot_data(param_file):
         Jira: `str`
             campaign jira ticket for which to select data
         collType: `str`
-            token to help select data, like 2.2i or sttep2
+            token to help select data, like 2.2i or step2
         job_names: `list`
             list of task names for which to collect data
             - 'pipetaskInit'
@@ -313,10 +308,9 @@ def plot_data(param_file):
 @click.command(cls=ProdstatusCommand)
 @click.argument("campaign_name", type=str)
 @click.argument("campaign_yaml", type=click.Path())
-@click.option('--campaign_issue', required=False, type=str, default="")
-@click.option('--steps_list', required=False, type=str, default=None)
-def create_campaign_yaml(campaign_name, campaign_yaml, campaign_issue, steps_list):
-    """Creates or updates campaign.
+@click.option('--campaign_issue', required=False, type=str, default=None)
+def create_campaign_yaml(campaign_name, campaign_yaml, campaign_issue):
+    """Creates campaign yaml template.
     \b
     Parameters
     ----------
@@ -324,61 +318,27 @@ def create_campaign_yaml(campaign_name, campaign_yaml, campaign_issue, steps_lis
         An arbitrary name of the campaign.
     campaign_yaml : `str`
         A yaml file to which  campaign parameters will be written.
+        The file should be treated as a template. It should be edited to
+        add workflow base directories for each active step.
     campaign_issue : `str`
-        if specified  the campaing yaml will be loaded from the
+        if specified  the campaign yaml will be loaded from the
         ticket and updated with input parameters
     """
-    steps = ['step1', 'step2', 'step3', 'step4', 'step5',
-             'step6', 'step7']
     click.echo("Start with create_campaign_yaml")
     click.echo(f"Campaign issue {campaign_issue}")
     click.echo(f"Campaign name {campaign_name}")
     click.echo(f"Campaign yaml {campaign_yaml}")
-    campaign_template = dict()
-    if campaign_issue is not None:
-        "Read campaign yaml from ticket"
-        ju = JiraUtils()
-        auth_jira, username = ju.get_login()
-        issue = ju.get_issue(campaign_issue)
-        print(issue)
-        all_attachments = ju.get_attachments(issue)
-        print(all_attachments)
-        for aid in all_attachments:
-            print(aid, all_attachments[aid])
-            att_file = all_attachments[aid]
-            if att_file == "campaign.yaml":
-                attachment = auth_jira.attachment(aid)  #
-                a_yaml = io.BytesIO(attachment.get()).read()
-                campaign_template = yaml.safe_load(a_yaml)
-                print(campaign_template)
-    else:
-        campaign_template['name'] = campaign_name
-        campaign_template['issue'] = campaign_issue
-        campaign_template['steps'] = list()
-    step_data = list()
-    if steps_list is None:
-        " create default steps "
-        for step in steps:
-            step_dict = dict()
-            step_dict['issue'] = ''
-            step_dict['name'] = step
-            step_dict['split_bands'] = False
-            step_dict['forkflow_dir']
-            step_dict['workflows'] = list()
-            step_data.append(step_dict)
-    else:
-        with open(steps_list, 'r') as sl:
-            step_data = yaml.safe_load(sl)
-    campaign_template['steps'] = step_data
-    with open(campaign_yaml, 'w') as cf:
-        yaml.dump(campaign_template, cf)
-    click.echo("Finish with create_campaign_yaml")
+    args = dict()
+    args["campaign_name"] = campaign_name
+    args["campaign_yaml"] = campaign_yaml
+    args["campaign_issue"] = campaign_issue
+    DRPUtils.create_campaign_yaml(args)
 
 
 @click.command(cls=ProdstatusCommand)
 @click.argument("campaign_yaml", type=click.Path(exists=True))
-@click.option('--campaign_issue', required=False, type=str, default="")
-@click.option('--campaign_name', required=False, type=str, default="")
+@click.option('--campaign_issue', required=False, type=str, default=None)
+@click.option('--campaign_name', required=False, type=str, default=None)
 def update_campaign(campaign_yaml, campaign_issue, campaign_name):
     """Creates or updates campaign.
     \b
@@ -398,19 +358,17 @@ def update_campaign(campaign_yaml, campaign_issue, campaign_name):
     click.echo(f"Campaign yaml {campaign_yaml}")
     click.echo(f"Campaign issue {campaign_issue}")
     click.echo(f"Campaign name {campaign_name}")
-    campaign = Campaign.create_from_yaml(campaign_yaml)
-    print(campaign)
-    dest = TemporaryDirectory()
-    campaign.to_files(dest)
+    DRPUtils.update_campaign(campaign_yaml, campaign_issue, campaign_name)
     click.echo("Finish with update_campaign")
 
 
 @click.command(cls=ProdstatusCommand)
 @click.argument("step_yaml", type=click.Path())
 @click.argument("step_name", type=str)
-@click.option('--step_issue', required=False, type=str, default="")
-@click.option('--workflow_dir', required=False, type=str, default=None)
-def create_step_yaml(step_yaml, step_name, step_issue, workflow_dir):
+@click.argument('workflow_dir', type=str)
+@click.option('--step_issue', required=False, type=str, default=None)
+@click.option('--campaign_issue', required=False, type=str, default=None)
+def create_step_yaml(step_yaml, step_name, workflow_dir, step_issue, campaign_issue):
     """Creates step yaml.
         \b
         Parameters
@@ -420,48 +378,34 @@ def create_step_yaml(step_yaml, step_name, step_issue, workflow_dir):
 
         step_name : `str`
             A name of the step.
-        step_issue : `str`
-            if specified  the step yaml will be loaded from the
-            ticket and updated with input parameters
         workflow_dir: `str`
             A name of the directory where workflow bps yaml files are,
             including path
+        step_issue : `str`
+            if specified  the step yaml will be loaded from the
+            ticket and updated with input parameters
+        campaign_issue : `str`
+            if specified the campaign jira ticket of campaign the
+            step belongs to
         """
     click.echo("Start with create_step_yaml")
     click.echo(f"step issue {step_issue}")
     click.echo(f"step name {step_name}")
     click.echo(f"step yaml {step_yaml}")
+    click.echo(f"campaign_issue {campaign_issue}")
     click.echo(f"Workflow_dir {workflow_dir}")
-    step_template = dict()
-    if step_issue is not None:
-        "Read step yaml from ticket"
-        ju = JiraUtils()
-        auth_jira, username = ju.get_login()
-        issue = ju.get_issue(step_issue)
-        print(issue)
-        all_attachments = ju.get_attachments(issue)
-        print(all_attachments)
-        for aid in all_attachments:
-            print(aid, all_attachments[aid])
-            att_file = all_attachments[aid]
-            if att_file == "step.yaml":
-                attachment = auth_jira.attachment(aid)  #
-                a_yaml = io.BytesIO(attachment.get()).read()
-                step_template = yaml.safe_load(a_yaml)
-                print(step_template)
-    else:
-        step_template['name'] = step_name
-        step_template['issue'] = step_issue
-        step_template['workflows'] = list()
-    workflow_data = list()
-    print(workflow_data)
+    DRPUtils.create_step_yaml(step_yaml,
+                              step_name,
+                              step_issue,
+                              campaign_issue,
+                              workflow_dir)
 
 
 @click.command(cls=ProdstatusCommand)
 @click.argument("step_yaml", type=click.Path(exists=True))
-@click.option('--step_issue', required=False, type=str, default="")
-@click.option('--campaign_name', required=False, type=str, default="")
-@click.option('--step_name', required=False, type=str, default="")
+@click.option('--step_issue', required=False, type=str, default=None)
+@click.option('--campaign_name', required=False, type=str, default=None)
+@click.option('--step_name', required=False, type=str, default=None)
 def update_step(step_yaml, step_issue, campaign_name, step_name):
     """Creates/updates step.
     \b
@@ -485,18 +429,7 @@ def update_step(step_yaml, step_issue, campaign_name, step_name):
     click.echo(f"Campaign name {campaign_name}")
     click.echo(f"Step yaml {step_yaml}")
     click.echo(f"Step name {step_name}")
-    split_bands = False
-    base_bps_config = '~/devel/DATA/step1_detectors0_62_all_1.yaml'
-    bps_config = BpsConfig(base_bps_config)
-    step = Step.generate_new(step_name, bps_config, split_bands, None, None, "")
-    print(step)
-    jira = JiraUtils()
-    (auth_jira, user) = jira.get_login()
-    if step_issue is not None:
-        issue = auth_jira.issue(step_issue)
-        print(f"Issue is: {issue}")
-    step.to_jira(auth_jira, issue, replace=True, cascade=True)
-    click.echo("Finish with update_step")
+    DRPUtils.update_step(step_yaml, step_issue, campaign_name, step_name)
 
 
 @click.command(cls=ProdstatusCommand)
@@ -504,8 +437,7 @@ def update_step(step_yaml, step_issue, campaign_name, step_name):
 @click.option("--step_name", required=False, type=str, default="")
 @click.option('--workflow_issue', required=False, type=str, default=None)
 @click.option('--step_issue', required=False, type=str, default=None)
-@click.option('--workflow_name', required=False, type=str, default=None)
-def update_workflow(workflow_yaml, step_name, workflow_issue, step_issue, workflow_name):
+def update_workflow(workflow_yaml, step_name, workflow_issue, step_issue):
     """Creates/updates workflow.
         It overwrites the existing DRP ticket
         (or makes a new one if --workflow_issue isn't given),.
@@ -523,14 +455,14 @@ def update_workflow(workflow_yaml, step_name, workflow_issue, step_issue, workfl
         if specified  it overwrite a pre-existing DRP ticket,
         if not, it creates a new JIRA issue.
     step_issue : `str`
-    workflow_name : `str`
     """
     click.echo("Start with update_workflow")
+    click.echo(f"Step name {step_name}")
     click.echo(f"Workflow issue:{workflow_issue}")
     click.echo(f"Step issue {step_issue}")
     jira = JiraUtils()
     (auth_jira, user) = jira.get_login()
-    temp_dir = TemporaryDirectory()
+    temp_dir = './temp/'
     with open(workflow_yaml, 'r') as wf:
         workflows = yaml.safe_load(wf)
     " Update workflow.yaml with one particular issue "
@@ -538,36 +470,24 @@ def update_workflow(workflow_yaml, step_name, workflow_issue, step_issue, workfl
         issue = auth_jira.issue(workflow_issue)
         print(f"Issue is: {issue}")
         all_attachments = jira.get_attachments(issue)
-        print(all_attachments)
         for aid in all_attachments:
-            print(aid, all_attachments[aid])
             att_file = all_attachments[aid]
             if att_file == "workflow.yaml":
-                attachment = auth_jira.attachment(aid)  #
+                attachment = auth_jira.attachment(aid)
                 a_yaml = io.BytesIO(attachment.get()).read()
-                wf_sub = yaml.safe_load(a_yaml)
-                print(wf_sub)
+                wf_sub = yaml.load(a_yaml, Loader=yaml.Loader)
                 if workflows is not None:
                     for workflow_name in workflows:
                         wf_dict = workflows[workflow_name]
                         if wf_sub['name'] == workflow_name:
-                            wf_name = wf_sub['name']
-                            bps_config = BpsConfig(wf_dict['path'])
-                            wf_issue = wf_sub['issue_name']
-                        workflow = Workflow(bps_config, wf_name,
-                                            step_name, step_issue,
-                                            issue_name=wf_issue)
-                        workflow.to_files(temp_dir)
+                            workflow = WorkflowN.from_dict(wf_dict)
+                            workflow.to_files(temp_dir)
     else:
         if workflows is not None:
             for workflow_name in workflows:
                 wf_dict = workflows[workflow_name]
-                bps_config = BpsConfig(wf_dict['path'])
-                wf_name = wf_dict['name']
-                wf_issue = wf_dict['issue_name']
-                workflow = Workflow(bps_config, wf_name, step_name, step_issue, issue_name=wf_issue)
+                workflow = WorkflowN.from_dict(wf_dict)
                 workflow.to_files(temp_dir)
-
     click.echo("Finish with update_workflow")
 
 
@@ -595,34 +515,5 @@ def make_workflow_yaml(step_dir, step_name_base, workflow_yaml):
     click.echo(f"Step dir:{step_dir}")
     click.echo(f"Step base name {step_name_base}")
     click.echo(f"Workflow yaml: {workflow_yaml}")
-    if os.path.exists(workflow_yaml):
-        with open(workflow_yaml) as wf:
-            workflows = yaml.safe_load(wf)
-            print(workflows)
-        if workflows is None:
-            workflows = dict()
-    else:
-        workflows = dict()
-    " Get list of yaml files in step directory"
-    step_files = list()
-    for file in os.listdir(step_dir):
-        # check the files which  start with step token
-        if file.startswith("step"):
-            # print path name of selected files
-            step_files.append(file)
-    for file_name in step_files:
-        wf_dict = dict()
-        wf_name = file_name.split('.yaml')[0]
-        wf_dict['name'] = wf_name
-        wf_dict['bps_name'] = ''
-        wf_dict['issue_name'] = None
-        wf_dict['band'] = 'all'
-        wf_dict['step_name'] = step_name_base
-        wf_dict['path'] = os.path.join(step_dir, file_name)
-        if wf_name not in workflows:
-            workflows[wf_name] = wf_dict
-    click.echo("created workflow")
-    with open(workflow_yaml, 'w') as wf:
-        yaml.dump(workflows, wf)
-    print(workflows)
-    click.echo("Finish with update_workflow")
+    DRPUtils.make_workflow_yaml(step_dir, step_name_base, workflow_yaml)
+    click.echo("Finish with make_workflow_yaml")

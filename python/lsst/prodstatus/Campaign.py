@@ -116,7 +116,7 @@ class Campaign:
         return campaign
 
     def to_files(self, dir):
-        """Save campaign data to files in a directory.
+        """Save workflow data to files in a directory.
 
 
         Parameters

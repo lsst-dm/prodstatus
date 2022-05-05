@@ -21,10 +21,13 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import glob
 import os
+import sys
 import re
 import io
 import yaml
 from yaml import load, FullLoader
+from pathlib import Path
+"from tempfile import TemporaryDirectory"
 import datetime
 import json
 import numpy as np
@@ -33,11 +36,12 @@ from lsst.prodstatus.GetButlerStat import GetButlerStat
 from lsst.prodstatus.GetPanDaStat import GetPanDaStat
 from lsst.prodstatus.JiraUtils import JiraUtils
 
-from lsst.ctrl.bps import BpsConfig
-from lsst.prodstatus.Workflow import Workflow
-from lsst.prodstatus.Step import Step
-from lsst.prodstatus.Campaign import Campaign
+from lsst.prodstatus.WorkflowN import WorkflowN
+from lsst.prodstatus.StepN import StepN
+from lsst.prodstatus.CampaignN import CampaignN
 from lsst.prodstatus import LOG
+
+# from lsst.ctrl.bps import BpsConfig
 
 __all__ = ["DRPUtils"]
 
@@ -969,7 +973,6 @@ class DRPUtils:
 
         tasktable += "\n"
         print(tasktable)
-        # (totmaxmem,totsumsec,nquanta,secperstep,sumtime,maxmem)=parsebutlertable(butstepfile)
 
         if drpi == "DRP0":
             issue = self.ajira.create_issue(
@@ -1003,18 +1006,48 @@ class DRPUtils:
         LOG.info(f" Campaign name: {campaign_yaml}")
         LOG.info(f"Campaign issue: {campaign_issue}")
         LOG.info(f"Input campaign name: {campaign_name}")
-        """ Workflows should be created from campaign.yaml
-           if we need to create steps here or just take list of steps from
-           the campaign_yaml """
-        campaign_workflows = list()
-        LOG.info(campaign_workflows)
-        campaign_steps = list()
+        """ Load yaml to dict to reserve possibility modify spec
+        before creation of the campaign"""
+        with open(campaign_yaml, "rt") as campaign_spec_io:
+            campaign_spec = yaml.safe_load(campaign_spec_io)
+        """ Read campaign specs from jira issue """
+        " create jira for saving results "
+        ju = JiraUtils()
+        a_jira, user = ju.get_login()
+        if campaign_issue is None and campaign_spec["issue"] is not None:
+            campaign_issue = campaign_spec["issue"]
+        if campaign_issue is not None:
+            campaign = CampaignN.from_jira(campaign_issue, a_jira)
+            if campaign is not None:
+                jira_spec = campaign.to_dict()
+                "keep old campaign issue in specs"
+                if campaign_spec["issue"] != jira_spec["issue"]:
+                    campaign_spec["issue"] = jira_spec["issue"]
+                """ now create step issues from jira and update
+                step specs in campaign specs
+                """
+                steps_dict = dict()
+                steps = jira_spec["steps"]
+                for step in steps:
+                    name = step["name"]
+                    issue_name = step["issue_name"]
+                    steps_dict[name] = issue_name
+                for step in campaign_spec["steps"]:
+                    name = step["name"]
+                    if name in steps_dict:
+                        step["issue_name"] = steps_dict[name]
+                        step["campaign_issue"] = campaign_issue
 
-        campaign = Campaign(campaign_name, steps=campaign_steps)
-        LOG.info(f"Campaign name: {campaign.name}")
+        " Now create campaign with updated specs"
+        campaign = CampaignN.from_dict(campaign_spec, a_jira)
+        print(campaign)
+        " Save campaign to jira "
+        campaign_issue = campaign_spec["issue"]
+        campaign.to_jira(a_jira, campaign_issue, replace=True, cascade=False)
+        LOG.info("Finish with update_campaign")
 
     @staticmethod
-    def update_step(step_yaml, step_issue, campaign_name, step_name):
+    def update_step(step_yaml, step_issue, campaign_issue, step_name):
         """Update or create a DRP step.
 
             Parameters
@@ -1023,7 +1056,7 @@ class DRPUtils:
                 File name for yaml file with BPS step data.
             step_issue : `str`
                 The campaign issue ticket name (e.g. ``"DRP-186"``).
-            campaign_name : `str`
+            campaign_issue : `str`
                 The name of campaign (e.g. "DRP-185").  if specified then
             it should somehow attach this step.yaml to the
             campaign, it would be nice to allow that to specify
@@ -1033,16 +1066,81 @@ class DRPUtils:
             """
         LOG.info(f"Step yaml:{step_yaml}")
         LOG.info(f"Step issue: {step_issue}")
-        LOG.info(f"Campaign name: {campaign_name}")
+        LOG.info(f"Campaign name: {campaign_issue}")
         LOG.info(f"Input step name: {step_name}")
-        "Get workflows for the step from step_yaml"
-        workflows = list()
 
-        step = Step(step_name, workflows)
-        LOG.info(f"Step name: {step.name}")
+        """" Lets check if step is in jira ang get step yaml
+         if it is"""
+#        step = StepN(step_name)
+#        step_dict = dict()
+#        temp_dir = TemporaryDirectory()
+        if step_issue is not None:
+            ju = JiraUtils()
+            a_jira, user = ju.get_login()
+            step_dict = ju.get_yaml(a_jira, step_issue, 'step.yaml')
+            step_name = step_dict["name"]
+            step_issue = step_dict["issue_name"]
+            " workflow_base is a directory where workflow bps yamls are"
+            workflow_base = step_dict["workflow_base"]
+            campaign_issue = step_dict["campaign_issue"]
+            workflows = step_dict["workflows"]
+            LOG.info(f"Step yaml:{step_yaml}")
+            LOG.info(f"Step issue: {step_issue}")
+            LOG.info(f"Campaign name: {campaign_issue}")
+            LOG.info(f"Input step name: {step_name}")
+            LOG.info("have jira issue -- read step specs")
+        else:
+            "Get data from step_yaml"
+            with open(step_yaml, 'r') as sf:
+                step_dict = yaml.safe_load(sf)
+            step_name = step_dict["name"]
+            step_issue = step_dict["issue_name"]
+            campaign_issue = step_dict["campaign_issue"]
+            " workflow_base is a directory where workflow bps yamls are"
+            workflow_base = step_dict["workflow_base"]
+            workflows = step_dict["workflows"]
+            LOG.info(f"step workflows {workflows}")
+            LOG.info(f"Step yaml:{step_yaml}")
+            LOG.info(f"Step issue: {step_issue}")
+            LOG.info(f"Campaign name: {campaign_issue}")
+            LOG.info(f"Input step name: {step_name}")
+        wf_path = Path(workflow_base)
+        "Get workflows for the step from workflow_base"
+        LOG.info("Updating workflows")
+        for file_name in os.listdir(wf_path):
+            # check the files which  start with step token
+            if file_name.startswith(step_name):
+                wf_name = file_name.split('.yaml')[0]
+                bps_path = os.path.join(workflow_base, file_name)
+                wf_data = dict()
+                wf_data["name"] = wf_name
+                wf_data["path"] = bps_path
+                wf_data["issue_name"] = None
+                wf_data["band"] = 'all'
+                wf_data["step_name"] = step_name
+                wf_data["step_issue"] = step_issue
+                wf_data["bps_name"] = ''
+                " if new workflow - create it and add to workflows "
+                if wf_name not in workflows:
+                    LOG.info("create new workflow")
+                    "workflow = WorkflowN.from_dict(wf_data)"
+                    wf_issue = None
+                    wf_data["issue_name"] = wf_issue
+                    workflows[wf_name] = wf_data
+
+        step_dict["workflows"] = workflows
+        LOG.info("Step dict")
+        step = StepN.from_dict(step_dict)
+        jira = JiraUtils()
+        (auth_jira, user) = jira.get_login()
+        step.to_jira(auth_jira, step_issue, replace=True, cascade=True)
+        """
+        tmp_dir = TemporaryDirectory()
+        step.to_files(tmp_dir.name) """
+        LOG.info("Finish with update_step")
 
     @staticmethod
-    def update_workflow(workflow_yaml, workflow_issue, step_issue, workflow_name):
+    def update_workflow(workflow_yaml, workflow_issue, step_issue):
         """Creates workflow
          It overwrites the existing DRP-187 ticket
          (or makes a new one if --issue isn't given),
@@ -1064,24 +1162,29 @@ class DRPUtils:
         LOG.info(f"Workflow yaml: {workflow_yaml}")
         LOG.info(f"Workflow issue: {workflow_issue}")
         LOG.info(f"Step issue: {step_issue}")
-        LOG.info(f"input workflow name: {workflow_name}")
-        bps_config = BpsConfig(workflow_yaml)
-        workflow = Workflow(bps_config, workflow_name)
+        with open(workflow_yaml, 'r') as wf:
+            workflow_specs = yaml.load(wf, Loader=yaml.Loader)
+        if workflow_issue is not None:
+            workflow_specs["issue_name"] = workflow_issue
+        if step_issue is not None:
+            workflow_specs["step_issue"] = step_issue
+        workflow = WorkflowN.from_dict(workflow_specs)
         LOG.info(f"workflow name: {workflow.name}")
+        return workflow
 
     @staticmethod
     def make_workflow_yaml(step_dir, step_name_base, workflow_yaml):
         """Creates/updates workflow.yaml for update_workflow command
-           It read all step yaml files in a directory and creates new entry
+           It reads all step yaml files in a directory and creates new entry
            in the workflow yaml file
         \b
         Parameters
         ----------
 
         step_dir : `str`
-            A directory path where the step yaml files are
+            A directory path where the step workflow yaml files are
         step_name_base : `str`
-            A base name to create unique step names
+            A base name to create unique step names like 'step1'
         workflow_yaml : `str`
             A yaml file name where workflow names and step
             yaml files are stored
@@ -1093,7 +1196,7 @@ class DRPUtils:
         LOG.info(f"Workflow yaml: {workflow_yaml}")
         if os.path.exists(workflow_yaml):
             with open(workflow_yaml) as wf:
-                workflows = yaml.safe_load(wf)
+                workflows = yaml.load(wf, Loader=yaml.Loader)
                 print(workflows)
             if workflows is None:
                 workflows = dict()
@@ -1102,29 +1205,32 @@ class DRPUtils:
         " Get list of yaml files in step directory"
         step_files = list()
         for file in os.listdir(step_dir):
-            # check the files which  start with step token
+            " check the files which  start with step token "
             if file.startswith("step"):
-                # print path name of selected files
                 step_files.append(file)
         for file_name in step_files:
             wf_dict = dict()
             wf_name = file_name.split('.yaml')[0]
             wf_dict['name'] = wf_name
-            wf_dict['bps_name'] = ''
+            wf_dict['bps_name'] = None
             wf_dict['issue_name'] = None
             wf_dict['band'] = 'all'
             wf_dict['step_name'] = step_name_base
-            wf_dict['path'] = os.path.join(step_dir, file_name)
+            wf_dict['bps_dir'] = step_dir
             if wf_name not in workflows:
                 workflows[wf_name] = wf_dict
         LOG.info("created workflow")
         with open(workflow_yaml, 'w') as wf:
             yaml.dump(workflows, wf)
         print(workflows)
-        LOG.info("Finish with update_workflow")
+        LOG.info("Finish with make_workflow_yaml")
 
     @staticmethod
-    def create_step_yaml(step_yaml, step_name, step_issue, workflow_dir):
+    def create_step_yaml(step_yaml,
+                         step_name,
+                         step_issue,
+                         campaign_issue,
+                         workflow_dir):
         """Creates step yaml.
             \b
             Parameters
@@ -1137,12 +1243,15 @@ class DRPUtils:
                 step_issue : `str`
                     if specified  the step yaml will be loaded from the
                     ticket and updated with input parameters
+                campaign_issue : `str`
+                    Campaign jira ticket the step belongs to
                 workflow_dir: `str`
                     A name of the directory where workflow bps yaml files are,
                     including path
                 """
         LOG.info("Start with create_step_yaml")
         LOG.info(f"step issue {step_issue}")
+        LOG.info(f"campaign issue {campaign_issue}")
         LOG.info(f"step name {step_name}")
         LOG.info(f"step yaml {step_yaml}")
         LOG.info(f"Workflow_dir {workflow_dir}")
@@ -1152,40 +1261,74 @@ class DRPUtils:
             ju = JiraUtils()
             auth_jira, username = ju.get_login()
             issue = ju.get_issue(step_issue)
-            print(issue)
             all_attachments = ju.get_attachments(issue)
-            print(all_attachments)
             for aid in all_attachments:
-                print(aid, all_attachments[aid])
                 att_file = all_attachments[aid]
                 if att_file == "step.yaml":
                     attachment = auth_jira.attachment(aid)  #
                     a_yaml = io.BytesIO(attachment.get()).read()
-                    step_template = yaml.safe_load(a_yaml)
-                    print(step_template)
+                    step_template = yaml.load(a_yaml, Loader=yaml.Loader)
         else:
             step_template['name'] = step_name
-            step_template['issue'] = step_issue
-            step_template['workflows'] = list()
-        workflow_data = list()
-        print(workflow_data)
+            step_template['issue_name'] = step_issue
+            step_template['campaign_issue'] = campaign_issue
+            step_template['workflow_base'] = workflow_dir
+            step_template['workflows'] = dict()
+            wf_path = Path(workflow_dir)
+            "Get workflows for the step from workflow_base"
+            for file_name in os.listdir(wf_path):
+                # check the files which  start with step token
+                if file_name.startswith(step_name):
+                    wf_data = dict()
+                    wf_name = file_name.split('.yaml')[0]
+                    bps_path = os.path.join(workflow_dir, file_name)
+                    LOG.info(f"wf_name {wf_name}")
+                    LOG.info(f"bps_path {bps_path}")
+                    wf_data['name'] = wf_name
+                    wf_data['bps_name'] = None
+                    wf_data['issue_name'] = None
+                    wf_data['band'] = 'all'
+                    wf_data['step_name'] = step_name
+                    wf_data['bps_dir'] = bps_path
+                    wf_data['step_issue'] = step_issue
+                    step_template['workflows'][wf_name] = wf_data
+        with open(step_yaml, 'w') as sf:
+            yaml.dump(step_template, sf)
+
+        LOG.info("Finish with create_step_yaml")
 
     @staticmethod
-    def create_campaign_yaml(campaign_name, campaign_yaml, campaign_issue, steps_list):
-        """Creates or updates campaign.
+    def create_campaign_yaml(args):
+        """Creates campaign yaml template.
         \b
         Parameters
         ----------
-        campaign_name : `str`
-            An arbitrary name of the campaign.
-        campaign_yaml : `str`
-            A yaml file to which  campaign parameters will be written.
-        campaign_issue : `str`
-            if specified  the campaing yaml will be loaded from the
-            ticket and updated with input parameters
+        args : `dict`
+            A dictionary with arguments: campaign_name - `str`,
+        campaign_yaml - `str`
+            A yaml file name to which  campaign parameters
+            will be written. Created yaml file should be
+            considered as a template.
+            It should be edited to add directory path where
+            workflow files for each step are located.
+        campaign_issue `str` issue name if already created
         """
         steps = ['step1', 'step2', 'step3', 'step4', 'step5',
                  'step6', 'step7']
+        if "campaign_name" in args:
+            campaign_name = args["campaign_name"]
+        else:
+            LOG.info("campaign_name should be provided -- aborting")
+            sys.exit(-1)
+        if "campaign_yaml" in args:
+            campaign_yaml = args["campaign_yaml"]
+        else:
+            LOG.info("campaign_yaml was not provided using default campaign.yaml")
+            campaign_yaml = "campaign.yaml"
+        if "campaign_issue" in args:
+            campaign_issue = args["campaign_issue"]
+        else:
+            campaign_issue = None
         LOG.info("Start with create_campaign_yaml")
         LOG.info(f"Campaign issue {campaign_issue}")
         LOG.info(f"Campaign name {campaign_name}")
@@ -1196,36 +1339,28 @@ class DRPUtils:
             ju = JiraUtils()
             auth_jira, username = ju.get_login()
             issue = ju.get_issue(campaign_issue)
-            print(issue)
             all_attachments = ju.get_attachments(issue)
-            print(all_attachments)
             for aid in all_attachments:
-                print(aid, all_attachments[aid])
                 att_file = all_attachments[aid]
                 if att_file == "campaign.yaml":
                     attachment = auth_jira.attachment(aid)  #
                     a_yaml = io.BytesIO(attachment.get()).read()
                     campaign_template = yaml.safe_load(a_yaml)
-                    print(campaign_template)
+                    LOG.info(f"created campaign template yaml {campaign_template}")
         else:
             campaign_template['name'] = campaign_name
             campaign_template['issue'] = campaign_issue
-            campaign_template['steps'] = list()
-        step_data = list()
-        if steps_list is None:
+            step_data = list()
             " create default steps "
             for step in steps:
                 step_dict = dict()
-                step_dict['issue'] = ''
+                step_dict['issue_name'] = ''
                 step_dict['name'] = step
                 step_dict['split_bands'] = False
-                step_dict['forkflow_dir']
-                step_dict['workflows'] = list()
+                step_dict['workflow_base'] = ''
+                step_dict['campaign_issue'] = campaign_issue
                 step_data.append(step_dict)
-        else:
-            with open(steps_list, 'r') as sl:
-                step_data = yaml.safe_load(sl)
-        campaign_template['steps'] = step_data
-        with open(campaign_yaml, 'w') as cf:
-            yaml.dump(campaign_template, cf)
+            campaign_template['steps'] = step_data
+            with open(campaign_yaml, 'w') as cf:
+                yaml.dump(campaign_template, cf)
         LOG.info("Finish with create_campaign_yaml")
