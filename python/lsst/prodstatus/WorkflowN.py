@@ -345,8 +345,6 @@ class WorkflowN:
                 workflow_params = yaml.load(workflow_io, yaml.Loader)
                 workflow = cls.from_dict(workflow_params)
                 LOG.debug(f"Read {workflow_path}")
-
-
         return workflow
 
     def to_jira(self, jira=None, issue=None, replace=True):

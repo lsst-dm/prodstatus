@@ -153,8 +153,6 @@ class StepN:
                 wf_data["bps_name"] = None
                 bps_file = Path(workflow_base).joinpath(wf_name + '.yaml')
                 wf_data["bps_config"] = BpsConfig(bps_file)
-                """ if new workflow - create it and add to workflows. However if we 
-                do not create workflows in jira we can save only data without creation of instance"""
                 if wf_name not in workflows:
                     workflow = WorkflowN.from_dict(wf_data)
                     LOG.info(f" Created new workflow {workflow}")
@@ -185,10 +183,8 @@ class StepN:
             "workflows": wf_spec
         }
 
-
         if self.issue_name is not None:
             step_spec["issue"] = self.issue_name
-
         step_spec_path = t_dir.joinpath(STEP_SPEC_FNAME)
         step_spec_io = open(step_spec_path, "wt")
         yaml.dump(step_spec, step_spec_io, indent=4)
@@ -361,7 +357,7 @@ class StepN:
         else:
             workflows = dict()
             step = cls(name, issue_name, campaign_issue,
-                   workflow_base, workflows)
+                       workflow_base, workflows)
         return step
 
     def to_dict(self):
