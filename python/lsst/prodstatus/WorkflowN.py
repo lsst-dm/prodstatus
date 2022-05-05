@@ -29,7 +29,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import yaml
-import numpy as np
+import io
 
 from lsst.ctrl.bps import BpsConfig
 from lsst.prodstatus import LOG
@@ -287,7 +287,7 @@ class WorkflowN:
             for file_name in ALL_WORKFLOW_FNAMES:
                 full_file_path = tmp_dir.joinpath(file_name)
                 " Create yaml file with workflow data"
-                with open(full_file_pat, 'w') as wf:
+                with open(full_file_path, 'w') as wf:
                     yaml.dump(wf_dict, wf)
                 if full_file_path.exists():
                     for attachment in issue.fields.attachment:
@@ -324,7 +324,7 @@ class WorkflowN:
         workflow : `Workflow`
             An initialized instance of a workflow.
         """
-        issue = jira.issue(issue_name) if isinstance(issue_name, str) else issue
+        issue = jira.issue(issue_name)
         workflow = None
         for attachment in issue.fields.attachment:
             if attachment.filename in ALL_WORKFLOW_FNAMES:
