@@ -37,20 +37,20 @@ class ReportToJira:
             project: 'Pre-Operations'
             Jira: PREOPS-911
             comments: 'list'
-            - file: 'str' - /tmp/pandaWfStat-PREOPS-911.txt
+            - file: 'str' - /user_data_dir/pandaWfStat-PREOPS-911.txt
               tokens: 'list'
                  - 'pandaWfStat'
                  - 'workflow'
-            - file: 'str' - /tmp/pandaStat-PREOPS-911.txt
+            - file: 'str' - /user_data_dir/pandaStat-PREOPS-911.txt
               tokens: 'list'
                  - 'pandaStat'
                  - 'campaign'
-            - file: 'str' - /tmp/butlerStat-PREOPS-911_step1.txt
+            - file: 'str' - /user_data_dir/butlerStat-PREOPS-911_step1.txt
               tokens: 'list'
                 - 'butlerStat'
                 - 'Campaign'
             attachments: 'list'
-              - /tmp/pandaWfStat-PREOPS-911.html
+              - /user_data_dir/pandaWfStat-PREOPS-911.html
     """
 
     def __init__(self, inp_file):
@@ -88,5 +88,4 @@ class ReportToJira:
             self.ju.update_comment(self.a_jira, self.ticket, issue_id, tokens, str_buff)
         for attachment in self.attachments:
             att_file = str(attachment)
-            #            att_name = att_file.split('/')[-1]
             self.ju.update_attachment(self.a_jira, issue, att_file)

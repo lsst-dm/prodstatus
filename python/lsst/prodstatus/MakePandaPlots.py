@@ -23,9 +23,12 @@ import sys
 import os
 import json
 import urllib.error as url_error
+from appdirs import user_data_dir
 from urllib.request import urlopen
+from pathlib import Path
 from time import sleep
 import datetime
+from collections import defaultdict
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import pandas as pd
@@ -77,15 +80,24 @@ class MakePandaPlots:
         self.workflows = dict()
         self.workflow_info = dict()  # workflow status
         self.task_counts = dict()  # number of tasks of given type
-        self.all_tasks = dict()  # info about tasks
+        self.all_tasks = dict()  # info about task
         self.all_jobs = dict()  # info about jobs
         self.workflow_tasks = dict()  # tasks per workflow
         self.job_names = kwargs["job_names"]
         self.workflow_names = dict()
+        app_name = "ProdStat"
+        app_author = os.environ.get('USERNAME')
+        data_dir = user_data_dir(app_name, app_author)
+        self.data_path = Path(data_dir)
         self.start_stamp = datetime.datetime.strptime(self.start_date, "%Y-%m-%d").timestamp()
         self.stop_stamp = datetime.datetime.strptime(self.stop_date, "%Y-%m-%d").timestamp()
         self.log = LOG
         self.log.info(f" Collecting information for Jira ticket {self.jira_ticket}")
+        LOG.info(f"Will store results in {self.data_path.absolute()}")
+        if not os.path.exists(self.data_path):
+            self.data_path.mkdir()
+        self.max_time_slice = dict()
+        self.old_jobs = defaultdict(list)
         http.client._MAXLINE = 655360
 
     def get_workflows(self):
@@ -165,6 +177,22 @@ class MakePandaPlots:
                         "created": created,
                     }
         self.start_time = min(create_time)
+        " Now check if we have previous data and recover old start_time"
+        for job_name in self.job_names:
+            " first read saved data if any, and find last delta_time"
+            data_file = self.data_path.joinpath(f"panda_time_series_{job_name}.csv")
+
+            if os.path.exists(data_file):
+                df = pd.read_csv(data_file, header=0, index_col=0,
+                                 parse_dates=True, squeeze=True)
+                self.max_time_slice[job_name] = df['delta_time'].iloc[-1]
+                self.start_time = df['start_time'].iloc[0]
+                LOG.info(f"Start time is {self.start_time}")
+                _records = df.to_records(index=False)
+                self.old_jobs[job_name] = list(_records)
+            else:
+                self.max_time_slice[job_name] = 0.
+                self.old_jobs[job_name] = list()
         self.log.info(f"all started at {self.start_time}")
 
     def get_wf_tasks(self, workflow):
@@ -226,11 +254,11 @@ class MakePandaPlots:
                     if _name in job_name:
                         if _name in self.all_jobs:
                             self.all_jobs[_name].append((delta_time,
-                                                        duration_sec))
+                                                        duration_sec, self.start_time))
                         else:
                             self.all_jobs[_name] = list()
                             self.all_jobs[_name].append((delta_time,
-                                                        duration_sec))
+                                                        duration_sec, self.start_time))
         else:
             return
         return
@@ -339,11 +367,13 @@ class MakePandaPlots:
             _color_index = int(figure_number) - (int(figure_number) // number_of_colors) * number_of_colors
             plt.plot(x_bins, sub_task_count, label=str(job_name), color=colors_list[int(_color_index)])
             plt.axis([self.start_at, self.stop_at, 0, max_y])
-            plt.xlabel("Hours since first quantum start")
+            ts = int(self.start_date)
+            time_stamp = datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+            plt.xlabel(f"Hours since first quantum start at {time_stamp}")
             plt.ylabel("Number of running quanta")
             plt.title(job_name)
             plt.legend()
-            plt.savefig("timing_" + job_name + ".png")
+            plt.savefig(self.data_path.joinpath(f"timing_{job_name}.png"))
 
     def prep_data(self):
         """Create file with timing data."""
@@ -351,19 +381,31 @@ class MakePandaPlots:
         self.get_tasks()
         for key in self.all_jobs:
             self.all_jobs[key].sort()
+        " prepare new dictionary with data extension "
         for job_name in self.all_jobs:
-            dataframe = pd.DataFrame(
-                self.all_jobs[job_name], columns=["delta_time", "durationsec"]
-            )
-            dataframe.to_csv(
-                f"/tmp/panda_time_series_{job_name}.csv", index=True
-            )
+            for d_time, duration, start_time in self.all_jobs[job_name]:
+                if d_time > self.max_time_slice[job_name]:
+                    if job_name in self.old_jobs:
+                        self.old_jobs[job_name].append((d_time,
+                                                        duration, self.start_time))
+                    else:
+                        self.old_jobs[job_name] = list()
+                        self.old_jobs[job_name].append((d_time,
+                                                        duration, self.start_time))
+        "Now we have updated time slices - let's save them"
+        for job_name in self.old_jobs:
+            dataframe = pd.DataFrame.from_records(self.old_jobs[job_name],
+                                                  columns=["delta_time", "durationsec", "start_time"])
+            data_file = self.data_path.joinpath(f"panda_time_series_{job_name}.csv")
+            self.log.info(f"writing data frame {data_file}")
+            dataframe.to_csv(data_file)
 
     def plot_data(self):
         """Create plot of timing data in form of png file."""
         figure_number = 0
         for job_name in self.job_names:
-            data_file = f"/tmp/panda_time_series_{job_name}.csv"
+            data_file = self.data_path.joinpath(f"panda_time_series_{job_name}.csv")
+            self.log.info(f"read data file {data_file}")
             if os.path.exists(data_file):
                 df = pd.read_csv(
                     data_file, header=0, index_col=0, parse_dates=True,

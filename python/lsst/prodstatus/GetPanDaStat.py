@@ -20,8 +20,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import sys
+import os
 import json
 import re
+from appdirs import user_data_dir
+from pathlib import Path
 import urllib.error as url_error
 from urllib.request import urlopen
 import time
@@ -71,10 +74,17 @@ class GetPanDaStat:
         self.task_stat = dict()
         self.all_stat = dict()  # general statistics
         self.workflow_names = dict()
+        app_name = "ProdStat"
+        app_author = os.environ.get('USERNAME')
+        data_dir = user_data_dir(app_name, app_author)
+        self.data_path = Path(data_dir)
+        if not os.path.exists(self.data_path):
+            self.data_path.mkdir()
         self.start_stamp = datetime.datetime.strptime(self.start_date, "%Y-%m-%d").timestamp()
         self.stop_stamp = datetime.datetime.strptime(self.stop_date, "%Y-%m-%d").timestamp()
         self.log = LOG
         self.log.info(f" Collecting information for Jira ticket  {self.Jira}")
+        self.log.info(f"Will store data in {self.data_path.absolute()}")
 
     def get_workflows(self):
         """First lets get all workflows with given keys."""
@@ -572,7 +582,7 @@ class GetPanDaStat:
             newbody += line
             i += 1
         new_body = newbody[:-2]
-        with open(f"/tmp/{out_file}-{self.Jira}.txt", "w") as tb_file:
+        with open(self.data_path.joinpath(f"{out_file}-{self.Jira}.txt"), "w") as tb_file:
             print(new_body, file=tb_file)
         return newbody
 
@@ -590,7 +600,7 @@ class GetPanDaStat:
         df_styled = dataframe.style.apply(self.highlight_greaterthan_0, axis=1)
         df_styled.set_table_attributes('border="1"')
         df_html = df_styled.render()
-        htfile = open(f"/tmp/{outfile}-{self.Jira}.html", "w")
+        htfile = open(self.data_path.joinpath(f"{outfile}-{self.Jira}.html"), "w")
         print(df_html, file=htfile)
         htfile.close()
 
@@ -617,13 +627,13 @@ class GetPanDaStat:
         tabula.auto_set_column_width(col=list(range(len(data_frame.columns))))
         tabula.set_fontsize(12)  # if ++fontsize is necessary ++colWidths
         tabula.scale(1.2, 1.2)  # change size table
-        plt.savefig(f"/tmp/{table_name}-{self.Jira}.png", transparent=True)
+        plt.savefig(self.data_path.joinpath(f"{table_name}-{self.Jira}.png"), transparent=True)
         plt.show()
         html_buff = data_frame.to_html(index=True)
-        html_file = open(f"/tmp/{table_name}-{self.Jira}.html", "w")
+        html_file = open(self.data_path.joinpath(f"{table_name}-{self.Jira}.html"), "w")
         html_file.write(html_buff)
         html_file.close()
-        data_frame.to_csv(f"/tmp/{table_name}-{self.Jira}.csv", index=True)
+        data_frame.to_csv(self.data_path.joinpath(f"{table_name}-{self.Jira}.csv"), index=True)
         csbuf = data_frame.to_csv(index=True)
         self.make_table_from_csv(csbuf, table_name, index_name, comment)
 

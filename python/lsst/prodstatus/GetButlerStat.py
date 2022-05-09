@@ -27,6 +27,8 @@ import datetime
 from time import gmtime, strftime
 from collections import defaultdict
 import yaml
+from appdirs import user_data_dir
+from pathlib import Path
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -79,10 +81,17 @@ class GetButlerStat:
         self.collection_keys = dict()
         self.collection_size = dict()
         self.collection_data = dict()
+        app_name = "ProdStat"
+        app_author = os.environ.get('USERNAME')
+        data_dir = user_data_dir(app_name, app_author)
+        self.data_path = Path(data_dir)
+        if not os.path.exists(self.data_path):
+            self.data_path.mkdir()
         self.start_stamp = datetime.datetime.strptime(self.start_date, "%Y-%m-%d").timestamp()
         self.stop_stamp = datetime.datetime.strptime(self.stop_date, "%Y-%m-%d").timestamp()
         self.log = LOG
         self.log.info(f" Collecting information for Jira ticket {self.jira_ticket}")
+        self.log.info(f"Will store data in {self.data_path.absolute()}")
 
     @staticmethod
     def parse_metadata_yaml(yaml_file):
@@ -324,7 +333,7 @@ class GetButlerStat:
             new_body += line
             i += 1
         new_body = new_body[:-2]
-        with open(f"/tmp/{out_file}-{self.jira_ticket}.txt", "w") as tb_file:
+        with open(self.data_path.joinpath(f"{out_file}-{self.jira_ticket}.txt"), "w") as tb_file:
             print(new_body, file=tb_file)
         return new_body
 
@@ -343,8 +352,8 @@ class GetButlerStat:
         verbose = True
         columns = ("detector", "tract", "patch", "band", "visit")
         """ create temporary file for parsing metadata yaml """
-        if not os.path.exists("/tmp/tempTask.yaml"):
-            my_file = open("/tmp/tempTask.yaml", "w")
+        if not os.path.exists(self.data_path.joinpath("tempTask.yaml")):
+            my_file = open(self.data_path.joinpath("tempTask.yaml"), "w")
             test_dict = {"test": ""}
             yaml.dump(test_dict, my_file)
         for collection in collections:
@@ -365,7 +374,7 @@ class GetButlerStat:
                     except ValueError:
                         self.log.info(f"Yaml file {ref_yaml} not found - skipping")
                         continue
-                    dest = ButlerURI("/tmp/tempTask.yaml")
+                    dest = ButlerURI(self.data_path.joinpath("tempTask.yaml"))
                     butler_uri = ButlerURI(ref_yaml)
                     if not butler_uri.exists():
                         self.log.info(f"The file {butler_uri} do not exists")
@@ -377,7 +386,8 @@ class GetButlerStat:
                     """Copy metadata.yaml to local temp yaml """
                     dest.transfer_from(butler_uri, "copy", True)
                     """parse results """
-                    results = self.parse_metadata_yaml(yaml_file="/tmp/tempTask.yaml")
+                    results = self.parse_metadata_yaml(
+                        yaml_file=self.data_path.joinpath("tempTask.yaml").absolute().name)
                     if (
                             results.get("EndCpuTime", None) is None
                             and results.get("endCpuTime", None) is not None
@@ -459,20 +469,20 @@ class GetButlerStat:
         tabla.auto_set_column_width(col=list(range(len(data_frame.columns))))
         tabla.set_fontsize(12)  # if ++fontsize is necessary ++colWidths
         tabla.scale(1.2, 1.2)  # change size table
-        plt.savefig(f"/tmp/butlerStat-{self.jira_ticket}.png", transparent=True)
+        plt.savefig(self.data_path.joinpath(f"butlerStat-{self.jira_ticket}.png"), transparent=True)
         plt.show()
         """ print the table """
         print(tabulate(data_frame, headers="keys", tablefmt="fancy_grid"))
         " write HTML version of the table "
-        html_buff = data_frame.to_html(index=True)
-        html_file = open(f"/tmp/butlerStat-{self.jira_ticket}.html", "w")
+        html_buff = data_frame.to_html()
+        html_file = open(self.data_path.joinpath(f"butlerStat-{self.jira_ticket}.html"), "w")
         try:
             html_file.write(html_buff)
             html_file.close()
         except IOError:
             self.log.warning("Failed to write html table")
             html_file.close()
-        cs_buf = data_frame.to_csv(index=True)
+        cs_buf = data_frame.to_csv()
         table_name = "butlerStat"
         index_name = " Workflow Task "
         comment = f" Campaign Butler statistics {self.jira_ticket}"
