@@ -367,10 +367,10 @@ class MakePandaPlots:
             _color_index = int(figure_number) - (int(figure_number) // number_of_colors) * number_of_colors
             plt.plot(x_bins, sub_task_count, label=str(job_name), color=colors_list[int(_color_index)])
             plt.axis([self.start_at, self.stop_at, 0, max_y])
-            ts = int(self.start_time)
+            ts = int(float(self.start_time))
             time_stamp = datetime.datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d')
-            self.log.info(f"Start stamp {time_stamp}")
             plt.xlabel(f"Hours since first quantum start at {time_stamp}")
+            self.log.info(f"Hours since first quantum start at {time_stamp}")
             plt.ylabel("Number of running quanta")
             plt.title(job_name)
             plt.legend()
