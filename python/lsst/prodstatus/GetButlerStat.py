@@ -374,7 +374,7 @@ class GetButlerStat:
                     except ValueError:
                         self.log.info(f"Yaml file {ref_yaml} not found - skipping")
                         continue
-                    dest = ButlerURI(self.data_path.joinpath("tempTask.yaml"))
+                    dest = ButlerURI(self.data_path.joinpath("tempTask.yaml").absolute().name)
                     butler_uri = ButlerURI(ref_yaml)
                     if not butler_uri.exists():
                         self.log.info(f"The file {butler_uri} do not exists")
