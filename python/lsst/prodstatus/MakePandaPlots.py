@@ -186,7 +186,7 @@ class MakePandaPlots:
                 df = pd.read_csv(data_file, header=0, index_col=0,
                                  parse_dates=True, squeeze=True)
                 self.max_time_slice[job_name] = df['delta_time'].iloc[-1]
-                self.start_time = df['start_time'].iloc[0]
+                self.start_time = df['start_time'].iloc[-1]
                 LOG.info(f"Start time is {self.start_time}")
                 _records = df.to_records(index=False)
                 self.old_jobs[job_name] = list(_records)
@@ -412,6 +412,7 @@ class MakePandaPlots:
                 df = pd.read_csv(
                     data_file, header=0, index_col=0, parse_dates=True,
                     squeeze=True)
+                self.start_time = df['start_time'].iloc[-1]
                 data_list = list()
                 max_time = 0.0
                 for index, row in df.iterrows():
