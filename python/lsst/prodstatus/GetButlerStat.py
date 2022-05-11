@@ -482,6 +482,10 @@ class GetButlerStat:
         except IOError:
             self.log.warning("Failed to write html table")
             html_file.close()
+        " Write results as csv file "
+        data_file = self.data_path.joinpath(f"butlerStat-{self.jira_ticket}.csv")
+        self.log.info(f"writing data frame {data_file}")
+        dataframe.to_csv(data_file)
         cs_buf = data_frame.to_csv()
         table_name = "butlerStat"
         index_name = " Workflow Task "
