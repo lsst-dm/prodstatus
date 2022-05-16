@@ -43,7 +43,8 @@ class ProdstatusCommand(MWCommand):
 
 @click.command(cls=ProdstatusCommand)
 @click.argument("param_file", type=click.Path(exists=True))
-def get_butler_stat(param_file):
+@click.option('--clean_history', required=False, type=bool, default=False)
+def get_butler_stat(param_file, clean_history):
     """Build production statistics tables using Butler metadata.
 
     Parameters
@@ -66,12 +67,18 @@ def get_butler_stat(param_file):
             time to stop selecting workflows in Y-m-d format
         maxtask : `int`
             maximum number of task files to analyse
+        \b
+    clean_history : `bool`
+        If True - the old statistics data will be removed
+        Should be used before new step data start to collect
     """
 
     click.echo("Start with GetButlerStat")
     with open(param_file) as p_file:
         in_pars = yaml.safe_load(p_file)
     butler_stat = GetButlerStat(**in_pars)
+    if clean_history:
+        butler_stat.clean_history()
     butler_stat.run()
     click.echo("End with GetButlerStat")
 
@@ -163,7 +170,8 @@ def update_stat(production_issue, drp_issue):
 
 @click.command(cls=ProdstatusCommand)
 @click.argument("param_file", type=click.Path(exists=True))
-def get_panda_stat(param_file):
+@click.option('--clean_history', required=False, type=bool, default=False)
+def get_panda_stat(param_file, clean_history):
     """Build production statistics tables using PanDa database queries.
 
     Parameters
@@ -184,11 +192,17 @@ def get_panda_stat(param_file):
             time to stop selecting workflows in Y-m-d format
         maxtask : `int`
             maximum number of task files to analyse
+        \b
+    clean_history: `bool`
+            If set to True the statistics history will be cleaned.
+            This is used when new step starts.
     """
     click.echo("Start with GetPandaStat")
     with open(param_file, "r") as p_file:
         in_pars = yaml.safe_load(p_file)
     panda_stat = GetPanDaStat(**in_pars)
+    if clean_history:
+        panda_stat.clean_history()
     panda_stat.run()
     click.echo("End with GetPanDaStat")
 

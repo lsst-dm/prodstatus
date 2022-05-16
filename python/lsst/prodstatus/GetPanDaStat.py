@@ -27,6 +27,7 @@ from appdirs import user_data_dir
 from pathlib import Path
 import urllib.error as url_error
 from urllib.request import urlopen
+from copy import deepcopy
 import time
 from time import sleep, gmtime, strftime
 import datetime
@@ -74,11 +75,15 @@ class GetPanDaStat:
         self.task_stat = dict()
         self.all_stat = dict()  # general statistics
         self.workflow_names = dict()
+        self.old_workflow = dict()
+        self.old_stat = dict()
+        self.last_workflow = 0.
+        self.last_stat = 0.
         app_name = "ProdStat"
         app_author = os.environ.get('USERNAME')
         data_dir = user_data_dir(app_name, app_author)
         self.data_path = Path(data_dir)
-        if not os.path.exists(self.data_path):
+        if not self.data_path.exists():
             self.data_path.mkdir()
         self.start_stamp = datetime.datetime.strptime(self.start_date, "%Y-%m-%d").timestamp()
         self.stop_stamp = datetime.datetime.strptime(self.stop_date, "%Y-%m-%d").timestamp()
@@ -97,8 +102,6 @@ class GetPanDaStat:
         workflow_data = self.query_panda(
             panda_query
         )
-#        except KeyError:
-#            pdb.set_trace()
         comp = str(self.Jira).lower()
         comp1 = str(self.collection_type)
         nwf = 0
@@ -106,16 +109,15 @@ class GetPanDaStat:
             r_name = wf["r_name"]
             if comp in r_name and comp1 in r_name:
                 key = str(r_name).split("_")[-1]
-                date_str = key.split('t')[0]
-                date_stamp = datetime.datetime.strptime(date_str, "%Y%m%d").timestamp()
-                self.log.info(f"key={key} date_str={date_str} date_stamp={date_stamp}")
-                if self.start_stamp <= date_stamp <= self.stop_stamp:
+                date_str = key
+                date_stamp = datetime.datetime.strptime(date_str, "%Y%m%dt%H%M%Sz").timestamp()
+                if self.last_workflow < date_stamp <= self.stop_stamp:
                     self.workflow_keys.append(str(key))
                     nwf += 1
         self.log.info(f"number of workflows ={nwf}")
         if nwf == 0:
             self.log.warning("No workflows to work with -- exiting")
-            sys.exit(-256)
+            sys.exit(-1)
         for key in self.workflow_keys:
             self.workflows[key] = []
         for wfk in self.workflow_keys:
@@ -425,14 +427,14 @@ class GetPanDaStat:
     def get_all_stat(self):
         """Calculate campaign statistics."""
 
-        workflow_wall_time = 0
+#        workflow_wall_time = 0
         workflow_disk = 0
         workflow_cores = 0
         workflow_rss = 0
-        workflow_duration = 0.0
         workflow_n_files = 0
-        workflow_parallel_jobs = 0
         self.all_stat = dict()
+        if len(self.old_stat) > 0:
+            self.all_stat = deepcopy(self.old_stat)
         for task_type in self.all_tasks:
             self.all_stat[task_type] = dict()
             tasks = self.all_tasks[task_type]
@@ -462,7 +464,7 @@ class GetPanDaStat:
                 rss = tasks[i]["Rss"]
                 if max_rss <= rss:
                     max_rss = rss
-            task_duration = task_duration / n_tasks
+            task_duration /= n_tasks
             wall_time_per_job = cpu_consumption / n_tasks
             wall_time = wall_time_per_job * n_files
             max_disk_per_job = max_disk_count / n_tasks
@@ -475,8 +477,8 @@ class GetPanDaStat:
                 n_parallel = int(math.ceil(wall_time / task_duration))
             if n_parallel < 1:
                 n_parallel = 1
-            workflow_duration += task_duration
-            workflow_wall_time += wall_time
+#            workflow_duration += task_duration
+#            workflow_wall_time += wall_time
             workflow_disk += disk_count
             workflow_cores += n_parallel
             workflow_n_files += n_files
@@ -490,6 +492,45 @@ class GetPanDaStat:
                 "cpu-hours": str(datetime.timedelta(seconds=wall_time)),
                 "est. parallel jobs": n_parallel,
             }
+        " at this point we have new data in self.all_stat Let's merge old one"
+        self.all_tasks = self.all_stat.keys
+        workflow_wall_time = 0
+        workflow_duration = 0.0
+        workflow_n_files = 0
+        for task_type in self.all_stat:
+            n_files = self.all_stat[task_type]['nQuanta']
+            workflow_n_files += n_files
+            wallclock = self.all_stat[task_type]['wallclock']
+            days = 0
+            if 'days' in wallclock:
+                days = int(wallclock.split('days,')[0])
+                hours = wallclock.split('days,')[1]
+                tokens = hours.split(':')
+            elif 'day,' in wallclock:
+                days = int(wallclock.split('day,')[0])
+                hours = wallclock.split('days,')[1]
+                tokens = hours.split(':')
+            else:
+                tokens = wallclock.split(':')
+                days = 0
+            task_duration = datetime.timedelta(days=days, hours=int(tokens[0]), minutes=int(tokens[1]),
+                                               seconds=int(tokens[2])).total_seconds()
+            workflow_duration += task_duration
+            cpu_hours = self.all_stat[task_type]['cpu-hours']
+            if 'days' in cpu_hours:
+                days = int(cpu_hours.split('days,')[0])
+                hours = cpu_hours.split('days,')[1]
+                tokens = hours.split(':')
+            elif 'day,' in cpu_hours:
+                days = int(cpu_hours.split('day,')[0])
+                hours = cpu_hours.split('day,')[1]
+                tokens = hours.split(':')
+            else:
+                tokens = cpu_hours.split(':')
+                days = 0
+            wall_time = datetime.timedelta(days=days, hours=int(tokens[0]), minutes=int(tokens[1]),
+                                           seconds=int(tokens[2])).total_seconds()
+            workflow_wall_time += wall_time
 
         if workflow_duration > 0:
             workflow_parallel_jobs = int(math.ceil(workflow_wall_time / workflow_duration))
@@ -637,23 +678,77 @@ class GetPanDaStat:
         csbuf = data_frame.to_csv(index=True)
         self.make_table_from_csv(csbuf, table_name, index_name, comment)
 
+    def get_old(self):
+        """
+        Read old data to append a new ones. This will permit to grow statistics
+        data on day by day bases
+        """
+        wf_file = self.data_path.joinpath(f"pandaWfStat-{self.Jira}.csv").absolute()
+        st_file = self.data_path.joinpath(f"pandaStat-{self.Jira}.csv").absolute()
+        self.log.info(f"Workflow file {wf_file}")
+        self.log.info(f"Stat file {st_file}")
+        if wf_file.exists():
+            dfw = pd.read_csv(wf_file, header=0, index_col=0, squeeze=True)
+            self.old_workflow = dfw.to_dict('index')
+        if st_file.exists():
+            self.old_stat = pd.read_csv(st_file, header=0, index_col=0, squeeze=True).to_dict(orient='index')
+            self.old_stat.pop('Campaign')
+        " Find latest time stamp "
+        self.last_workflow = 0.
+        self.last_stat = 0.
+        for key in self.old_workflow:
+            time_stamp = datetime.datetime.strptime(self.old_workflow[key]['created'],
+                                                    "%Y-%m-%d %H:%M:%S").timestamp()
+            if time_stamp >= self.last_workflow:
+                self.last_workflow = time_stamp
+        for key in self.old_stat:
+            time_stat = datetime.datetime.strptime(self.old_stat[key]['starttime'],
+                                                   "%Y-%m-%d %H:%M:%S").timestamp()
+            if time_stat >= self.last_stat:
+                self.last_stat = time_stat
+        if self.last_workflow == 0.:
+            self.last_workflow = self.start_stamp
+        self.log.info(f"last workflow stamp {self.last_workflow}")
+
+    def clean_history(self):
+        """
+         Clean previously collected data before running
+          a new step
+          """
+        wf_file = self.data_path.joinpath(f"pandaWfStat-{self.Jira}.csv").absolute()
+        st_file = self.data_path.joinpath(f"pandaStat-{self.Jira}.csv").absolute()
+        if wf_file.exists():
+            os.remove(wf_file)
+        if st_file.exists():
+            os.remove(st_file)
+
     def run(self):
         """Run the program."""
+        " First check if previous data exists and read them "
+        self.get_old()
+#        sys.exit(0)
         self.get_workflows()
         self.get_tasks()
         self.get_all_stat()
-        self.log.info("workflow info")
+        "at this point we combine old and new workflow_info "
+        for key in self.old_workflow:
+            self.workflow_info[key] = self.old_workflow[key]
         wfind = list()
         wflist = list()
-        #        wfIndF = open('./wfInd.txt','w')
         """ Let sort datasets by creation time"""
         _dfids = dict()
         _dfkeys = list()
         for key in self.workflow_info:
             utime = self.workflow_info[key]["created"]
-            _sttime = datetime.datetime.utcfromtimestamp(utime)
-            self.workflow_info[key]["created"] = _sttime
-            _dfids[key] = utime
+            try:
+                time.strptime(utime[-8:], '%H:%M:%S')
+            except TypeError:
+                _sttime = datetime.datetime.utcfromtimestamp(utime)
+                self.workflow_info[key]["created"] = _sttime
+                _dfids[key] = utime
+            else:
+                self.workflow_info[key]["created"] = utime
+                _dfids[key] = datetime.datetime.strptime(utime, '%Y-%m-%d %H:%M:%S').timestamp()
         #
         for key in dict(sorted(_dfids.items(), key=lambda item: item[1])):
             wfind.append(str(key))

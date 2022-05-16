@@ -63,5 +63,5 @@ class TestGetPandaStat(unittest.TestCase):
             get_panda_stat_kwargs = json.load(param_io)
 
         get_panda_stat = GetPanDaStat(**get_panda_stat_kwargs)
-#        get_panda_stat.get_workflows()
+        get_panda_stat.clean_history()
         get_panda_stat.run()

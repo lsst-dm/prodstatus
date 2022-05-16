@@ -24,6 +24,7 @@ import sys
 import re
 import os
 import datetime
+from copy import deepcopy
 from time import gmtime, strftime
 from collections import defaultdict
 import yaml
@@ -81,6 +82,8 @@ class GetButlerStat:
         self.collection_keys = dict()
         self.collection_size = dict()
         self.collection_data = dict()
+        self.old_stat = dict()
+        self.last_stat = 0.
         app_name = "ProdStat"
         app_author = os.environ.get('USERNAME')
         data_dir = user_data_dir(app_name, app_author)
@@ -181,7 +184,7 @@ class GetButlerStat:
                     key = sub_str.split('/')[-1]
                     date_str = key.split('T')[0]
                     date_stamp = datetime.datetime.strptime(date_str, "%Y%m%d").timestamp()
-                    if self.start_stamp <= date_stamp <= self.stop_stamp:
+                    if self.last_stat <= date_stamp <= self.stop_stamp:
                         collections.append(c)
                         self.collection_keys[c] = key
         self.log.info("selected collections ")
@@ -337,9 +340,42 @@ class GetButlerStat:
             print(new_body, file=tb_file)
         return new_body
 
+    def get_old(self):
+        """
+         Read old data to append a new ones.
+         This will permit to grow statistics
+         data on day by day bases
+         """
+        st_file = self.data_path.joinpath(f"butlerStat-{self.Jira}.csv").absolute()
+        self.log.info(f"Stat file {st_file}")
+        if st_file.exists():
+            self.old_stat = pd.read_csv(st_file, header=0, index_col=0, squeeze=True).to_dict(orient='index')
+            self.old_stat.pop('campaign')
+        " Find latest time stamp "
+        self.last_stat = 0.
+        for key in self.old_stat:
+            time_stat = datetime.datetime.strptime(self.old_stat[key]['starttime'],
+                                                   "%Y-%m-%d %H:%M:%S").timestamp()
+            if time_stat >= self.last_stat:
+                self.last_stat = time_stat
+        if self.last_stat == 0.:
+            self.last_stat = self.start_stamp
+        self.log.info(f"last stat stamp {self.last_stat}")
+
+    def clean_history(self):
+        """
+         Clean previously collected data before running
+          a new step
+          """
+        st_file = self.data_path.joinpath(f"butlerStat-{self.Jira}.csv").absolute()
+        if st_file.exists():
+            os.remove(st_file)
+
     def run(self):
         """Run the program."""
-
+        "First let's get old statistics information"
+        self.get_old()
+        "Now select collections with time stamp newer than old one "
         collections = self.search_collections()
         """Recreate Butler and registry """
         self.butler = Butler(self.repo_root, collections=collections)
@@ -405,6 +441,8 @@ class GetButlerStat:
                         data["startTime"].append(results.get("timestamp", None))
                 task_res[task] = data
             key = self.collection_keys[collection]
+            "Put old statistics in the workflow_res"
+            self.workflow_res = deepcopy(self.old_stat)
             for task in task_res:
                 self.workflow_res[f"{key}_{task}"] = self.make_sum(
                     task_size[task], task_res[task]
@@ -419,7 +457,21 @@ class GetButlerStat:
         for task in self.workflow_res:
             all_tasks.append(task)
             dt[task] = self.workflow_res[task]
-            camp_cpu += float(self.workflow_res[task]["cpu-hours"])
+            cpu_hours = self.workflow_res[task]['cpu-hours']
+            if 'days' in cpu_hours:
+                days = int(cpu_hours.split('days,')[0])
+                hours = cpu_hours.split('days,')[1]
+                tokens = hours.split(':')
+            elif 'day,' in cpu_hours:
+                days = int(cpu_hours.split('day,')[0])
+                hours = cpu_hours.split('day,')[1]
+                tokens = hours.split(':')
+            else:
+                tokens = cpu_hours.split(':')
+                days = 0
+            wall_time = datetime.timedelta(days=days, hours=int(tokens[0]), minutes=int(tokens[1]),
+                                           seconds=int(tokens[2])).total_seconds()
+            camp_cpu += float(wall_time)
             camp_jobs += self.workflow_res[task]["nQuanta"]
             if float(self.workflow_res[task]["MaxRSS GB"]) >= camp_rss:
                 camp_rss = float(self.workflow_res[task]["MaxRSS GB"])
