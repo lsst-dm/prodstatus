@@ -472,7 +472,7 @@ class GetButlerStat:
                     tokens = cpu_hours.split(':')
                     days = 0
                 wall_time = datetime.timedelta(days=days, hours=int(tokens[0]), minutes=int(tokens[1]),
-                                                seconds=int(float(tokens[2]))).total_seconds()
+                                               seconds=int(float(tokens[2]))).total_seconds()
             else:
                 wall_time = cpu_hours
             camp_cpu += float(wall_time)
