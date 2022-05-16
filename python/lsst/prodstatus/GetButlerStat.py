@@ -346,7 +346,7 @@ class GetButlerStat:
          This will permit to grow statistics
          data on day by day bases
          """
-        st_file = self.data_path.joinpath(f"butlerStat-{self.Jira}.csv").absolute()
+        st_file = self.data_path.joinpath(f"butlerStat-{self.jira_ticket}.csv").absolute()
         self.log.info(f"Stat file {st_file}")
         if st_file.exists():
             self.old_stat = pd.read_csv(st_file, header=0, index_col=0, squeeze=True).to_dict(orient='index')
@@ -354,7 +354,7 @@ class GetButlerStat:
         " Find latest time stamp "
         self.last_stat = 0.
         for key in self.old_stat:
-            time_stat = datetime.datetime.strptime(self.old_stat[key]['starttime'],
+            time_stat = datetime.datetime.strptime(self.old_stat[key]['startTime'],
                                                    "%Y-%m-%d %H:%M:%S").timestamp()
             if time_stat >= self.last_stat:
                 self.last_stat = time_stat
@@ -367,7 +367,7 @@ class GetButlerStat:
          Clean previously collected data before running
           a new step
           """
-        st_file = self.data_path.joinpath(f"butlerStat-{self.Jira}.csv").absolute()
+        st_file = self.data_path.joinpath(f"butlerStat-{self.jira_ticket}.csv").absolute()
         if st_file.exists():
             os.remove(st_file)
 
@@ -458,19 +458,23 @@ class GetButlerStat:
             all_tasks.append(task)
             dt[task] = self.workflow_res[task]
             cpu_hours = self.workflow_res[task]['cpu-hours']
-            if 'days' in cpu_hours:
-                days = int(cpu_hours.split('days,')[0])
-                hours = cpu_hours.split('days,')[1]
-                tokens = hours.split(':')
-            elif 'day,' in cpu_hours:
-                days = int(cpu_hours.split('day,')[0])
-                hours = cpu_hours.split('day,')[1]
-                tokens = hours.split(':')
+            self.log.info(f"cpu_hours {cpu_hours}")
+            if isinstance(cpu_hours, str):
+                if 'days' in str(cpu_hours):
+                    days = int(cpu_hours.split('days,')[0])
+                    hours = cpu_hours.split('days,')[1]
+                    tokens = hours.split(':')
+                elif 'day,' in str(cpu_hours):
+                    days = int(cpu_hours.split('day,')[0])
+                    hours = cpu_hours.split('day,')[1]
+                    tokens = hours.split(':')
+                else:
+                    tokens = cpu_hours.split(':')
+                    days = 0
+                wall_time = datetime.timedelta(days=days, hours=int(tokens[0]), minutes=int(tokens[1]),
+                                                seconds=int(float(tokens[2]))).total_seconds()
             else:
-                tokens = cpu_hours.split(':')
-                days = 0
-            wall_time = datetime.timedelta(days=days, hours=int(tokens[0]), minutes=int(tokens[1]),
-                                           seconds=int(tokens[2])).total_seconds()
+                wall_time = cpu_hours
             camp_cpu += float(wall_time)
             camp_jobs += self.workflow_res[task]["nQuanta"]
             if float(self.workflow_res[task]["MaxRSS GB"]) >= camp_rss:
@@ -487,7 +491,8 @@ class GetButlerStat:
         dt["campaign"] = camp_data
         for t_type in dt:
             task = dt[t_type]
-            task["cpu-hours"] = str(datetime.timedelta(seconds=task["cpu-hours"]))
+            if isinstance(task["cpu-hours"], float):
+                task["cpu-hours"] = str(datetime.timedelta(seconds=task["cpu-hours"]))
             if isinstance(task["cpu sec/job"], float):
                 task["cpu sec/job"] = round(task["cpu sec/job"], 2)
             task["MaxRSS GB"] = round(task["MaxRSS GB"], 2)
