@@ -109,6 +109,7 @@ class StepN:
         step = cls(name, issue_name, campaign_issue, workflow_base, workflows)
         if workflow_base is not None:
             cls.workflows = dict()
+            LOG.info(f"Before generate_workflows {workflow_base} {name}")
             step._generate_workflows(workflow_base, name)
         else:
             step.workflows = dict()
@@ -353,7 +354,8 @@ class StepN:
             workflows = dict()
             step = cls(name, issue_name, campaign_issue,
                        workflow_base, workflows)
-            step._generate_workflows(cls, workflow_base, name)
+            step._generate_workflows(workflow_base, name)
+#            step._generate_workflows(cls, workflow_base, name)
         else:
             workflows = dict()
             step = cls(name, issue_name, campaign_issue,
