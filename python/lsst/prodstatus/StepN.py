@@ -143,7 +143,8 @@ class StepN:
         for file_name in os.listdir(workflow_base):
             LOG.info(f" file name {file_name}")
             # check the files which  start with step token
-            if file_name.startswith(name):
+            if file_name.startswith(name) and \
+                    file_name.endswith('.yaml'):
                 wf_name = file_name.split('.yaml')[0]
                 wf_data = dict()
                 wf_data["name"] = wf_name
