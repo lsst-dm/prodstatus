@@ -370,7 +370,8 @@ class JiraUtils:
                 """
 
         auth_jira = jira
-        issue = auth_jira.get_issue(issue)
+#        issue = auth_jira.get_issue(issue)
+        issue = self.get_issue(issue)
         out_dict = dict()
         for attachment in issue.fields.attachment:
             att_file = attachment.filename
