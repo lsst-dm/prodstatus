@@ -1185,7 +1185,7 @@ class DRPUtils:
         step = StepN.from_dict(step_dict)
         jira = JiraUtils()
         (auth_jira, user) = jira.get_login()
-        step.to_jira(auth_jira, step_issue, replace=True, cascade=True)
+        step.to_jira(auth_jira, step_issue, replace=True)
         """
         tmp_dir = TemporaryDirectory()
         step.to_files(tmp_dir.name) """
