@@ -354,8 +354,7 @@ class JiraUtils:
         else:
             self.add_attachment(jira, issue, attachment_file)
 
-    @staticmethod
-    def get_yaml(jira, issue, yaml_file_name):
+    def get_yaml(self,  issue, yaml_file_name):
         """Search for a yaml file in issue attachments
          and return dictionary with its contents
 
@@ -369,7 +368,7 @@ class JiraUtils:
                     name of the attachment
                 """
 
-        auth_jira = jira
+#        auth_jira = jira
 #        issue = auth_jira.get_issue(issue)
         issue = self.get_issue(issue)
         out_dict = dict()
