@@ -46,7 +46,7 @@ ALL_WORKFLOW_FNAMES = (BPS_CONFIG_FNAME, WORKFLOW_FNAME, EXPLIST_FNAME)
 # exception classes
 
 
-class ErrorNoExposures(Exception):
+class NoExposuresError(Exception):
     """Raised when exposures values are needed, but not set."""
 
     pass
@@ -111,7 +111,7 @@ class Workflow:
             A list of workflows.
         """
         if self.exposures is None:
-            raise ErrorNoExposures
+            raise NoExposuresError
         exp_ids = self.exposures["exp_id"].values
 
         # If we do not need to split the workflow, just return a list

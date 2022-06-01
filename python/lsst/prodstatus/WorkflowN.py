@@ -45,7 +45,7 @@ ALL_WORKFLOW_FNAMES = [WORKFLOW_FNAME]
 # exception classes
 
 
-class ErrorNoExposures(Exception):
+class NoExposuresError(Exception):
     """Raised when exposures values are needed, but not set."""
 
     pass
