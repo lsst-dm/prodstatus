@@ -1113,17 +1113,34 @@ class DRPUtils:
             ju = JiraUtils()
             a_jira, user = ju.get_login()
             step_dict = ju.get_yaml(a_jira, step_issue, 'step.yaml')
-            step_name = step_dict["name"]
-            step_issue = step_dict["issue_name"]
-            " workflow_base is a directory where workflow bps yamls are"
-            workflow_base = step_dict["workflow_base"]
-            campaign_issue = step_dict["campaign_issue"]
-            workflows = step_dict["workflows"]
-            LOG.info(f"Step yaml:{step_yaml}")
-            LOG.info(f"Step issue: {step_issue}")
-            LOG.info(f"Campaign name: {campaign_issue}")
-            LOG.info(f"Input step name: {step_name}")
-            LOG.info("have jira issue -- read step specs")
+            if len(step_dict) > 0:
+                step_name = step_dict["name"]
+                step_issue = step_dict["issue_name"]
+                " workflow_base is a directory where workflow bps yamls are"
+                workflow_base = step_dict["workflow_base"]
+                campaign_issue = step_dict["campaign_issue"]
+                workflows = step_dict["workflows"]
+                LOG.info(f"Step yaml:{step_yaml}")
+                LOG.info(f"Step issue: {step_issue}")
+                LOG.info(f"Campaign name: {campaign_issue}")
+                LOG.info(f"Input step name: {step_name}")
+                LOG.info("have jira issue -- read step specs")
+            else:
+                "Get data from step_yaml"
+                with open(step_yaml, 'r') as sf:
+                    step_dict = yaml.safe_load(sf)
+                step_name = step_dict["name"]
+                step_issue = step_dict["issue_name"]
+                campaign_issue = step_dict["campaign_issue"]
+                " workflow_base is a directory where workflow bps yamls are"
+                workflow_base = step_dict["workflow_base"]
+                workflows = step_dict["workflows"]
+                LOG.info(f"step workflows {workflows}")
+                LOG.info(f"Step yaml:{step_yaml}")
+                LOG.info(f"Step issue: {step_issue}")
+                LOG.info(f"Campaign name: {campaign_issue}")
+                LOG.info(f"Input step name: {step_name}")
+
         else:
             "Get data from step_yaml"
             with open(step_yaml, 'r') as sf:
