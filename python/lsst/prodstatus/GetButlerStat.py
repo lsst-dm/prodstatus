@@ -221,6 +221,7 @@ class GetButlerStat:
         """
 
         cpu_time = task_res["cpu_time"]
+        print(f"cpu_time {cpu_time}")
         max_rss = task_res["maxRSS"]
 #        time_start = task_res["startTime"]
         ts = min(int(task_size), self.max_task)
@@ -414,7 +415,6 @@ class GetButlerStat:
 #                        ref_yaml = ResourcePath(data_ref)
 #                        print(f"Ref_yaml from ResourcePath {ref_yaml}")
                         ref_yaml = self.butler.getURI(data_ref, collections=collection)
-                        print(f"Ref_yaml from ResourcePath {ref_yaml}")
                     except ValueError:
                         self.log.info(f"Yaml file {ref_yaml} not found - skipping")
                         continue
