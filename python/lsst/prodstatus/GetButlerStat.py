@@ -227,7 +227,7 @@ class GetButlerStat:
         if len(cpu_time) > 0 and cpu_time[0] is not None:
             cpu_sum = 0.0
             for t in cpu_time:
-                if t is not None:
+                if isinstance(t, float):
                     cpu_sum += float(t)
             cpu_per_task = float(cpu_sum / ts)
             total_cpu = float(cpu_per_task * int(task_size))
