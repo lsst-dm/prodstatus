@@ -354,7 +354,8 @@ class GetButlerStat:
         st_file = self.data_path.joinpath(f"butlerStat-{self.jira_ticket}.csv").absolute()
         self.log.info(f"Stat file {st_file}")
         if st_file.exists():
-            self.old_stat = (pd.read_csv(st_file, header=0, index_col=0).squeeze('columns')).to_dict(orient='index')
+            self.old_stat = (pd.read_csv(st_file, header=0,
+                                         index_col=0).squeeze('columns')).to_dict(orient='index')
             self.old_stat.pop('campaign')
         " Find latest time stamp "
         self.last_stat = 0.
@@ -429,10 +430,8 @@ class GetButlerStat:
                     """parse results """
                     results = self.parse_metadata_yaml(
                         yaml_file=self.data_path.joinpath("tempTask.yaml").absolute().name)
-                    if (
-                            results.get("EndCpuTime", None) is None
-                            and results.get("endCpuTime", None) is not None
-                            ):
+                    if (results.get("EndCpuTime", None) is None
+                            and results.get("endCpuTime", None) is not None):
                         cpu_time = results.get("endCpuTime", None)
                     else:
                         cpu_time = results.get("EndCpuTime", None)
