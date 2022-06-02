@@ -240,7 +240,7 @@ class GetButlerStat:
         if len(task_res["startTime"]) > 0:
             time_start = task_res["startTime"]
         else:
-            time_start = ['0.']
+            time_start = [strftime("%Y-%m-%d %H:%M:%S", gmtime()]
         return {
             "nQuanta": int(task_size),
             "startTime": time_start[0],
@@ -434,10 +434,10 @@ class GetButlerStat:
                     if (
                             results.get("EndCpuTime", None) is None
                             and results.get("endCpuTime", None) is not None
-                    ):
-                        cpu_time = results.get("endCpuTime", '0.')
+                        ):
+                        cpu_time = results.get("endCpuTime", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
                     else:
-                        cpu_time = results.get("EndCpuTime", '0.')
+                        cpu_time = results.get("EndCpuTime", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
                     data["cpu_time"].append(cpu_time)
                     data["maxRSS"].append(results.get("MaxResidentSetSize", None))
                     if results.get("timestamp", None) is None:
