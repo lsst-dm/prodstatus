@@ -36,7 +36,7 @@ import pandas as pd
 from pandas.plotting import table
 from lsst.daf.butler import Butler
 from lsst.daf.butler import ButlerURI
-from lsst.resources import ResourcePath
+#from lsst.resources import ResourcePath
 from lsst.prodstatus import LOG
 
 # PropertySet needs to be imported to load the butler yaml.
@@ -411,9 +411,10 @@ class GetButlerStat:
                             sys.stdout.write(".")
                             sys.stdout.flush()
                     try:
-                        ref_yaml = ResourcePath(data_ref)
-                        print(f"Ref_yaml from ResourcePath {ref_yaml}")
+#                        ref_yaml = ResourcePath(data_ref)
+#                        print(f"Ref_yaml from ResourcePath {ref_yaml}")
                         ref_yaml = self.butler.getURI(data_ref, collections=collection)
+                        print(f"Ref_yaml from ResourcePath {ref_yaml}")
                     except ValueError:
                         self.log.info(f"Yaml file {ref_yaml} not found - skipping")
                         continue
@@ -447,8 +448,6 @@ class GetButlerStat:
                     else:
                         data["startTime"].append(results.get("timestamp", None))
                 task_res[task] = data
-                print("task_res")
-                print(task_res)
             key = self.collection_keys[collection]
             "Put old statistics in the workflow_res"
             self.workflow_res = deepcopy(self.old_stat)
