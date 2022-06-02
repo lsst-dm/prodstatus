@@ -221,14 +221,14 @@ class GetButlerStat:
         """
 
         cpu_time = task_res["cpu_time"]
-        print(f"cpu_time {cpu_time}")
         max_rss = task_res["maxRSS"]
 #        time_start = task_res["startTime"]
         ts = min(int(task_size), self.max_task)
         if len(cpu_time) > 0 and cpu_time[0] is not None:
             cpu_sum = 0.0
             for t in cpu_time:
-                cpu_sum += float(t)
+                if t is not None:
+                    cpu_sum += float(t)
             cpu_per_task = float(cpu_sum / ts)
             total_cpu = float(cpu_per_task * int(task_size))
         else:
@@ -436,9 +436,9 @@ class GetButlerStat:
                             results.get("EndCpuTime", None) is None
                             and results.get("endCpuTime", None) is not None
                         ):
-                        cpu_time = results.get("endCpuTime", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+                        cpu_time = results.get("endCpuTime", None)
                     else:
-                        cpu_time = results.get("EndCpuTime", strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+                        cpu_time = results.get("EndCpuTime", None)
                     data["cpu_time"].append(cpu_time)
                     data["maxRSS"].append(results.get("MaxResidentSetSize", None))
                     if results.get("timestamp", None) is None:
