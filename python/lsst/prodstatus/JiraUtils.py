@@ -354,7 +354,7 @@ class JiraUtils:
         else:
             self.add_attachment(jira, issue, attachment_file)
 
-    def get_yaml(self,  issue, yaml_file_name):
+    def get_yaml(self, issue, yaml_file_name):
         """Search for a yaml file in issue attachments
          and return dictionary with its contents
 

@@ -36,7 +36,6 @@ import pandas as pd
 from pandas.plotting import table
 from lsst.daf.butler import Butler
 from lsst.daf.butler import ButlerURI
-#from lsst.resources import ResourcePath
 from lsst.prodstatus import LOG
 
 # PropertySet needs to be imported to load the butler yaml.
@@ -236,7 +235,7 @@ class GetButlerStat:
             total_cpu = 0.0
         max_s = 0.0
         for s in max_rss:
-            if isinstance(s,float) and float(s) >= max_s:
+            if isinstance(s, float) and float(s) >= max_s:
                 max_s = float(s)
         if len(task_res["startTime"]) > 0:
             time_start = task_res["startTime"]
@@ -349,7 +348,7 @@ class GetButlerStat:
     def get_old(self):
         """
          Read old data to append a new ones.
-         This will permit to grow statistics
+         This will permit to collecting statistics
          data on day by day bases
          """
         st_file = self.data_path.joinpath(f"butlerStat-{self.jira_ticket}.csv").absolute()
@@ -412,8 +411,6 @@ class GetButlerStat:
                             sys.stdout.write(".")
                             sys.stdout.flush()
                     try:
-#                        ref_yaml = ResourcePath(data_ref)
-#                        print(f"Ref_yaml from ResourcePath {ref_yaml}")
                         ref_yaml = self.butler.getURI(data_ref, collections=collection)
                     except ValueError:
                         self.log.info(f"Yaml file {ref_yaml} not found - skipping")
@@ -435,7 +432,7 @@ class GetButlerStat:
                     if (
                             results.get("EndCpuTime", None) is None
                             and results.get("endCpuTime", None) is not None
-                        ):
+                            ):
                         cpu_time = results.get("endCpuTime", None)
                     else:
                         cpu_time = results.get("EndCpuTime", None)
@@ -526,8 +523,8 @@ class GetButlerStat:
 
         data_frame = pd.DataFrame(stat_list, index=task_types)
         fig, ax = plt.subplots(figsize=(25, 35))  # set size frame
-        ax.xaxis.set_visible(False)  # hide the x axis
-        ax.yaxis.set_visible(False)  # hide the y axis
+        ax.xaxis.set_visible(False)  # hide the x-axis
+        ax.yaxis.set_visible(False)  # hide the y-axis
         ax.set_frame_on(False)  # no visible frame, uncomment if size is ok
         tabla = table(ax, data_frame, loc="upper right")
         tabla.auto_set_font_size(False)  # Activate set fontsize manually
