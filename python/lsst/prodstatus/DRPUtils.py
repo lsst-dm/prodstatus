@@ -1112,7 +1112,7 @@ class DRPUtils:
         if step_issue is not None:
             ju = JiraUtils()
             a_jira, user = ju.get_login()
-            step_dict = ju.get_yaml( step_issue, 'step.yaml')
+            step_dict = ju.get_yaml(step_issue, 'step.yaml')
             if len(step_dict) > 0:
                 step_name = step_dict["name"]
                 step_issue = step_dict["issue_name"]

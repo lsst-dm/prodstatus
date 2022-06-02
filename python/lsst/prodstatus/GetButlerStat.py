@@ -497,7 +497,7 @@ class GetButlerStat:
                 task["cpu sec/job"] = round(task["cpu sec/job"], 2)
             task["MaxRSS GB"] = round(task["MaxRSS GB"], 2)
         pd.set_option("max_colwidth", 500)
-        pd.set_option("precision", 1)
+        pd.set_option("display.precision", 1)
         _task_ids = dict()
         task_types = list()
         stat_list = list()
