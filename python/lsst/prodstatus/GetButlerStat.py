@@ -240,7 +240,7 @@ class GetButlerStat:
         if len(task_res["startTime"]) > 0:
             time_start = task_res["startTime"]
         else:
-            time_start = [strftime("%Y-%m-%d %H:%M:%S", gmtime()]
+            time_start = [strftime("%Y-%m-%d %H:%M:%S", gmtime())]
         return {
             "nQuanta": int(task_size),
             "startTime": time_start[0],
