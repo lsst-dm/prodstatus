@@ -407,8 +407,9 @@ class GetButlerStat:
                             sys.stdout.write(".")
                             sys.stdout.flush()
                     try:
+                        ref_yaml = ResourcePath(data_ref)
+                        print(f"Ref_yaml from ResourcePath {ref_yaml}")
                         ref_yaml = self.butler.getURI(data_ref, collections=collection)
-                        ref_yaml = ResourcePath(data_ref, collections=collection)
                     except ValueError:
                         self.log.info(f"Yaml file {ref_yaml} not found - skipping")
                         continue
