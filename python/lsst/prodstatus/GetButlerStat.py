@@ -36,6 +36,7 @@ import pandas as pd
 from pandas.plotting import table
 from lsst.daf.butler import Butler
 from lsst.daf.butler import ButlerURI
+from lsst.resources import ResourcePath
 from lsst.prodstatus import LOG
 
 # PropertySet needs to be imported to load the butler yaml.
@@ -349,7 +350,7 @@ class GetButlerStat:
         st_file = self.data_path.joinpath(f"butlerStat-{self.jira_ticket}.csv").absolute()
         self.log.info(f"Stat file {st_file}")
         if st_file.exists():
-            self.old_stat = pd.read_csv(st_file, header=0, index_col=0, squeeze=True).to_dict(orient='index')
+            self.old_stat = (pd.read_csv(st_file, header=0, index_col=0).squeeze('columns')).to_dict(orient='index')
             self.old_stat.pop('campaign')
         " Find latest time stamp "
         self.last_stat = 0.
@@ -407,6 +408,7 @@ class GetButlerStat:
                             sys.stdout.flush()
                     try:
                         ref_yaml = self.butler.getURI(data_ref, collections=collection)
+                        ref_yaml = ResourcePath(data_ref, collections=collection)
                     except ValueError:
                         self.log.info(f"Yaml file {ref_yaml} not found - skipping")
                         continue
@@ -428,9 +430,9 @@ class GetButlerStat:
                             results.get("EndCpuTime", None) is None
                             and results.get("endCpuTime", None) is not None
                     ):
-                        cpu_time = float(results.get("endCpuTime", None))
+                        cpu_time = float(results.get("endCpuTime", '0.'))
                     else:
-                        cpu_time = float(results.get("EndCpuTime", None))
+                        cpu_time = float(results.get("EndCpuTime", '0.'))
                     data["cpu_time"].append(cpu_time)
                     data["maxRSS"].append(results.get("MaxResidentSetSize", None))
                     if results.get("timestamp", None) is None:

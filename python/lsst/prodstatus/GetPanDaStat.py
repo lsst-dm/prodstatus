@@ -688,10 +688,10 @@ class GetPanDaStat:
         self.log.info(f"Workflow file {wf_file}")
         self.log.info(f"Stat file {st_file}")
         if wf_file.exists():
-            dfw = pd.read_csv(wf_file, header=0, index_col=0, squeeze=True)
+            dfw = pd.read_csv(wf_file, header=0, index_col=0).squeeze('columns')
             self.old_workflow = dfw.to_dict('index')
         if st_file.exists():
-            self.old_stat = pd.read_csv(st_file, header=0, index_col=0, squeeze=True).to_dict(orient='index')
+            self.old_stat = (pd.read_csv(st_file, header=0, index_col=0).squeeze('columns')).to_dict(orient='index')
             self.old_stat.pop('Campaign')
         " Find latest time stamp "
         self.last_workflow = 0.
