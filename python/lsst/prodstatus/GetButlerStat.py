@@ -443,6 +443,8 @@ class GetButlerStat:
                     else:
                         data["startTime"].append(results.get("timestamp", None))
                 task_res[task] = data
+                print("task_res")
+                print(task_res)
             key = self.collection_keys[collection]
             "Put old statistics in the workflow_res"
             self.workflow_res = deepcopy(self.old_stat)
