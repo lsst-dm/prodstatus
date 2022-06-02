@@ -236,7 +236,7 @@ class GetButlerStat:
             total_cpu = 0.0
         max_s = 0.0
         for s in max_rss:
-            if float(s) >= max_s:
+            if isinstance(s,float) and float(s) >= max_s:
                 max_s = float(s)
         if len(task_res["startTime"]) > 0:
             time_start = task_res["startTime"]
