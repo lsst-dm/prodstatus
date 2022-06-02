@@ -222,7 +222,7 @@ class GetButlerStat:
 
         cpu_time = task_res["cpu_time"]
         max_rss = task_res["maxRSS"]
-        time_start = task_res["startTime"]
+#        time_start = task_res["startTime"]
         ts = min(int(task_size), self.max_task)
         if len(cpu_time) > 0 and cpu_time[0] is not None:
             cpu_sum = 0.0
@@ -237,6 +237,10 @@ class GetButlerStat:
         for s in max_rss:
             if float(s) >= max_s:
                 max_s = float(s)
+        if len(task_res["startTime"]) > 0:
+            time_start = task_res["startTime"]
+        else:
+            time_start = [0.]
         return {
             "nQuanta": int(task_size),
             "startTime": time_start[0],
