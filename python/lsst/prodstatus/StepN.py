@@ -331,6 +331,8 @@ class StepN:
         step : `StepN`
             An initialized instance of a step.
         """
+        print("step parameters")
+        print(par_dict)
         if "name" in par_dict:
             name = par_dict["name"]
         else:
@@ -351,7 +353,7 @@ class StepN:
             workflow_base = None
         if workflow_base is not None:
             LOG.info(f"workflow base {workflow_base}")
-            LOG.info(" before _generate_workflows")
+            print(" before _generate_workflows ", workflow_base)
             workflows = dict()
             step = cls(name, issue_name, campaign_issue,
                        workflow_base, workflows)

@@ -1185,10 +1185,10 @@ class DRPUtils:
                     "workflow = WorkflowN.from_dict(wf_data)"
                     wf_issue = None
                     wf_data["issue_name"] = wf_issue
-                    workflows[wf_name] = wf_data["name"]
+                    workflows[wf_name] = wf_data
 
         step_dict["workflows"] = workflows
-        LOG.info("Step dict")
+        print("Step dict")
         print(step_dict)
         step = StepN.from_dict(step_dict)
         jira = JiraUtils()
