@@ -157,7 +157,7 @@ class StepN:
                 wf_data["bps_config"] = BpsConfig(bps_file)
                 if wf_name not in workflows:
                     workflow = WorkflowN.from_dict(wf_data)
-                    print(" Created new workflow", workflow_data)
+                    print(" Created new workflow", wf_data)
                     wf_issue = None
                     wf_data["issue_name"] = wf_issue
                     wf_data["step_issue"] = self.issue_name
