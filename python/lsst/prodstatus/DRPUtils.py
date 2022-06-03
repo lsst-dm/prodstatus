@@ -1114,6 +1114,7 @@ class DRPUtils:
             a_jira, user = ju.get_login()
             step_dict = ju.get_yaml(step_issue, 'step.yaml')
             if len(step_dict) > 0:
+                LOG.info("reading existing yaml file")
                 step_name = step_dict["name"]
                 step_issue = step_dict["issue_name"]
                 " workflow_base is a directory where workflow bps yamls are"
@@ -1127,6 +1128,7 @@ class DRPUtils:
                 LOG.info("have jira issue -- read step specs")
             else:
                 "Get data from step_yaml"
+                LOG.info("step issue has no step yaml")
                 with open(step_yaml, 'r') as sf:
                     step_dict = yaml.safe_load(sf)
                 step_name = step_dict["name"]
@@ -1140,7 +1142,6 @@ class DRPUtils:
                 LOG.info(f"Step issue: {step_issue}")
                 LOG.info(f"Campaign name: {campaign_issue}")
                 LOG.info(f"Input step name: {step_name}")
-
         else:
             "Get data from step_yaml"
             with open(step_yaml, 'r') as sf:
@@ -1159,8 +1160,10 @@ class DRPUtils:
         wf_path = Path(workflow_base)
         "Get workflows for the step from workflow_base"
         LOG.info("Updating workflows")
+        LOG.info(f"workflow path {wf_path}")
         for file_name in os.listdir(wf_path):
             # check the files which  start with step token
+            LOG.info(f" Workflow step name {step_name}")
             if file_name.startswith(step_name):
                 wf_name = file_name.split('.yaml')[0]
                 bps_path = os.path.join(workflow_base, file_name)
@@ -1182,6 +1185,7 @@ class DRPUtils:
 
         step_dict["workflows"] = workflows
         LOG.info("Step dict")
+        print(step_dict)
         step = StepN.from_dict(step_dict)
         jira = JiraUtils()
         (auth_jira, user) = jira.get_login()
