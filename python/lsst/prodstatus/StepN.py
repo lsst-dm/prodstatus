@@ -132,16 +132,16 @@ class StepN:
 
         """
         "scan workflow base for bps yaml files "
-        LOG.info(f"in generate_workflows workflow_base {workflow_base}")
+        print("in generate_workflows workflow_base", workflow_base)
         if self.workflows is not None:
             workflows = deepcopy(self.workflows)
         else:
             workflows = dict()
-        LOG.info(f" step name {name}")
+        print(" step name", name)
         if workflow_base is None or workflow_base == '':
             return workflows
         for file_name in os.listdir(workflow_base):
-            LOG.info(f" file name {file_name}")
+            print(" file name ", file_name)
             # check the files which  start with step token
             if file_name.startswith(name) and \
                     file_name.endswith('.yaml'):
@@ -157,7 +157,7 @@ class StepN:
                 wf_data["bps_config"] = BpsConfig(bps_file)
                 if wf_name not in workflows:
                     workflow = WorkflowN.from_dict(wf_data)
-                    LOG.info(f" Created new workflow {workflow}")
+                    print(" Created new workflow", workflow)
                     wf_issue = None
                     wf_data["issue_name"] = wf_issue
                     wf_data["step_issue"] = self.issue_name
