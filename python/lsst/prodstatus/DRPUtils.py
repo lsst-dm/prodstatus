@@ -1116,6 +1116,7 @@ class DRPUtils:
             if len(step_dict) > 0:
                 LOG.info("reading existing yaml file")
                 step_name = step_dict["name"]
+                print("from issue step name ",step_name)
                 step_issue = step_dict["issue_name"]
                 " workflow_base is a directory where workflow bps yamls are"
                 workflow_base = step_dict["workflow_base"]
@@ -1132,6 +1133,7 @@ class DRPUtils:
                 with open(step_yaml, 'r') as sf:
                     step_dict = yaml.safe_load(sf)
                 step_name = step_dict["name"]
+                print("Step name ",step_name)
                 step_issue = step_dict["issue_name"]
                 campaign_issue = step_dict["campaign_issue"]
                 " workflow_base is a directory where workflow bps yamls are"
@@ -1161,9 +1163,11 @@ class DRPUtils:
         "Get workflows for the step from workflow_base"
         LOG.info("Updating workflows")
         LOG.info(f"workflow path {wf_path}")
+        print("workflow path ", wf_path)
         for file_name in os.listdir(wf_path):
             # check the files which  start with step token
             LOG.info(f" Workflow step name {step_name}")
+            print("step name to compare ", step_name)
             if file_name.startswith(step_name):
                 wf_name = file_name.split('.yaml')[0]
                 bps_path = os.path.join(workflow_base, file_name)
@@ -1181,7 +1185,7 @@ class DRPUtils:
                     "workflow = WorkflowN.from_dict(wf_data)"
                     wf_issue = None
                     wf_data["issue_name"] = wf_issue
-                    workflows[wf_name] = wf_data
+                    workflows[wf_name] = wf_data["name"]
 
         step_dict["workflows"] = workflows
         LOG.info("Step dict")
