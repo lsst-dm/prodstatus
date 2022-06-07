@@ -193,7 +193,9 @@ class GetButlerStat:
                         collections.append(c)
                         self.collection_keys[c] = key
         self.log.info("selected collections ")
+        print("selected collections")
         for key in collections:
+            print(f"{key}")
             self.log.info(f"{key}")
         return collections
 
@@ -271,6 +273,7 @@ class GetButlerStat:
                     pattern, collections=collection
                 )
             except OSError():
+                print(f"No datasets found for: {collection}")
                 self.log.warning(f"No datasets found for: {collection}")
                 continue
                 #
@@ -427,6 +430,7 @@ class GetButlerStat:
 #                    butler_uri = ButlerURI(ref_yaml)
                     butler_uri = ResourcePath(ref_yaml)
                     if not butler_uri.exists():
+                        print(f"The file {butler_uri} do not exists")
                         self.log.info(f"The file {butler_uri} do not exists")
                     data_id = dict(data_ref.dataId)
                     if "visit" not in data_id and "exposure" in data_id:
@@ -438,6 +442,8 @@ class GetButlerStat:
                     """parse results """
                     results = self.parse_metadata_yaml(
                         yaml_file=self.data_path.joinpath("tempTask.yaml").absolute().name)
+                    print("data from job")
+                    print(results)
                     if (results.get("EndCpuTime", None) is None
                             and results.get("endCpuTime", None) is not None):
                         cpu_time = results.get("endCpuTime", None)
