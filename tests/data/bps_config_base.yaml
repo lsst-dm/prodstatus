@@ -1,10 +1,10 @@
 includeConfigs:
-- ${CTRL_BPS_DIR}/config/bps_idf.yaml
+- ${CTRL_BPS_PANDA_DIR}/config/bps_idf.yaml
 # - requestMemory.yaml
 # - clustering.yaml
 
 project: dp02
-campaign: v23_0_0_rc5/PREOPS-938
+campaign: w_2022_22/PREOPS-938
 pipelineYaml: "${OBS_LSST_DIR}/pipelines/imsim/DRP.yaml"
 
 payload:
@@ -13,4 +13,4 @@ payload:
   butlerConfig: s3://butler-us-central1-panda-dev/dc2/butler-external.yaml
   inCollection: "2.2i/defaults"
   dataQuery: "instrument='LSSTCam-imSim' and skymap='DC2'"
-  sw_image: "lsstsqre/centos:7-stack-lsst_distrib-v23_0_0_rc5"
+  sw_image: "lsstsqre/centos:7-stack-lsst_distrib-w_2022_22"
