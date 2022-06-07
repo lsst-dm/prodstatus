@@ -30,10 +30,8 @@ from tempfile import TemporaryDirectory
 
 import yaml
 import io
-
-from lsst.ctrl.bps import BpsConfig
 from lsst.prodstatus import LOG
-
+"from lsst.ctrl.bps import BpsConfig"
 # constants
 
 BPS_CONFIG_FNAME = "bps_config.yaml"
@@ -75,17 +73,18 @@ class WorkflowN:
         The jira issue name for the issue that tracks this workflow.
     step_issue : `str`
         The jira issue name os the step the workflow belongs to.
-    bps_config : BpsConfig
-        The BPS configuration for this workflow.
 
     """
+
+    """bps_config : BpsConfig
+        The BPS configuration for this workflow."""
     bps_dir: str
     name: Optional[str] = None
     bps_name: Optional[str] = None
     step_name: Optional[str] = None
     issue_name: Optional[str] = None
     step_issue: Optional[str] = None
-    bps_config: Optional[BpsConfig] = None
+    "    bps_config: Optional[BpsConfig] = None"
 
     @classmethod
     def from_dict(cls, par_dict):
@@ -130,17 +129,34 @@ class WorkflowN:
         else:
             bps_file = None
         LOG.info(f"bps_file {bps_file}")
+        """
         if bps_file is not None:
-            bps_config = BpsConfig(bps_file)
+            bps_config = WorkflowN._get_file_content(bps_file)
         else:
             bps_config = None
-
+        """
         LOG.info(f"Creating WorkflowN with name {name}")
         LOG.info(f" bps_name {bps_name} step_name {step_name}")
         LOG.info(f" step issue {step_issue} bps_dir {bps_dir}")
-        workflow = cls(bps_dir, name, bps_name, step_name, issue_name, step_issue, bps_config)
+        workflow = cls(bps_dir, name, bps_name, step_name, issue_name, step_issue)
         LOG.debug(workflow)
         return workflow
+
+    @staticmethod
+    def _get_file_content(file_path):
+        """ Read yaml file line by line and return a list of lines
+        Parameters
+        ----------
+        file_ath: `pathlib.Path`
+           yaml file name with path
+
+        Returns: `list(str)`
+            content of the file
+        """
+        result = list()
+        for line in open(file_path, 'r'):
+            result.append(line)
+        return result
 
     def to_yaml(self, yaml_file):
         """Create yaml file representing the workflow

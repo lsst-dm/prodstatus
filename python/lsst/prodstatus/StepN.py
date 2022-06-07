@@ -32,11 +32,13 @@ from tempfile import TemporaryDirectory
 from copy import deepcopy
 import yaml
 
-from lsst.ctrl.bps import BpsConfig
-from lsst.prodstatus.WorkflowN import WorkflowN
 from lsst.prodstatus import LOG
 from lsst.prodstatus.JiraUtils import JiraUtils
 
+"""
+#from lsst.prodstatus.WorkflowN import WorkflowN
+#from lsst.ctrl.bps import BpsConfig
+"""
 # constants
 
 STEP_SPEC_FNAME = "step.yaml"
@@ -136,34 +138,39 @@ class StepN:
         if self.workflows is not None:
             workflows = deepcopy(self.workflows)
         else:
-            workflows = dict()
+            self.workflows = dict()
         LOG.info(f" step name {name}")
         if workflow_base is None or workflow_base == '':
-            return workflows
+            return self.workflows
         for file_name in os.listdir(workflow_base):
             LOG.info(f" file name {file_name}")
-            # check the files which  start with step token
-            if file_name.startswith(name) and \
-                    file_name.endswith('.yaml'):
+            if file_name.endswith('.yaml'):
                 wf_name = file_name.split('.yaml')[0]
                 wf_data = dict()
                 wf_data["name"] = wf_name
                 wf_data["bps_dir"] = workflow_base
-                wf_data["issue_name"] = None
-                wf_data["band"] = 'all'
-                wf_data["step_issue"] = self.issue_name
-                wf_data["bps_name"] = None
-                bps_file = Path(workflow_base).joinpath(wf_name + '.yaml')
-                wf_data["bps_config"] = BpsConfig(bps_file)
-                if wf_name not in workflows:
-                    workflow = WorkflowN.from_dict(wf_data)
-                    LOG.info(f" Created new workflow {workflow}")
-                    wf_issue = None
-                    wf_data["issue_name"] = wf_issue
-                    wf_data["step_issue"] = self.issue_name
-                    workflows[wf_name] = wf_data
+                bps_file = Path(workflow_base).joinpath(file_name)
+                wf_data["bps_config"] = bps_file.name
 
-        return workflows
+                if wf_name not in workflows:
+                    self.workflows[wf_name] = wf_data
+        return self.workflows
+
+    @staticmethod
+    def _get_file_content(file_path):
+        """ Read yaml file line by line and return a list of lines
+        Parameters
+        ----------
+        file_ath: `pathlib.Path`
+           yaml file name with path
+
+        Returns: `list(str)`
+            content of the file
+        """
+        result = list()
+        for line in open(file_path, 'r'):
+            result.append(line)
+        return result
 
     def to_files(self, temp_dir):
         """Save step data to files in a directory.
@@ -240,7 +247,6 @@ class StepN:
             The issue name to which the workflow was written.
         """
         # raise NotImplementedError("This code is untested")
-        print(f"Issue name {issue_name}")
         if issue_name is None and self.issue_name is not None:
             issue = jira.issue(self.issue_name)
         elif issue_name is not None and len(issue_name) > 0:
@@ -280,8 +286,27 @@ class StepN:
                                 )
                     LOG.info(f" Full file path {full_file_path}")
                     jira.add_attachment(issue, attachment=str(full_file_path))
+                    LOG.info(f"Added {file_name} to {self.issue_name}")
+            " Now copy workflow yaml files to step issue "
+            for wf_name in self.workflows:
+                file_path = Path(self.workflows[wf_name]["bps_dir"])
+                full_file_path = file_path.joinpath(self.workflows[wf_name]["name"] + '.yaml')
+                file_name = self.workflows[wf_name]["name"] + '.yaml'
+                if full_file_path.exists():
+                    for attachment in issue.fields.attachment:
+                        if file_name == attachment.filename:
+                            if replace:
+                                LOG.warning(
+                                    f"removing old attachment {file_name} from {self.issue_name}"
+                                )
+                                jira.delete_attachment(attachment.id)
+                            else:
+                                LOG.warning(
+                                    f"{file_name} already exists in {self.issue_name}; not saving."
+                                )
+                    LOG.info(f" Full file path {full_file_path}")
+                    jira.add_attachment(issue, attachment=str(full_file_path))
                     LOG.info(f"Added {file_name} to {issue}")
-
         return self.issue_name
 
     @classmethod

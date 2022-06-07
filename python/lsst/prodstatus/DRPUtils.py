@@ -138,7 +138,6 @@ class DRPUtils:
             # this needs to be upper case
             ts = ts.upper()
             longpath = uniqid + "/" + ts
-        # print(longpath)
         submittedyaml = kwd["output"] + "_" + ts
         for k in kwd:
             v = kwd[k]
@@ -1103,21 +1102,22 @@ class DRPUtils:
         LOG.info(f"Step issue: {step_issue}")
         LOG.info(f"Campaign name: {campaign_issue}")
         LOG.info(f"Input step name: {step_name}")
+        step_dict = dict()
+        " get data from input yaml"
+        with open(step_yaml, 'r') as sf:
+            in_step_dict = yaml.safe_load(sf)
 
         """" Lets check if step is in jira ang get step yaml
          if it is"""
-#        step = StepN(step_name)
-#        step_dict = dict()
-#        temp_dir = TemporaryDirectory()
         if step_issue is not None:
             ju = JiraUtils()
             a_jira, user = ju.get_login()
             step_dict = ju.get_yaml(step_issue, 'step.yaml')
             if len(step_dict) > 0:
+                " If step exists with step.yaml "
+                print("Get step data from jira")
                 step_name = step_dict["name"]
                 step_issue = step_dict["issue_name"]
-                " workflow_base is a directory where workflow bps yamls are"
-                workflow_base = step_dict["workflow_base"]
                 campaign_issue = step_dict["campaign_issue"]
                 workflows = step_dict["workflows"]
                 LOG.info(f"Step yaml:{step_yaml}")
@@ -1126,15 +1126,13 @@ class DRPUtils:
                 LOG.info(f"Input step name: {step_name}")
                 LOG.info("have jira issue -- read step specs")
             else:
+                "if step exists but without step.yaml "
                 "Get data from step_yaml"
-                with open(step_yaml, 'r') as sf:
-                    step_dict = yaml.safe_load(sf)
-                step_name = step_dict["name"]
-                step_issue = step_dict["issue_name"]
-                campaign_issue = step_dict["campaign_issue"]
+                step_name = in_step_dict["name"]
+                step_issue = in_step_dict["issue_name"]
+                campaign_issue = in_step_dict["campaign_issue"]
                 " workflow_base is a directory where workflow bps yamls are"
-                workflow_base = step_dict["workflow_base"]
-                workflows = step_dict["workflows"]
+                workflows = in_step_dict["workflows"]
                 LOG.info(f"step workflows {workflows}")
                 LOG.info(f"Step yaml:{step_yaml}")
                 LOG.info(f"Step issue: {step_issue}")
@@ -1142,44 +1140,40 @@ class DRPUtils:
                 LOG.info(f"Input step name: {step_name}")
 
         else:
+            " step does not exists - new one"
             "Get data from step_yaml"
-            with open(step_yaml, 'r') as sf:
-                step_dict = yaml.safe_load(sf)
-            step_name = step_dict["name"]
-            step_issue = step_dict["issue_name"]
-            campaign_issue = step_dict["campaign_issue"]
+            step_name = in_step_dict["name"]
+            step_issue = in_step_dict["issue_name"]
+            campaign_issue = in_step_dict["campaign_issue"]
             " workflow_base is a directory where workflow bps yamls are"
-            workflow_base = step_dict["workflow_base"]
-            workflows = step_dict["workflows"]
+            workflows = in_step_dict["workflows"]
             LOG.info(f"step workflows {workflows}")
             LOG.info(f"Step yaml:{step_yaml}")
             LOG.info(f"Step issue: {step_issue}")
             LOG.info(f"Campaign name: {campaign_issue}")
             LOG.info(f"Input step name: {step_name}")
+        "always update workflow base from input yaml "
+        workflow_base = in_step_dict["workflow_base"]
         wf_path = Path(workflow_base)
         "Get workflows for the step from workflow_base"
         LOG.info("Updating workflows")
         for file_name in os.listdir(wf_path):
-            # check the files which  start with step token
-            if file_name.startswith(step_name):
+            if file_name.endswith('.yaml'):
                 wf_name = file_name.split('.yaml')[0]
                 bps_path = os.path.join(workflow_base, file_name)
                 wf_data = dict()
                 wf_data["name"] = wf_name
-                wf_data["path"] = bps_path
-                wf_data["issue_name"] = None
-                wf_data["band"] = 'all'
-                wf_data["step_name"] = step_name
-                wf_data["step_issue"] = step_issue
-                wf_data["bps_name"] = ''
-                " if new workflow - create it and add to workflows "
+                wf_data["bps_dir"] = workflow_base
+                wf_data["bps_config"] = str(bps_path)
+                " if new workflow -  add to workflows "
                 if wf_name not in workflows:
                     LOG.info("create new workflow")
-                    "workflow = WorkflowN.from_dict(wf_data)"
-                    wf_issue = None
-                    wf_data["issue_name"] = wf_issue
                     workflows[wf_name] = wf_data
 
+        step_dict["name"] = step_name
+        step_dict["issue_name"] = step_issue
+        step_dict["campaign_issue"] = campaign_issue
+        step_dict["workflow_base"] = workflow_base
         step_dict["workflows"] = workflows
         LOG.info("Step dict")
         step = StepN.from_dict(step_dict)
@@ -1249,7 +1243,6 @@ class DRPUtils:
         if os.path.exists(workflow_yaml):
             with open(workflow_yaml) as wf:
                 workflows = yaml.load(wf, Loader=yaml.Loader)
-                print(workflows)
             if workflows is None:
                 workflows = dict()
         else:
