@@ -35,9 +35,14 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pandas.plotting import table
 from lsst.daf.butler import Butler
-from lsst.daf.butler import ButlerURI
+from lsst.resources import ResourcePath
+
 from lsst.prodstatus import LOG
 
+"""
+#from lsst.daf.butler import ButlerURI
+#
+"""
 # PropertySet needs to be imported to load the butler yaml.
 from lsst.daf.base import PropertySet  # noqa: F401
 
@@ -412,12 +417,15 @@ class GetButlerStat:
                             sys.stdout.write(".")
                             sys.stdout.flush()
                     try:
-                        ref_yaml = self.butler.getURI(data_ref, collections=collection)
+                        ref_yaml = self.butler.getURI(data_ref,
+                                                      collections=collection)
                     except ValueError:
                         self.log.info(f"Yaml file {ref_yaml} not found - skipping")
                         continue
-                    dest = ButlerURI(self.data_path.joinpath("tempTask.yaml").absolute().name)
-                    butler_uri = ButlerURI(ref_yaml)
+# dest = ButlerURI(self.data_path.joinpath("tempTask.yaml").absolute().name)
+                    dest = ResourcePath(self.data_path.joinpath("tempTask.yaml"))
+#                    butler_uri = ButlerURI(ref_yaml)
+                    butler_uri = ResourcePath(ref_yaml)
                     if not butler_uri.exists():
                         self.log.info(f"The file {butler_uri} do not exists")
                     data_id = dict(data_ref.dataId)
@@ -533,6 +541,7 @@ class GetButlerStat:
         plt.savefig(self.data_path.joinpath(f"butlerStat-{self.jira_ticket}.png"), transparent=True)
         plt.show()
         """ print the table """
+        print('')
         print(tabulate(data_frame, headers="keys", tablefmt="fancy_grid"))
         " write HTML version of the table "
         html_buff = data_frame.to_html()
