@@ -134,20 +134,21 @@ class GetButlerStat:
         results = dict()
         with open(yaml_file) as fd:
             md = yaml.safe_load(fd)
+        print(md)
         methods = list(md.keys())
         for method in methods:
             """print(f" method {method}")"""
             for key, value in md[method].items():
-                """print(f" key {key}  value {value}")"""
+                print(f" key {key}  value {value}")
                 if key == 'quantum':
                     quantum_dict = value['arrays']
-                    """print('quantum dictionary')"""
-                    """print(quantum_dict)"""
-                    for qkey in quantum_dict:
-                        valueq = quantum_dict[qkey]
+                    print('quantum dictionary')
+                    print(quantum_dict)
+                    for q_key in quantum_dict:
+                        value_q = quantum_dict[q_key]
                         """print(f" qkey {qkey} valueq {valueq}")"""
-                        if qkey in time_stamp:
-                            start_string = valueq[0]
+                        if q_key in time_stamp:
+                            start_string = value_q[0]
                             if "T" in start_string:
                                 tokens = start_string.split("T")
                                 start_string = (
@@ -196,10 +197,7 @@ class GetButlerStat:
                 sub_str = str(c).split(pre_ops)[1]
                 if 'T' in sub_str and 'Z' in sub_str:
                     key = sub_str.split('/')[-1]
-                    "date_str = key.split('T')[0]"
                     date_stamp = datetime.datetime.strptime(key, '%Y%m%dT%H%M%SZ').timestamp()
-                    """date_stamp = datetime.datetime.strptime(date_str, "%Y%m%d").timestamp()"""
-                    print(f"last_stat {self.last_stat} date_stamp {date_stamp} stop_stamp {self.stop_stamp}")
                     if self.last_stat <= date_stamp <= self.stop_stamp:
                         collections.append(c)
                         self.collection_keys[c] = key
