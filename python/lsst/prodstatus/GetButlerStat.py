@@ -198,6 +198,7 @@ class GetButlerStat:
                     key = sub_str.split('/')[-1]
                     date_str = key.split('T')[0]
                     date_stamp = datetime.datetime.strptime(date_str, "%Y%m%d").timestamp()
+                    print("last_stat {self.last_stat} date_stamp {date_stamp} stop_stamp {self.stop_stamp}")
                     if self.last_stat <= date_stamp <= self.stop_stamp:
                         collections.append(c)
                         self.collection_keys[c] = key
@@ -453,6 +454,8 @@ class GetButlerStat:
                     """parse results """
                     results = self.parse_metadata_yaml(
                         yaml_file=self.data_path.joinpath("tempTask.yaml").absolute().name)
+                    print(f"Results for task {task}")
+                    print(results)
                     if (results.get("EndCpuTime", None) is None
                             and results.get("endCpuTime", None) is not None):
                         cpu_time = results.get("endCpuTime", None)
