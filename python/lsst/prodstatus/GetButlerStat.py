@@ -381,6 +381,7 @@ class GetButlerStat:
         for key in self.old_stat:
             time_stat = datetime.datetime.strptime(self.old_stat[key]['startTime'],
                                                    "%Y-%m-%d %H:%M:%S").timestamp()
+            print(f"time_stat {time_stat} lst_stat {self.last_stat}")
             if time_stat >= self.last_stat:
                 self.last_stat = time_stat
         if self.last_stat == 0.:
