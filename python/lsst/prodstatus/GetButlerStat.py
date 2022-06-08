@@ -145,27 +145,28 @@ class GetButlerStat:
                     quantum_dict = value['arrays']
                     print('quantum dictionary')
                     print(quantum_dict)
-                if key in time_stamp:
-                    start_string = value
-                    if "T" in value:
-                        tokens = start_string.split("T")
-                        start_string = (
-                            tokens[0] + " " + tokens[1]
-                        )  # get rid of T in the date string
-                    if "timestamp" not in results:
-                        results["timestamp"] = start_string
-                for min_field in min_fields:
-                    if min_field not in key:
-                        continue
-                    if min_field not in results or value < results[min_field]:
-                        results[min_field] = float(value)
-                        continue
-                for max_field in max_fields:
-                    if max_field not in key:
-                        continue
-                    if max_field not in results or value > results[max_field]:
-                        results[max_field] = float(value)
-                        continue
+                    for qkey in quantum_dict:
+                        if qkey in time_stamp:
+                            start_string = value
+                        if "T" in value:
+                            tokens = start_string.split("T")
+                            start_string = (
+                                tokens[0] + " " + tokens[1]
+                            )  # get rid of T in the date string
+                        if "timestamp" not in results:
+                            results["timestamp"] = start_string
+                        for min_field in min_fields:
+                            if min_field not in key:
+                                continue
+                            if min_field not in results or value < results[min_field]:
+                                results[min_field] = float(value)
+                                continue
+                        for max_field in max_fields:
+                            if max_field not in key:
+                                continue
+                            if max_field not in results or value > results[max_field]:
+                                results[max_field] = float(value)
+                                continue
         return results
 
     def set_butler(self, butler_string):
