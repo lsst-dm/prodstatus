@@ -35,6 +35,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pandas.plotting import table
 from lsst.daf.butler import Butler
+from lsst.daf.butler import ButlerURI
 from lsst.resources import ResourcePath
 
 from lsst.prodstatus import LOG
@@ -442,11 +443,13 @@ class GetButlerStat:
                     dest = ResourcePath(self.data_path.joinpath("tempTask.yaml"))
                     butler_uri = ResourcePath(ref_yaml)
                     print(f"Butler URI {butler_uri}")
+                    butler_uri1 = ButlerURI(ref_yaml)
+                    print(f" Old butler uri {butler_uri1}")
                     if not butler_uri.exists():
                         print(f"The file {butler_uri} do not exists")
                         self.log.info(f"The file {butler_uri} do not exists")
                     data_id = dict(data_ref.dataId)
-                    print(f"Data ID {data_id}")
+#                    print(f"Data ID {data_id}")
                     if "visit" not in data_id and "exposure" in data_id:
                         data_id["visit"] = data_id["exposure"]
                     for column in columns:
