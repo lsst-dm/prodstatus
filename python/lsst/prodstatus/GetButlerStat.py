@@ -136,16 +136,16 @@ class GetButlerStat:
             md = yaml.safe_load(fd)
         methods = list(md.keys())
         for method in methods:
-#            print(f" method {method}")
+            """print(f" method {method}")"""
             for key, value in md[method].items():
-#                print(f" key {key}  value {value}")
+                """print(f" key {key}  value {value}")"""
                 if key == 'quantum':
                     quantum_dict = value['arrays']
-#                    print('quantum dictionary')
-#                    print(quantum_dict)
+                    """print('quantum dictionary')"""
+                    """print(quantum_dict)"""
                     for qkey in quantum_dict:
                         valueq = quantum_dict[qkey]
-#                        print(f" qkey {qkey} valueq {valueq}")
+                        """print(f" qkey {qkey} valueq {valueq}")"""
                         if qkey in time_stamp:
                             start_string = valueq[0]
                             if "T" in start_string:
@@ -449,8 +449,6 @@ class GetButlerStat:
                     """parse results """
                     results = self.parse_metadata_yaml(
                         yaml_file=self.data_path.joinpath("tempTask.yaml").absolute().name)
-#                    print("data from job")
-#                    print(results)
                     if (results.get("EndCpuTime", None) is None
                             and results.get("endCpuTime", None) is not None):
                         cpu_time = results.get("endCpuTime", None)
@@ -465,8 +463,6 @@ class GetButlerStat:
                     else:
                         data["startTime"].append(results.get("timestamp", None))
                 task_res[task] = data
-#                print("task results")
-#                print(task_res[task])
             key = self.collection_keys[collection]
             "Put old statistics in the workflow_res"
             self.workflow_res = deepcopy(self.old_stat)
