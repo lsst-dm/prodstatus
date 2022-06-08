@@ -150,13 +150,13 @@ class GetButlerStat:
                         print(f" qkey {qkey} valueq {valueq}")
                         if qkey in time_stamp:
                             start_string = valueq[0]
-                        if "T" in valueq:
-                            tokens = start_string.split("T")
-                            start_string = (
-                                tokens[0] + " " + tokens[1]
-                            )  # get rid of T in the date string
-                        if "timestamp" not in results:
-                            results["timestamp"] = start_string
+                            if "T" in start_string:
+                                tokens = start_string.split("T")
+                                start_string = (
+                                    tokens[0] + " " + tokens[1]
+                                )  # get rid of T in the date string
+                            if "timestamp" not in results:
+                                results["timestamp"] = start_string
                         for min_field in min_fields:
                             if min_field not in qkey:
                                 continue
