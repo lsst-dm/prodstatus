@@ -139,14 +139,10 @@ class GetButlerStat:
         for method in methods:
             """print(f" method {method}")"""
             for key, value in md[method].items():
-                print(f" key {key}  value {value}")
                 if key == 'quantum':
                     quantum_dict = value['arrays']
-                    print('quantum dictionary')
-                    print(quantum_dict)
                     for q_key in quantum_dict:
                         value_q = quantum_dict[q_key]
-                        """print(f" qkey {qkey} valueq {valueq}")"""
                         if q_key in time_stamp:
                             start_string = value_q[0]
                             if "T" in start_string:
@@ -429,6 +425,7 @@ class GetButlerStat:
             task_res = dict()
             ref_yaml = ''
             for task in task_data:
+                print(f"Task {task} \n")
                 data = defaultdict(list)
                 data_refs = task_data[task]
                 for i, data_ref in enumerate(data_refs):
@@ -444,10 +441,12 @@ class GetButlerStat:
                         continue
                     dest = ResourcePath(self.data_path.joinpath("tempTask.yaml"))
                     butler_uri = ResourcePath(ref_yaml)
+                    print(f"Butler URI {butler_uri}")
                     if not butler_uri.exists():
                         print(f"The file {butler_uri} do not exists")
                         self.log.info(f"The file {butler_uri} do not exists")
                     data_id = dict(data_ref.dataId)
+                    print(f"Data ID {data_id}")
                     if "visit" not in data_id and "exposure" in data_id:
                         data_id["visit"] = data_id["exposure"]
                     for column in columns:
