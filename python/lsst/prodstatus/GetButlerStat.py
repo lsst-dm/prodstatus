@@ -145,7 +145,8 @@ class GetButlerStat:
                     quantum_dict = value['arrays']
                     print('quantum dictionary')
                     print(quantum_dict)
-                    for qkey, valueq in quantum_dict:
+                    for qkey in quantum_dict:
+                        valueq = quantum_dict[qkey]
                         print(f" qkey {qkey} valueq {valueq}")
                         if qkey in time_stamp:
                             start_string = valueq
