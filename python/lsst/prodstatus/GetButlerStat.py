@@ -145,10 +145,11 @@ class GetButlerStat:
                     quantum_dict = value['arrays']
                     print('quantum dictionary')
                     print(quantum_dict)
-                    for qkey in quantum_dict:
+                    for qkey, valueq in quantum_dict:
+                        print(f" qkey {qkey} valueq {valueq}")
                         if qkey in time_stamp:
-                            start_string = value
-                        if "T" in value:
+                            start_string = valueq
+                        if "T" in valueq:
                             tokens = start_string.split("T")
                             start_string = (
                                 tokens[0] + " " + tokens[1]
@@ -156,16 +157,16 @@ class GetButlerStat:
                         if "timestamp" not in results:
                             results["timestamp"] = start_string
                         for min_field in min_fields:
-                            if min_field not in key:
+                            if min_field not in qkey:
                                 continue
-                            if min_field not in results or value < results[min_field]:
-                                results[min_field] = float(value)
+                            if min_field not in results or valueq[0] < results[min_field]:
+                                results[min_field] = float(value[0])
                                 continue
                         for max_field in max_fields:
-                            if max_field not in key:
+                            if max_field not in qkey:
                                 continue
-                            if max_field not in results or value > results[max_field]:
-                                results[max_field] = float(value)
+                            if max_field not in results or value[0] > results[max_field]:
+                                results[max_field] = float(valueq[0])
                                 continue
         return results
 
