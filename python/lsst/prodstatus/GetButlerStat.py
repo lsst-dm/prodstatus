@@ -385,7 +385,7 @@ class GetButlerStat:
         if self.last_stat == 0.:
             self.last_stat = self.start_stamp
         self.log.info(f"last stat stamp {self.last_stat}")
-        print(f"last sta stamp {self.last_stat}")
+        print(f"last stat stamp {self.last_stat}")
 
     def clean_history(self):
         """
@@ -470,13 +470,17 @@ class GetButlerStat:
             key = self.collection_keys[collection]
             "Put old statistics in the workflow_res"
             self.workflow_res = deepcopy(self.old_stat)
+            print("Before collecting new data - old data")
+            print(self.workflow_res)
             for task in task_res:
                 self.workflow_res[f"{key}_{task}"] = self.make_sum(
                     task_size[task], task_res[task]
                 )
-            print("workflow_res")
+            print("workflow_res after addition")
             print(self.workflow_res)
             """Now create pandas frame to display results"""
+        print("workflow_res after all collections")
+        print(self.workflow_res)
         dt = dict()
         all_tasks = list()
         camp_cpu = 0.0
