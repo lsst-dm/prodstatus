@@ -385,6 +385,7 @@ class GetButlerStat:
         if self.last_stat == 0.:
             self.last_stat = self.start_stamp
         self.log.info(f"last stat stamp {self.last_stat}")
+        print(f"last sta stamp {self.last_stat}")
 
     def clean_history(self):
         """
@@ -399,6 +400,8 @@ class GetButlerStat:
         """Run the program."""
         "First let's get old statistics information"
         self.get_old()
+        print("old_stat")
+        print(self.old_stat)
         "Now select collections with time stamp newer than old one "
         collections = self.search_collections()
         """Recreate Butler and registry """
@@ -466,8 +469,6 @@ class GetButlerStat:
                 task_res[task] = data
             key = self.collection_keys[collection]
             "Put old statistics in the workflow_res"
-            print("old_stat")
-            print(self.old_stat)
             self.workflow_res = deepcopy(self.old_stat)
             for task in task_res:
                 self.workflow_res[f"{key}_{task}"] = self.make_sum(
