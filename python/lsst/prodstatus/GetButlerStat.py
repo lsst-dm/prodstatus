@@ -157,16 +157,16 @@ class GetButlerStat:
                             if "timestamp" not in results:
                                 results["timestamp"] = start_string
                         for min_field in min_fields:
-                            if min_field not in qkey:
+                            if min_field not in q_key:
                                 continue
-                            if min_field not in results or valueq[0] < results[min_field]:
-                                results[min_field] = float(valueq[0])
+                            if min_field not in results or value_q[0] < results[min_field]:
+                                results[min_field] = float(value_q[0])
                                 continue
                         for max_field in max_fields:
-                            if max_field not in qkey:
+                            if max_field not in q_key:
                                 continue
-                            if max_field not in results or valueq[0] > results[max_field]:
-                                results[max_field] = float(valueq[0])
+                            if max_field not in results or value_q[0] > results[max_field]:
+                                results[max_field] = float(value_q[0])
                                 continue
         return results
 
