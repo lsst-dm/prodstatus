@@ -277,6 +277,7 @@ class GetButlerStat:
         data_type_pattern = ".*_metadata"
         pattern = re.compile(data_type_pattern)
         for collection in collections:
+            print(collection)
             try:
                 dataset_refs = self.registry.queryDatasets(
                     pattern, collections=collection
@@ -465,11 +466,15 @@ class GetButlerStat:
                 task_res[task] = data
             key = self.collection_keys[collection]
             "Put old statistics in the workflow_res"
+            print("old_stat")
+            print(self.old_stat)
             self.workflow_res = deepcopy(self.old_stat)
             for task in task_res:
                 self.workflow_res[f"{key}_{task}"] = self.make_sum(
                     task_size[task], task_res[task]
                 )
+            print("workflow_res")
+            print(self.workflow_res)
             """Now create pandas frame to display results"""
         dt = dict()
         all_tasks = list()
