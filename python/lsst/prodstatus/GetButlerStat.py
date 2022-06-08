@@ -149,7 +149,7 @@ class GetButlerStat:
                         valueq = quantum_dict[qkey]
                         print(f" qkey {qkey} valueq {valueq}")
                         if qkey in time_stamp:
-                            start_string = valueq
+                            start_string = valueq[0]
                         if "T" in valueq:
                             tokens = start_string.split("T")
                             start_string = (
@@ -161,12 +161,12 @@ class GetButlerStat:
                             if min_field not in qkey:
                                 continue
                             if min_field not in results or valueq[0] < results[min_field]:
-                                results[min_field] = float(value[0])
+                                results[min_field] = float(valueq[0])
                                 continue
                         for max_field in max_fields:
                             if max_field not in qkey:
                                 continue
-                            if max_field not in results or value[0] > results[max_field]:
+                            if max_field not in results or valueq[0] > results[max_field]:
                                 results[max_field] = float(valueq[0])
                                 continue
         return results
