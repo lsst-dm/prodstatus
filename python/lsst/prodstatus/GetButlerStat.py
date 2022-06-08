@@ -134,12 +134,17 @@ class GetButlerStat:
         results = dict()
         with open(yaml_file) as fd:
             md = yaml.safe_load(fd)
-        print("yaml dictionary")
-        print(md)
+#        print("yaml dictionary")
+#        print(md)
         methods = list(md.keys())
         for method in methods:
+            print(f" method {method}")
             for key, value in md[method].items():
                 print(f" key {key}  value {value}")
+                if key == 'quantum':
+                    quantum_dict = value['arrays']
+                    print('quantum dictionary')
+                    print(quantum_dict)
                 if key in time_stamp:
                     start_string = value
                     if "T" in value:
