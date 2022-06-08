@@ -124,11 +124,11 @@ class GetButlerStat:
         time_types = "Cpu User System".split()
         min_fields = [f"Start{_}Time" for _ in time_types] + [
             f"start{_}Time" for _ in time_types
-        ]
+        ] + ['startUtc']
         max_fields = (
             [f"End{_}Time" for _ in time_types]
             + [f"end{_}Time" for _ in time_types]
-            + ["MaxResidentSetSize"]
+            + ["MaxResidentSetSize", 'endUtc']
         )
         time_stamp = ["startUtc", "prepUtc"]
         results = dict()
@@ -425,9 +425,7 @@ class GetButlerStat:
                     except ValueError:
                         self.log.info(f"Yaml file {ref_yaml} not found - skipping")
                         continue
-# dest = ButlerURI(self.data_path.joinpath("tempTask.yaml").absolute().name)
                     dest = ResourcePath(self.data_path.joinpath("tempTask.yaml"))
-#                    butler_uri = ButlerURI(ref_yaml)
                     butler_uri = ResourcePath(ref_yaml)
                     if not butler_uri.exists():
                         print(f"The file {butler_uri} do not exists")
@@ -442,8 +440,8 @@ class GetButlerStat:
                     """parse results """
                     results = self.parse_metadata_yaml(
                         yaml_file=self.data_path.joinpath("tempTask.yaml").absolute().name)
-                    print("data from job")
-                    print(results)
+#                    print("data from job")
+#                    print(results)
                     if (results.get("EndCpuTime", None) is None
                             and results.get("endCpuTime", None) is not None):
                         cpu_time = results.get("endCpuTime", None)
@@ -458,6 +456,8 @@ class GetButlerStat:
                     else:
                         data["startTime"].append(results.get("timestamp", None))
                 task_res[task] = data
+                print("task results")
+                print(task_res[task])
             key = self.collection_keys[collection]
             "Put old statistics in the workflow_res"
             self.workflow_res = deepcopy(self.old_stat)
