@@ -405,7 +405,7 @@ class GetButlerStat:
         print(self.old_stat)
         "Now select collections with time stamp newer than old one "
         collections = self.search_collections()
-        if len(colections) == 0:
+        if len(collections) == 0:
             print(" No new collections -- exiting")
             sys.exit(0.)
         """Recreate Butler and registry """
