@@ -134,9 +134,12 @@ class GetButlerStat:
         results = dict()
         with open(yaml_file) as fd:
             md = yaml.safe_load(fd)
+        print("yaml dictionary")
+        print(md)
         methods = list(md.keys())
         for method in methods:
             for key, value in md[method].items():
+                print(f" key {key}  value {value}")
                 if key in time_stamp:
                     start_string = value
                     if "T" in value:
@@ -440,8 +443,8 @@ class GetButlerStat:
                     """parse results """
                     results = self.parse_metadata_yaml(
                         yaml_file=self.data_path.joinpath("tempTask.yaml").absolute().name)
-#                    print("data from job")
-#                    print(results)
+                    print("data from job")
+                    print(results)
                     if (results.get("EndCpuTime", None) is None
                             and results.get("endCpuTime", None) is not None):
                         cpu_time = results.get("endCpuTime", None)
