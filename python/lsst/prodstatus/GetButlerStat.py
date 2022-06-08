@@ -124,11 +124,11 @@ class GetButlerStat:
         time_types = "Cpu User System".split()
         min_fields = [f"Start{_}Time" for _ in time_types] + [
             f"start{_}Time" for _ in time_types
-        ] + ['startUtc']
+        ]
         max_fields = (
             [f"End{_}Time" for _ in time_types]
             + [f"end{_}Time" for _ in time_types]
-            + ["MaxResidentSetSize", 'endUtc']
+            + ["MaxResidentSetSize"]
         )
         time_stamp = ["startUtc", "prepUtc"]
         results = dict()
