@@ -469,7 +469,7 @@ class GetButlerStat:
                         data_id = dict(data_ref.dataId)
                         metadata = self.butler.get(task + '_metadata', dataId=data_id, collections=collection)
                         results = self.parse_metadata(metadata)
-                    except ValueError or LookupError or TypeError:
+                    except ValueError or LookupError or TypeError or KeyError:
                         results = dict()
                         continue
                     data_id = dict(data_ref.dataId)
