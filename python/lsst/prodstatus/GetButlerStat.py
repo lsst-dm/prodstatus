@@ -185,8 +185,12 @@ class GetButlerStat:
         methods = list(metadata.keys())
         for method in methods:
             for key, value in metadata[method].items():
+                if isinstance(value, list):
+                    strip_value = value[0]
+                else:
+                    strip_value = value
                 if key in time_stamp:
-                    start_string = value
+                    start_string = strip_value
                     if "T" in value:
                         tokens = start_string.split("T")
                         start_string = (
@@ -197,14 +201,14 @@ class GetButlerStat:
                 for min_field in min_fields:
                     if min_field not in key:
                         continue
-                    if min_field not in results or value < results[min_field]:
-                        results[min_field] = float(value)
+                    if min_field not in results or strip_value < results[min_field]:
+                        results[min_field] = float(strip_value)
                         continue
                 for max_field in max_fields:
                     if max_field not in key:
                         continue
-                    if max_field not in results or value > results[max_field]:
-                        results[max_field] = float(value)
+                    if max_field not in results or strip_value > results[max_field]:
+                        results[max_field] = float(strip_value)
                         continue
         return results
 
