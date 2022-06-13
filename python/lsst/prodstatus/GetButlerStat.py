@@ -35,15 +35,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pandas.plotting import table
 from lsst.daf.butler import Butler
-from lsst.daf.butler import ButlerURI
 from lsst.resources import ResourcePath
-
 from lsst.prodstatus import LOG
 
-"""
-#from lsst.daf.butler import ButlerURI
-#
-"""
 # PropertySet needs to be imported to load the butler yaml.
 from lsst.daf.base import PropertySet  # noqa: F401
 
@@ -99,8 +93,8 @@ class GetButlerStat:
         self.start_stamp = datetime.datetime.strptime(self.start_date, "%Y-%m-%d").timestamp()
         self.stop_stamp = datetime.datetime.strptime(self.stop_date, "%Y-%m-%d").timestamp()
         self.log = LOG
-        self.log.info(f" Collecting information for Jira ticket {self.jira_ticket}")
-        self.log.info(f"Will store data in {self.data_path.absolute()}")
+        print(f" Collecting information for Jira ticket {self.jira_ticket}")
+        print(f"Will store data in {self.data_path.absolute()}")
 
     @staticmethod
     def parse_metadata_yaml(yaml_file):
@@ -135,36 +129,84 @@ class GetButlerStat:
         results = dict()
         with open(yaml_file) as fd:
             md = yaml.safe_load(fd)
-        print(md)
         methods = list(md.keys())
         for method in methods:
-            """print(f" method {method}")"""
             for key, value in md[method].items():
-                if key == 'quantum':
-                    quantum_dict = value['arrays']
-                    for q_key in quantum_dict:
-                        value_q = quantum_dict[q_key]
-                        if q_key in time_stamp:
-                            start_string = value_q[0]
-                            if "T" in start_string:
-                                tokens = start_string.split("T")
-                                start_string = (
-                                    tokens[0] + " " + tokens[1]
-                                )  # get rid of T in the date string
-                            if "timestamp" not in results:
-                                results["timestamp"] = start_string
-                        for min_field in min_fields:
-                            if min_field not in q_key:
-                                continue
-                            if min_field not in results or value_q[0] < results[min_field]:
-                                results[min_field] = float(value_q[0])
-                                continue
-                        for max_field in max_fields:
-                            if max_field not in q_key:
-                                continue
-                            if max_field not in results or value_q[0] > results[max_field]:
-                                results[max_field] = float(value_q[0])
-                                continue
+                if key in time_stamp:
+                    start_string = value
+                    if "T" in value:
+                        tokens = start_string.split("T")
+                        start_string = (
+                            tokens[0] + " " + tokens[1]
+                        )  # get rid of T in the date string
+                    if "timestamp" not in results:
+                        results["timestamp"] = start_string
+                for min_field in min_fields:
+                    if min_field not in key:
+                        continue
+                    if min_field not in results or value < results[min_field]:
+                        results[min_field] = float(value)
+                        continue
+                for max_field in max_fields:
+                    if max_field not in key:
+                        continue
+                    if max_field not in results or value > results[max_field]:
+                        results[max_field] = float(value)
+                        continue
+        return results
+
+    @staticmethod
+    def parse_metadata(metadata):
+        """Parse the runtime and RSS data in the metadata dictionary.
+
+        Parameters
+        ----------
+        metadata : `dict`
+            Dictionary containing metadata
+
+        Returns
+        -------
+        results : `dict`
+            dictionary of unpacked results
+
+
+        """
+
+        time_types = "Cpu User System".split()
+        min_fields = [f"Start{_}Time" for _ in time_types] + [
+            f"start{_}Time" for _ in time_types
+        ]
+        max_fields = (
+            [f"End{_}Time" for _ in time_types]
+            + [f"end{_}Time" for _ in time_types]
+            + ["MaxResidentSetSize"]
+        )
+        time_stamp = ["startUtc", "prepUtc"]
+        results = dict()
+        methods = list(metadata.keys())
+        for method in methods:
+            for key, value in md[method].items():
+                if key in time_stamp:
+                    start_string = value
+                    if "T" in value:
+                        tokens = start_string.split("T")
+                        start_string = (
+                            tokens[0] + " " + tokens[1]
+                        )  # get rid of T in the date string
+                    if "timestamp" not in results:
+                        results["timestamp"] = start_string
+                for min_field in min_fields:
+                    if min_field not in key:
+                        continue
+                    if min_field not in results or value < results[min_field]:
+                        results[min_field] = float(value)
+                        continue
+                for max_field in max_fields:
+                    if max_field not in key:
+                        continue
+                    if max_field not in results or value > results[max_field]:
+                        results[max_field] = float(value)
+                        continue
         return results
 
     def set_butler(self, butler_string):
@@ -194,15 +236,13 @@ class GetButlerStat:
                 sub_str = str(c).split(pre_ops)[1]
                 if 'T' in sub_str and 'Z' in sub_str:
                     key = sub_str.split('/')[-1]
-                    date_stamp = datetime.datetime.strptime(key, '%Y%m%dT%H%M%SZ').timestamp()
+                    date_stamp = datetime.datetime.strptime(key, "%Y%m%dT%H%M%SZ").timestamp()
                     if self.last_stat <= date_stamp <= self.stop_stamp:
                         collections.append(c)
                         self.collection_keys[c] = key
-        self.log.info("selected collections ")
-        print("selected collections")
+        print("selected collections ")
         for key in collections:
             print(f"{key}")
-            self.log.info(f"{key}")
         return collections
 
     def make_sum(self, task_size, task_res):
@@ -274,14 +314,12 @@ class GetButlerStat:
         data_type_pattern = ".*_metadata"
         pattern = re.compile(data_type_pattern)
         for collection in collections:
-            print(collection)
             try:
                 dataset_refs = self.registry.queryDatasets(
                     pattern, collections=collection
                 )
             except OSError():
                 print(f"No datasets found for: {collection}")
-                self.log.warning(f"No datasets found for: {collection}")
                 continue
                 #
             k = 0
@@ -377,13 +415,11 @@ class GetButlerStat:
         for key in self.old_stat:
             time_stat = datetime.datetime.strptime(self.old_stat[key]['startTime'],
                                                    "%Y-%m-%d %H:%M:%S").timestamp()
-            print(f"time_stat {time_stat} lst_stat {self.last_stat}")
             if time_stat >= self.last_stat:
                 self.last_stat = time_stat
         if self.last_stat == 0.:
             self.last_stat = self.start_stamp
         self.log.info(f"last stat stamp {self.last_stat}")
-        print(f"last stat stamp {self.last_stat}")
 
     def clean_history(self):
         """
@@ -398,13 +434,8 @@ class GetButlerStat:
         """Run the program."""
         "First let's get old statistics information"
         self.get_old()
-        print("old_stat")
-        print(self.old_stat)
         "Now select collections with time stamp newer than old one "
         collections = self.search_collections()
-        if len(collections) == 0:
-            print(" No new collections -- exiting")
-            sys.exit(0.)
         """Recreate Butler and registry """
         self.butler = Butler(self.repo_root, collections=collections)
         self.registry = self.butler.registry
@@ -415,18 +446,16 @@ class GetButlerStat:
         """
         verbose = True
         columns = ("detector", "tract", "patch", "band", "visit")
-        """ create temporary file for parsing metadata yaml """
-        if not os.path.exists(self.data_path.joinpath("tempTask.yaml")):
-            my_file = open(self.data_path.joinpath("tempTask.yaml"), "w")
-            test_dict = {"test": ""}
-            yaml.dump(test_dict, my_file)
+        "Put old statistics in the workflow_res"
+        self.workflow_res = dict()
+        self.workflow_res = deepcopy(old_stat)
         for collection in collections:
             task_data = self.collection_data[collection]
             task_size = self.collection_size[collection]
             task_res = dict()
             ref_yaml = ''
+            results = dict()
             for task in task_data:
-                print(f"Task {task} \n")
                 data = defaultdict(list)
                 data_refs = task_data[task]
                 for i, data_ref in enumerate(data_refs):
@@ -435,32 +464,18 @@ class GetButlerStat:
                             sys.stdout.write(".")
                             sys.stdout.flush()
                     try:
-                        ref_yaml = self.butler.getURI(data_ref,
-                                                      collections=collection)
-                    except ValueError:
-                        self.log.info(f"Yaml file {ref_yaml} not found - skipping")
+                        data_id = dict(data_ref.dataId)
+                        metadata = butler.get(task + '_metadata', dataId=data_id, collections=collection)
+                        results = parse_metadata(metadata)
+                    except:
+                        results = dict()
                         continue
-                    dest = ResourcePath(self.data_path.joinpath("tempTask.yaml"))
-                    butler_uri = ResourcePath(ref_yaml)
-                    print(f"Butler URI {butler_uri}")
-                    butler_uri1 = ButlerURI(ref_yaml)
-                    print(f" Old butler uri {butler_uri1}")
-                    if not butler_uri.exists():
-                        print(f"The file {butler_uri} do not exists")
-                        self.log.info(f"The file {butler_uri} do not exists")
                     data_id = dict(data_ref.dataId)
-#                    print(f"Data ID {data_id}")
                     if "visit" not in data_id and "exposure" in data_id:
                         data_id["visit"] = data_id["exposure"]
                     for column in columns:
                         data[column].append(data_id.get(column, None))
-                    """Copy metadata.yaml to local temp yaml """
-                    dest.transfer_from(butler_uri, "copy", True)
-                    """parse results """
-                    results = self.parse_metadata_yaml(
-                        yaml_file=self.data_path.joinpath("tempTask.yaml").absolute().name)
-                    print(f"Results for task {task}")
-                    print(results)
+
                     if (results.get("EndCpuTime", None) is None
                             and results.get("endCpuTime", None) is not None):
                         cpu_time = results.get("endCpuTime", None)
@@ -475,20 +490,18 @@ class GetButlerStat:
                     else:
                         data["startTime"].append(results.get("timestamp", None))
                 task_res[task] = data
+                if len(results) > 0:
+                    task_res[task] = data
             key = self.collection_keys[collection]
-            "Put old statistics in the workflow_res"
-            self.workflow_res = deepcopy(self.old_stat)
-            print("Before collecting new data - old data")
-            print(self.workflow_res)
+
             for task in task_res:
-                self.workflow_res[f"{key}_{task}"] = self.make_sum(
-                    task_size[task], task_res[task]
-                )
-            print("workflow_res after addition")
-            print(self.workflow_res)
-            """Now create pandas frame to display results"""
-        print("workflow_res after all collections")
-        print(self.workflow_res)
+                try:
+                    self.workflow_res[f"{key}_{task}"] = self.make_sum(
+                        task_size[task], task_res[task]
+                    )
+                except KeyError:
+                    continue
+        """Now create pandas frame to display results"""
         dt = dict()
         all_tasks = list()
         camp_cpu = 0.0
@@ -570,7 +583,6 @@ class GetButlerStat:
         plt.savefig(self.data_path.joinpath(f"butlerStat-{self.jira_ticket}.png"), transparent=True)
         plt.show()
         """ print the table """
-        print('')
         print(tabulate(data_frame, headers="keys", tablefmt="fancy_grid"))
         " write HTML version of the table "
         html_buff = data_frame.to_html()
