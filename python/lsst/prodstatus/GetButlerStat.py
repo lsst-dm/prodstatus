@@ -35,7 +35,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pandas.plotting import table
 from lsst.daf.butler import Butler
-from lsst.resources import ResourcePath
 from lsst.prodstatus import LOG
 
 # PropertySet needs to be imported to load the butler yaml.
@@ -185,7 +184,7 @@ class GetButlerStat:
         results = dict()
         methods = list(metadata.keys())
         for method in methods:
-            for key, value in md[method].items():
+            for key, value in metadata[method].items():
                 if key in time_stamp:
                     start_string = value
                     if "T" in value:
@@ -448,12 +447,11 @@ class GetButlerStat:
         columns = ("detector", "tract", "patch", "band", "visit")
         "Put old statistics in the workflow_res"
         self.workflow_res = dict()
-        self.workflow_res = deepcopy(old_stat)
+        self.workflow_res = deepcopy(self.old_stat)
         for collection in collections:
             task_data = self.collection_data[collection]
             task_size = self.collection_size[collection]
             task_res = dict()
-            ref_yaml = ''
             results = dict()
             for task in task_data:
                 data = defaultdict(list)
@@ -465,8 +463,8 @@ class GetButlerStat:
                             sys.stdout.flush()
                     try:
                         data_id = dict(data_ref.dataId)
-                        metadata = butler.get(task + '_metadata', dataId=data_id, collections=collection)
-                        results = parse_metadata(metadata)
+                        metadata = self.butler.get(task + '_metadata', dataId=data_id, collections=collection)
+                        results = self.parse_metadata(metadata)
                     except:
                         results = dict()
                         continue
