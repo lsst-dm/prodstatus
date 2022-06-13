@@ -190,7 +190,7 @@ class GetButlerStat:
                 else:
                     strip_value = value
                 if key in time_stamp:
-                    start_string = strip_value
+                    start_string = value
                     if "T" in value:
                         tokens = start_string.split("T")
                         start_string = (
@@ -413,6 +413,8 @@ class GetButlerStat:
             self.old_stat = (pd.read_csv(st_file, header=0,
                                          index_col=0).squeeze('columns')).to_dict(orient='index')
             self.old_stat.pop('campaign')
+        else:
+            self.old_stat = dict()
         " Find latest time stamp "
         self.last_stat = 0.
         for key in self.old_stat:
