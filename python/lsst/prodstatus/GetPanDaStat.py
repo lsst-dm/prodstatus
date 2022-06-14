@@ -126,7 +126,7 @@ class GetPanDaStat:
                 if wfk in r_name:
                     self.workflows[wfk].append(wf)
         #
-        print(f"Selected workflows: ")
+        print("Selected workflows: ")
         for key in self.workflows:
             print(key)
         for key in self.workflow_keys:
