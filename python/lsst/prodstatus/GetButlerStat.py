@@ -190,12 +190,17 @@ class GetButlerStat:
                 else:
                     strip_value = value
                 if key in time_stamp:
-                    start_string = value
-                    if "T" in value:
+                    if isinstance(value, str):
+                        start_string = str(value)
+                    else:
+                        start_string = str(value[0])
+                    if start_string.index("T") >= 0:
                         tokens = start_string.split("T")
                         start_string = (
                             tokens[0] + " " + tokens[1]
                         )  # get rid of T in the date string
+                    if start_string.index(".") >= 0:
+                        start_string = start_string.split(".")[0]
                     if "timestamp" not in results:
                         results["timestamp"] = start_string
                 for min_field in min_fields:
@@ -277,7 +282,6 @@ class GetButlerStat:
 
         cpu_time = task_res["cpu_time"]
         max_rss = task_res["maxRSS"]
-#        time_start = task_res["startTime"]
         ts = min(int(task_size), self.max_task)
         if len(cpu_time) > 0 and cpu_time[0] is not None:
             cpu_sum = 0.0
@@ -469,7 +473,7 @@ class GetButlerStat:
                             sys.stdout.flush()
                     try:
                         data_id = dict(data_ref.dataId)
-                        metadata = self.butler.get(task + '_metadata', dataId=data_id, collections=collection)
+                        metadata = self.butler.get(f"{task}_metadata", dataId=data_id, collections=collection)
                         results = self.parse_metadata(metadata)
                     except KeyError or ValueError or LookupError or TypeError:
                         results = dict()
@@ -562,22 +566,9 @@ class GetButlerStat:
         """Let's sort entries by start time"""
         for task_type in dt:
             task = dt[task_type]
-            if isinstance(task["startTime"], str):
-                u_time = str(task["startTime"])
-            else:
-                u_time = task["startTime"][0]
-            if u_time.find(".") >= 0:
-                tokens = u_time.split(".")
-                u_time = tokens[0]
-            if u_time.find('T') >= 0:
-                tokens = u_time.split("T")
-                u_time = f"{tokens[0]} {tokens[1]}"
-            task["startTime"] = u_time
-            try:
-                time_stamp = u_time
-                u_time = datetime.datetime.strptime(time_stamp, "%Y-%m-%d %H:%M:%S").timestamp()
-            except ValueError:
-                print(f"time format error {u_time}")
+            u_time = task["startTime"]
+            time_stamp = u_time
+            u_time = datetime.datetime.strptime(time_stamp, "%Y-%m-%d %H:%M:%S").timestamp()
             _task_ids[task_type] = u_time
         #
         for tt in dict(sorted(_task_ids.items(), key=lambda item: item[1])):
