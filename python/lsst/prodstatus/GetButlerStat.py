@@ -562,12 +562,22 @@ class GetButlerStat:
         """Let's sort entries by start time"""
         for task_type in dt:
             task = dt[task_type]
-            u_time = task["startTime"]
+            if isinstance(task["startTime"], str):
+                u_time = str(task["startTime"])
+            else:
+                u_time = task["startTime"][0]
+            if u_time.find(".") >= 0:
+                tokens = u_time.split(".")
+                u_time = tokens[0]
+            if u_time.find('T') >= 0:
+                tokens = u_time.split("T")
+                u_time = f"{tokens[0]} {tokens[1]}"
             task["startTime"] = u_time
-            tokens = u_time.split(".")
-            u_time = tokens[0]
-            task["startTime"] = u_time
-            u_time = datetime.datetime.strptime(u_time, "%Y-%m-%d %H:%M:%S").timestamp()
+            try:
+                time_stamp = u_time
+                u_time = datetime.datetime.strptime(time_stamp, "%Y-%m-%d %H:%M:%S").timestamp()
+            except ValueError:
+                print(f"time format error {u_time}")
             _task_ids[task_type] = u_time
         #
         for tt in dict(sorted(_task_ids.items(), key=lambda item: item[1])):
