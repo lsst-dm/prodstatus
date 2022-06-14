@@ -476,6 +476,7 @@ class GetButlerStat:
                         metadata = self.butler.get(f"{task}_metadata", dataId=data_id, collections=collection)
                         results = self.parse_metadata(metadata)
                     except KeyError or ValueError or LookupError or TypeError:
+                        self.log.info(f"Task {task} has no metadata")
                         results = dict()
                         continue
                     data_id = dict(data_ref.dataId)
@@ -497,7 +498,6 @@ class GetButlerStat:
                         )
                     else:
                         data["startTime"].append(results.get("timestamp", None))
-                task_res[task] = data
                 if len(results) > 0:
                     task_res[task] = data
             key = self.collection_keys[collection]
