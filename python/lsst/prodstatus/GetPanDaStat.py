@@ -88,8 +88,8 @@ class GetPanDaStat:
         self.start_stamp = datetime.datetime.strptime(self.start_date, "%Y-%m-%d").timestamp()
         self.stop_stamp = datetime.datetime.strptime(self.stop_date, "%Y-%m-%d").timestamp()
         self.log = LOG
-        self.log.info(f" Collecting information for Jira ticket  {self.Jira}")
-        self.log.info(f"Will store data in {self.data_path.absolute()}")
+        print(f" Collecting information for Jira ticket  {self.Jira}")
+        print(f"Will store data in {self.data_path.absolute()}")
 
     def get_workflows(self):
         """First lets get all workflows with given keys."""
@@ -126,7 +126,9 @@ class GetPanDaStat:
                 if wfk in r_name:
                     self.workflows[wfk].append(wf)
         #
-        self.log.info(f"Selected workflows: {self.workflows}")
+        print(f"Selected workflows: ")
+        for key in self.workflows:
+            print(key)
         for key in self.workflow_keys:
             workflow = self.workflows[key]
             for wf in workflow:
@@ -508,7 +510,7 @@ class GetPanDaStat:
                 tokens = hours.split(':')
             elif 'day,' in wallclock:
                 days = int(wallclock.split('day,')[0])
-                hours = wallclock.split('days,')[1]
+                hours = wallclock.split('day,')[1]
                 tokens = hours.split(':')
             else:
                 tokens = wallclock.split(':')
@@ -640,7 +642,7 @@ class GetPanDaStat:
         """
         df_styled = dataframe.style.apply(self.highlight_greaterthan_0, axis=1)
         df_styled.set_table_attributes('border="1"')
-        df_html = df_styled.render()
+        df_html = df_styled.to_html()
         htfile = open(self.data_path.joinpath(f"{outfile}-{self.Jira}.html"), "w")
         print(df_html, file=htfile)
         htfile.close()
