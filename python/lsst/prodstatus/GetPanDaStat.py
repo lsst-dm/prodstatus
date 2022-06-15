@@ -103,13 +103,13 @@ class GetPanDaStat:
             panda_query
         )
         comp = str(self.Jira).lower()
-        comp1 = str(self.collection_type)
+        comp1 = str(self.collection_type).lower()
         nwf = 0
         for wf in workflow_data:
             r_name = wf["r_name"]
             if comp in r_name and comp1 in r_name:
                 key = str(r_name).split("_")[-1]
-                date_str = key
+                date_str = str(key).lower()
                 date_stamp = datetime.datetime.strptime(date_str, "%Y%m%dt%H%M%Sz").timestamp()
                 if self.last_workflow < date_stamp <= self.stop_stamp:
                     self.workflow_keys.append(str(key))
@@ -132,9 +132,9 @@ class GetPanDaStat:
         for key in self.workflow_keys:
             workflow = self.workflows[key]
             for wf in workflow:
-                created = datetime.datetime.strptime(
+                created = str(datetime.datetime.strptime(
                     wf["created_at"].split('.')[0], "%Y-%m-%d %H:%M:%S"
-                ).timestamp()
+                ).timestamp())
                 r_status = wf["r_status"]
                 total_tasks = wf["total_tasks"]
                 total_files = wf["total_files"]
@@ -744,13 +744,13 @@ class GetPanDaStat:
         for key in self.workflow_info:
             utime = self.workflow_info[key]["created"]
             try:
-                time.strptime(utime[-8:], '%H:%M:%S')
-            except TypeError:
+                stampT = float(utime)
+                utime = stampT
                 _sttime = datetime.datetime.utcfromtimestamp(utime)
-                self.workflow_info[key]["created"] = _sttime
+                self.workflow_info[key]["created"] = str(_sttime)
                 _dfids[key] = utime
-            else:
-                self.workflow_info[key]["created"] = utime
+            except TypeError:
+                self.workflow_info[key]["created"] = str(utime)
                 _dfids[key] = datetime.datetime.strptime(utime, '%Y-%m-%d %H:%M:%S').timestamp()
         #
         for key in dict(sorted(_dfids.items(), key=lambda item: item[1])):
