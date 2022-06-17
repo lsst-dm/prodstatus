@@ -749,10 +749,15 @@ class GetPanDaStat:
                 _sttime = datetime.datetime.utcfromtimestamp(utime)
                 self.workflow_info[key]["created"] = str(_sttime)
                 _dfids[key] = utime
-            except TypeError or ValueError:
+            except TypeError :
                 self.workflow_info[key]["created"] = str(utime)
                 _dfids[key] = datetime.datetime.strptime(utime, '%Y-%m-%d %H:%M:%S').timestamp()
-        #
+            except ValueError :
+                self.workflow_info[key]["created"] = str(utime)
+                _dfids[key] = datetime.datetime.strptime(utime, '%Y-%m-%d %H:%M:%S').timestamp()
+            except:
+                self.workflow_info[key]["created"] = str(utime)
+                _dfids[key] = datetime.datetime.strptime(utime, '%Y-%m-%d %H:%M:%S').timestamp()
         for key in dict(sorted(_dfids.items(), key=lambda item: item[1])):
             wfind.append(str(key))
             _dfkeys.append(key)
