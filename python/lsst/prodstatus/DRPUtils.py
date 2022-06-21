@@ -1067,7 +1067,7 @@ class DRPUtils:
                     issue_name = step["issue_name"]
                     step_campaign = step["campaign_issue"]
                     steps_dict[name] = issue_name
-                    step_dict['campaign_issue'] = step_campaign
+                    steps_dict['campaign_issue'] = step_campaign
                 for step in campaign_spec["steps"]:
                     name = step["name"]
                     if name in steps_dict:
