@@ -475,7 +475,19 @@ class GetButlerStat:
                         data_id = dict(data_ref.dataId)
                         metadata = self.butler.get(f"{task}_metadata", dataId=data_id, collections=collection)
                         results = self.parse_metadata(metadata)
-                    except KeyError or ValueError or LookupError or TypeError:
+                    except KeyError:
+                        self.log.info(f"Task {task} has no metadata")
+                        results = dict()
+                        continue
+                    except ValueError:
+                        self.log.info(f"Task {task} has no metadata")
+                        results = dict()
+                        continue
+                    except LookupError:
+                        self.log.info(f"Task {task} has no metadata")
+                        results = dict()
+                        continue
+                    except TypeError:
                         self.log.info(f"Task {task} has no metadata")
                         results = dict()
                         continue
