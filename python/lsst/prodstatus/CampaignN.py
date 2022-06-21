@@ -107,14 +107,13 @@ class CampaignN:
             issue_name = campaign_spec["issue"]
         else:
             issue_name = None
-
+        campaign_issue = issue_name
         steps = list()
         if "steps" in campaign_spec:
 
             for step_specs in campaign_spec["steps"]:
                 name = step_specs["name"]
-                issue_name = step_specs["issue_name"]
-                step_specs["campaign_issue"] = cls.issue
+                step_specs["campaign_issue"] = campaign_issue   # campaign issue
                 step = StepN.from_dict(step_specs)
                 step_issue = step_specs["issue_name"]
                 step_specs['issue_name'] = step.to_jira(jira, step_issue)
@@ -144,13 +143,13 @@ class CampaignN:
             issue_name = campaign_spec["issue"]
         else:
             issue_name = None
-
+        campaign_issue = issue_name
         steps = list()
         if "steps" in campaign_spec:
             for step_specs in campaign_spec["steps"]:
                 step = StepN.from_dict(step_specs)
                 step_issue = step_specs["issue_name"]
-                step_specs["campaign_issue"] = cls.issue
+                step_specs["campaign_issue"] = campaign_issue
                 if jira is not None:
                     step_specs['issue_name'] = step.to_jira(jira, step_issue)
                 steps.append(step_specs)
@@ -277,7 +276,7 @@ class CampaignN:
                 description=f"Campaign {self.name}",
                 components=[{"name": "Test"}],
             )
-            LOG.info(f"Created issue {issue}")
+            print(f"Created issue {issue}")
         "if issue is created "
         if issue is not None:
             self.issue = str(issue)
@@ -289,6 +288,8 @@ class CampaignN:
             if cascade:
                 for step_specs in self.steps:
                     step = StepN.from_dict(step_specs)
+                    if step_specs["campaign_issue"] is None:
+                        step_specs["campaign_issue"] = self.issue
                     if step_specs["issue_name"] is not None:
                         step_issue = step_specs["issue_name"]
                     else:

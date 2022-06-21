@@ -1065,9 +1065,8 @@ class DRPUtils:
                 for step in steps:
                     name = step["name"]
                     issue_name = step["issue_name"]
-                    step_campaign = step["campaign_issue"]
                     steps_dict[name] = issue_name
-                    steps_dict['campaign_issue'] = step_campaign
+                    steps_dict['campaign_issue'] = campaign_issue
                 for step in campaign_spec["steps"]:
                     name = step["name"]
                     if name in steps_dict:
@@ -1076,6 +1075,7 @@ class DRPUtils:
 
         " Now create campaign with updated specs"
         campaign = CampaignN.from_dict(campaign_spec, a_jira)
+        print("Created campaign ")
         print(campaign)
         " Save campaign to jira "
         campaign_issue = campaign_spec["issue"]
