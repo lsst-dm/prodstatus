@@ -175,16 +175,6 @@ class JiraUtils:
         """
         jira.add_attachment(issue=issue, attachment=attachment_file)
 
-    """ creat issue with parameters in the issue dictionary
-     that can look like:
-     issue_fields = {
-    "summary": "Learn Python",
-    "description": "Remember to study up on Python programming",
-    "project": project_field,
-    "issuetype": issue_type_field
-    }
-    """
-
     @staticmethod
     def create_issue(jira, issue_dict):
         """Create an issue.
@@ -360,16 +350,11 @@ class JiraUtils:
 
                 Parameters
                 ----------
-                jira : `jira.client.JIRA`
-                    jira API instance
                 issue : `jira.resource.Issue`
                     issue instance
                 yaml_file_name : `str`
                     name of the attachment
                 """
-
-#        auth_jira = jira
-#        issue = auth_jira.get_issue(issue)
         issue = self.get_issue(issue)
         out_dict = dict()
         for attachment in issue.fields.attachment:
@@ -396,6 +381,20 @@ class JiraUtils:
         description = issue.raw["fields"]["description"]
         return description
 
+    def create_issue_link(self, link_type, inward_Issue_key, outward_Issue_key):
+        """
+        Create a link between two issues.
+            Parameters:
+            -----------
+                link_type: `str`
+                    the type of link to create Relates or Blocks
+                inward_Issue_key: `str`
+                    the issue to link from, like DRP-358
+                outward_Issue_key: `str`
+                    the issue to link to, like DRP-359
+        """
+        self.aut_jira.create_issue_link(link_type, inward_Issue_key, outward_Issue_key)
+
 
 def main():
     """ A simple test """
@@ -404,13 +403,11 @@ def main():
     parser.add_argument(
         "-t", "--ticket", default="PREOPS-728", help="Specify Jira ticket"
     )
-
+    ju = JiraUtils()
+    jira, username = ju.get_login()
     options = parser.parse_args()
     ticket = options.ticket
     LOG.info(f"ticket={ticket}")
-    ju = JiraUtils()
-    jira, username = ju.get_login()
-
     issue = ju.get_issue(ticket)
     issue_id = ju.get_issue_id(project="DRP", key=ticket)
     LOG.info(f"issueId={issue_id}")
@@ -421,10 +418,10 @@ def main():
     ju.update_attachment(jira, issue, att_file)
     LOG.info(f"issue fields attachment:{issue.fields.attachment}")
     " Now create or update a comment"
-    comment_s = """ The test comment for pandaStat and PREOPS-910"""
+    comment_s = " The test comment for pandaStat and PREOPS-910"
     tokens = ["pandaStat", "PREOPS-910"]
     ju.update_comment(jira, ticket, issue_id, tokens, comment_s)
-    comment_s = """ New comment for pandaStat and PREOPS-910"""
+    comment_s = "New comment for pandaStat and PREOPS-910"
     ju.update_comment(jira, ticket, issue_id, tokens, comment_s)
     return
 
