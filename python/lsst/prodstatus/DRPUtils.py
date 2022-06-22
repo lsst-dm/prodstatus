@@ -1080,6 +1080,12 @@ class DRPUtils:
         " Save campaign to jira "
         campaign_issue = campaign_spec["issue"]
         campaign.to_jira(a_jira, campaign_issue, replace=True, cascade=False)
+        "Now create links between campaign and steps "
+        link_type = "Relates"
+        for step in campaign_spec["steps"]:
+            step_issue = step["issue_name"]
+            print(f"Creating link between {campaign_issue} and {step_issue}")
+            a_jira.create_issue_link(link_type, campaign_issue, step_issue)
         LOG.info("Finish with update_campaign")
 
     @staticmethod

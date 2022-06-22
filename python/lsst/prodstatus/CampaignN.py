@@ -296,12 +296,6 @@ class CampaignN:
                         step_issue = step.to_jira(jira, None)
                         step_specs["issue_name"] = step_issue
                     step.to_jira(jira, step_issue, replace=replace, cascade=cascade)
-                    "create step link"
-                    inward_issue_key = self.issue
-                    outward_issue_key = str(step_issue)
-                    link_type = "Relates"
-                    print(f"Creating link between {inward_issue_key} and {outward_issue_key}")
-                    jira.create_issue_link(link_type, inward_issue_key, outward_issue_key)
             " Now steps are created or updated make new yaml file"
             s_dir = Path(staging_dir)
             campaign_file = s_dir.joinpath("campaign.yaml")
