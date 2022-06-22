@@ -300,6 +300,7 @@ class CampaignN:
                     inward_issue_key = self.issue
                     outward_issue_key = str(step_issue)
                     link_type = "Relates"
+                    print(f"Creating link between {inward_issue_key} and {outward_issue_key}")
                     jira.create_issue_link(link_type, inward_issue_key, outward_issue_key)
             " Now steps are created or updated make new yaml file"
             s_dir = Path(staging_dir)
