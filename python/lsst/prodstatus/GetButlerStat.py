@@ -322,9 +322,9 @@ class GetButlerStat:
         pattern = re.compile(data_type_pattern)
         for collection in collections:
             try:
-                dataset_refs = self.registry.queryDatasets(
+                dataset_refs = set(self.registry.queryDatasets(
                     pattern, collections=collection
-                )
+                ))
             except OSError():
                 print(f"No datasets found for: {collection}")
                 continue
