@@ -32,6 +32,7 @@ import datetime
 import json
 import numpy as np
 import pandas as pd
+
 from lsst.prodstatus.GetButlerStat import GetButlerStat
 from lsst.prodstatus.GetPanDaStat import GetPanDaStat
 from lsst.prodstatus.JiraUtils import JiraUtils
@@ -1080,6 +1081,8 @@ class DRPUtils:
         " Save campaign to jira "
         campaign_issue = campaign_spec["issue"]
         campaign.to_jira(a_jira, campaign_issue, replace=True, cascade=False)
+        " At this point campaing issue should be created "
+        campaign_issue = campaign.issue
         "Now create links between campaign and steps "
         link_type = "Relates"
         for step in campaign_spec["steps"]:

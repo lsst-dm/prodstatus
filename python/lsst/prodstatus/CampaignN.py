@@ -265,8 +265,17 @@ class CampaignN:
         # raise NotImplementedError("This code is untested")
         if issue_name is None and self.issue is not None:
             issue = jira.issue(self.issue)
-        else:
+        elif issue_name is not None:
             issue = jira.issue(issue_name)
+        else:
+            issue = jira.create_issue(
+                project="DRP",
+                issuetype="Task",
+                summary=f"Campaign {self.name}",
+                description=f"Campaign {self.name}",
+                components=[{"name": "Test"}],
+            )
+            print(f"Created campaign issue {issue}")
         " Create an issue if not exists "
         if issue is None:
             issue = jira.create_issue(
@@ -276,7 +285,7 @@ class CampaignN:
                 description=f"Campaign {self.name}",
                 components=[{"name": "Test"}],
             )
-            print(f"Created issue {issue}")
+            print(f"Created campaign issue {issue}")
         "if issue is created "
         if issue is not None:
             self.issue = str(issue)
