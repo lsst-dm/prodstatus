@@ -120,7 +120,6 @@ class CampaignN:
                 steps.append(step_specs)
         LOG.info(f"Campaign specs {campaign_spec}")
         campaign = cls(name, issue_name, steps)
-
         return campaign
 
     @classmethod
@@ -331,7 +330,6 @@ class CampaignN:
                     LOG.info(f"attachment file {full_file_path}")
                     jira.add_attachment(issue, attachment=str(full_file_path))
                     LOG.debug(f"Added {file_name} to {issue}")
-
         return str(issue)
 
     @classmethod

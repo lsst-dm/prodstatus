@@ -25,7 +25,6 @@ import click
 import yaml
 import io
 from lsst.daf.butler.cli.utils import MWCommand
-
 from lsst.prodstatus.DRPUtils import DRPUtils
 from lsst.prodstatus.JiraUtils import JiraUtils
 from lsst.prodstatus.GetButlerStat import GetButlerStat
@@ -532,7 +531,7 @@ def update_workflow(workflow_yaml, step_name, workflow_issue, step_issue):
 @click.command(cls=ProdstatusCommand)
 @click.argument("step_dir", type=click.Path(exists=True))
 @click.argument("step_name_base", type=str, default="")
-@click.argument("workflow_yaml", type=click.Path(exists=False))
+@click.argument("workflow_yaml", type=click.Path())
 def make_workflow_yaml(step_dir, step_name_base, workflow_yaml):
     """Creates/updates workflow.yaml for update_workflow command
        It read all step yaml files in a directory and creates new entry

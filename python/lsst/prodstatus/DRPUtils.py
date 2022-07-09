@@ -613,7 +613,7 @@ class DRPUtils:
         return ts, status, hilow, pandalink, what
 
     @staticmethod
-    def _dict_to_table(in_dict, sorton):
+    def _dict_to_table(in_dict):
         dictheader = ["Date", "PREOPS", "STATS", "(T,Q,D,Fa,Sf)", "PANDA", "DESCRIP"]
 
         table_out = "||"
@@ -690,7 +690,7 @@ class DRPUtils:
         return table_out
 
     @staticmethod
-    def _dict_to_table1(in_dict, sorton):
+    def _dict_to_table1(in_dict):
         dictheader = ["Date", "PREOPS", "STATS", "(T,Q,D,Fa,Sf)", "PANDA", "DESCRIP"]
 
         table_out = "||"
@@ -791,7 +791,7 @@ class DRPUtils:
         a_dict = {}
         for bps_yaml_name in map_spec.keys():
             drp_issue_name = map_spec[bps_yaml_name]
-            if(campaign_flag == '0'):
+            if campaign_flag == '0':
                 jissue = a_jira.issue(drp_issue_name)
                 jdesc = jissue.fields.description
                 jsummary = jissue.fields.summary
@@ -813,10 +813,10 @@ class DRPUtils:
 
         print("here")
 
-        if(campaign_flag == '0'):
-            newdesc = DRPUtils._dict_to_map_table(a_dict, "")
+        if campaign_flag == '0':
+            newdesc = DRPUtils._dict_to_map_table(a_dict)
         else:
-            newdesc = DRPUtils._dict_to_camp_table(a_dict, "")
+            newdesc = DRPUtils._dict_to_camp_table(a_dict)
 
         # print(newdesc)
         print(len(newdesc))
@@ -833,7 +833,7 @@ class DRPUtils:
         print("added map_yaml attachment to issue")
 
     @staticmethod
-    def _dict_to_camp_table(in_dict, sorton):
+    def _dict_to_camp_table(in_dict):
         dictheader = ["Step", "Issue", "Start", "End", "Core-hr", "Status"]
 
         table_out = "||"
@@ -860,7 +860,7 @@ class DRPUtils:
         return table_out
 
     @staticmethod
-    def _dict_to_map_table(in_dict, sorton):
+    def _dict_to_map_table(in_dict):
         dictheader = ["BPS_yaml", "Issue", "(T,Q,D,Fa,Sf)", "DESCRIP", "timestamp"]
 
         table_out = "||"
@@ -1004,10 +1004,10 @@ class DRPUtils:
                 what + str(hilow),
             ]
 
-        newdesc = self._dict_to_table(a_dict, -1)
+        newdesc = self._dict_to_table(a_dict)
         frontendissue.update(fields={"description": newdesc})
 
-        newdesc1 = self._dict_to_table1(a_dict, -1)
+        newdesc1 = self._dict_to_table1(a_dict)
         frontendissue1.update(fields={"description": newdesc1})
 
         newdict = json.dumps(a_dict)
@@ -1235,7 +1235,7 @@ class DRPUtils:
         " Save campaign to jira "
         campaign_issue = campaign_spec["issue"]
         campaign.to_jira(a_jira, campaign_issue, replace=True, cascade=False)
-        " At this point campaing issue should be created "
+        " At this point campaign issue should be created "
         campaign_issue = campaign.issue
         "Now create links between campaign and steps "
         link_type = "Relates"
@@ -1276,7 +1276,6 @@ class DRPUtils:
          if it is"""
         if step_issue is not None:
             ju = JiraUtils()
-            a_jira, user = ju.get_login()
             step_dict = ju.get_yaml(step_issue, 'step.yaml')
             if len(step_dict) > 0:
                 " If step exists with step.yaml "
