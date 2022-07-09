@@ -111,6 +111,30 @@ def update_issue(bps_submit_fname, production_issue, drp_issue, ts):
 
 
 @click.command(cls=ProdstatusCommand)
+@click.argument("map_yaml", type=str)
+@click.argument("step_issue", type=str)
+@click.argument("campaign_flag", type=str)
+def map_drp_steps(map_yaml, step_issue, campaign_flag):
+    """Update description of a step, by parsing the map yaml file.````
+
+    Parameters
+    ----------
+    map_yaml : `str`
+       The yaml file name which maps DRP-XXXX tickets to bps submit yaml files
+
+    step_issue : `str`
+       The DRP issue DRP-XXXX which has the step information
+
+    campaign_flag: `str`
+      If `0` this is a step, if `1` this is a campaign
+
+      """
+    DRPUtils.map_drp_steps(
+        map_yaml, step_issue, campaign_flag
+    )
+
+
+@click.command(cls=ProdstatusCommand)
 @click.argument("production_issue", type=str)
 @click.argument("drp_issue", type=str)
 @click.option("--reset", default=False, type=bool)

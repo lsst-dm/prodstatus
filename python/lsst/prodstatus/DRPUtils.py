@@ -545,7 +545,7 @@ class DRPUtils:
         pattern1a = re.compile("(.*)tract *=( *[0-9]*)")
         pattern1b = re.compile("(.*)tract *>=([0-9]*) and tract *<=( *[0-9]*)")
         pattern2 = re.compile("(.*)exposure >=([0-9]*) and exposure <=( *[0-9]*)")
-        pattern2b = re.compile("(.*)visit >=([0-9]*) and visit <=( *[0-9]*)")
+        pattern2b = re.compile("(.*)visit *>=([0-9]*) and visit *<=( *[0-9]*)")
         pattern2a = re.compile(
             "(.*)detector>=([0-9]*).*exposure >=( *[0-9]*) and exposure <=( *[0-9]*)"
         )
@@ -570,35 +570,23 @@ class DRPUtils:
                 # print("hilow:",hilow)
             n1b = pattern1b.match(ls)
             if n1b:
-                print("tractlo:", n1b.group(2), " tracthigh:", n1b.group(3), ":end")
                 hilow = (
                     "(" + str(int(n1b.group(2))) + "," + str(int(n1b.group(3))) + ")"
                 )
                 # print("hilow:",hilow)
             n2 = pattern2.match(ls)
             if n2:
-                print("exposurelo:", n2.group(2), " exphigh:", n2.group(3), ":end")
                 hilow = "(" + str(int(n2.group(2))) + "," + str(int(n2.group(3))) + ")"
                 # print("hilow:",hilow)
             # else:
             n2b = pattern2b.match(ls)
             if n2b:
-                print("visitlo:", n2b.group(2), " visthigh:", n2b.group(3), ":end")
                 hilow = (
                     "(" + str(int(n2b.group(2))) + "," + str(int(n2b.group(3))) + ")"
                 )
             # print("no match to l",l)
             n2a = pattern2a.match(ls)
             if n2a:
-                print(
-                    "detlo",
-                    n2a.group(2),
-                    "exposurelo:",
-                    n2a.group(3),
-                    " exphigh:",
-                    n2a.group(4),
-                    ":end",
-                )
                 hilow = (
                     "("
                     + str(int(n2a.group(3)))
@@ -775,6 +763,172 @@ class DRPUtils:
                     + str(what)
                     + "|\n"
                 )
+        return table_out
+
+    @staticmethod
+    def map_drp_steps(map_yaml, stepissue, campaign_flag):
+        """Update description of a step, by parsing the map yaml file.````
+
+        Parameters
+        ----------
+        map_yaml : `str`
+          The yaml file name which maps DRP-XXXX tickets to
+          bps submit yaml files
+
+        stepissue : `str`
+          The DRP-YYYY of the step to add the description table to
+
+        campaign_flag: `int`
+          If `0`:  This is a step table
+          If `1':  This is a campaign table
+        """
+        print(campaign_flag, campaign_flag == '0')
+        with open(map_yaml, "rt") as map_spec_io:
+            map_spec = yaml.safe_load(map_spec_io)
+
+        ju = JiraUtils()
+        a_jira, user = ju.get_login()
+        a_dict = {}
+        for bps_yaml_name in map_spec.keys():
+            drp_issue_name = map_spec[bps_yaml_name]
+            if(campaign_flag == '0'):
+                jissue = a_jira.issue(drp_issue_name)
+                jdesc = jissue.fields.description
+                jsummary = jissue.fields.summary
+                ts, status, hilow, pandalink, what = DRPUtils.parse_issue_desc(jdesc, jsummary)
+                a_dict[str(ts)] = [
+                    str(bps_yaml_name),
+                    str(jissue),
+                    status,
+                    str(hilow)
+                ]
+            else:
+                a_dict[bps_yaml_name] = [
+                    drp_issue_name[0],
+                    drp_issue_name[1],
+                    drp_issue_name[2],
+                    drp_issue_name[3],
+                    drp_issue_name[4]
+                ]
+
+        print("here")
+
+        if(campaign_flag == '0'):
+            newdesc = DRPUtils._dict_to_map_table(a_dict, "")
+        else:
+            newdesc = DRPUtils._dict_to_camp_table(a_dict, "")
+
+        # print(newdesc)
+        print(len(newdesc))
+
+        sissue = a_jira.issue(stepissue)
+
+        sissue.update(fields={"description": newdesc})
+        print("description updated for: ", str(sissue))
+        for attachment in sissue.fields.attachment:
+            if os.path.basename(map_yaml) == attachment.filename:
+                print("removing old attachment from issue")
+                a_jira.delete_attachment(attachment.id)
+        a_jira.add_attachment(sissue, attachment=str(map_yaml))
+        print("added map_yaml attachment to issue")
+
+    @staticmethod
+    def _dict_to_camp_table(in_dict, sorton):
+        dictheader = ["Step", "Issue", "Start", "End", "Core-hr", "Status"]
+
+        table_out = "||"
+        for i in dictheader:
+            table_out += str(i) + "||"
+        table_out += "\n"
+
+        for i in in_dict.keys():
+            stepname = i
+            table_out += (
+                "| " + str(stepname)
+                + "| ["
+                + str(in_dict[i][0])
+                + "|https://jira.lsstcorp.org/browse/"
+                + str(in_dict[i][0])
+                + "] | "
+                + str(in_dict[i][1]) + "|"
+                + str(in_dict[i][2]) + "|"
+                + str(in_dict[i][3]) + "|"
+                + str(in_dict[i][4])
+                + "| \n"
+            )
+
+        return table_out
+
+    @staticmethod
+    def _dict_to_map_table(in_dict, sorton):
+        dictheader = ["BPS_yaml", "Issue", "(T,Q,D,Fa,Sf)", "DESCRIP", "timestamp"]
+
+        table_out = "||"
+        for i in dictheader:
+            table_out += str(i) + "||"
+        table_out += "\n"
+
+        # sortbydescrip=sorted(in_dict[3])
+        # for i in sorted(in_dict.keys(), reverse=True):
+        for i in in_dict.keys():
+            status = in_dict[i][2]
+            nT = status[0]
+            nFile = status[1]
+            nFin = status[2]
+            nFail = status[3]
+            nSubF = status[4]
+            statstring = (
+                str(nT)
+                + ","
+                + str(nFile)
+                + ","
+                + str(nFin)
+                + ","
+                + str(nFail)
+                + ","
+                + str(nSubF)
+            )
+            scolor = "black"
+            # print(statstring,nT,nFile,nFin,nFail,nSubF)
+            if nFail > 0:
+                scolor = "red"
+            if nT == nFin + nSubF:
+                scolor = "black"
+            if nT == nFin:
+                scolor = "green"
+            if int(nFail) == 0 and int(nFile) == 0:
+                scolor = "blue"
+            if int(nT) > int(nFin) + int(nFail) + int(nSubF):
+                scolor = "blue"
+
+            # ts = i
+            # longdatetime = ts
+            # shortyear = str(longdatetime[0:4])
+            # shortmon = str(longdatetime[4:6])
+            # shortday = str(longdatetime[6:8])
+            # print(shortyear,shortmon,shortday)
+
+            what = in_dict[i][3]
+            if len(what) > 28:
+                what = what[0:28]
+
+            table_out += (
+                "| "
+                + str(in_dict[i][0])
+                + "| ["
+                + str(in_dict[i][1])
+                + "|https://jira.lsstcorp.org/browse/"
+                + str(in_dict[i][1])
+                + "] | "
+                + "{color:"
+                + scolor
+                + "}"
+                + statstring
+                + "{color} | "
+                + str(what)
+                + "|" + str(i) + "| \n"
+            )
+
         return table_out
 
     def drp_add_job_to_summary(
