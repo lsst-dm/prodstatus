@@ -7,9 +7,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="444ec5a6-8209-4cfc-9e67-a590c2f749f6" name="Changes" comment="Fix start time in plot">
+    <list default="true" id="444ec5a6-8209-4cfc-9e67-a590c2f749f6" name="Changes" comment="Fixed problem of not created campaign issue for new campaign.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/MakePandaPlots.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/MakePandaPlots.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/lsst/prodstatus/DRPUtils.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/lsst/prodstatus/DRPUtils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -106,351 +106,384 @@
       <workItem from="1650312026063" duration="1944000" />
       <workItem from="1652119160674" duration="64000" />
       <workItem from="1652119238232" duration="4111000" />
+      <workItem from="1652277105895" duration="2903000" />
+      <workItem from="1652370626803" duration="11537000" />
+      <workItem from="1652451916465" duration="12812000" />
+      <workItem from="1652710253141" duration="7437000" />
+      <workItem from="1652725569581" duration="6504000" />
+      <workItem from="1652797117998" duration="149000" />
+      <workItem from="1652885347249" duration="259000" />
+      <workItem from="1652907834598" duration="731000" />
+      <workItem from="1652973388714" duration="774000" />
+      <workItem from="1652976933155" duration="862000" />
+      <workItem from="1653662437009" duration="1597000" />
+      <workItem from="1653687724153" duration="99000" />
+      <workItem from="1653688055441" duration="1381000" />
+      <workItem from="1654115863702" duration="6653000" />
+      <workItem from="1654178257499" duration="10630000" />
+      <workItem from="1654526184209" duration="6200000" />
+      <workItem from="1654550420692" duration="110000" />
+      <workItem from="1654550566607" duration="2437000" />
+      <workItem from="1654611571509" duration="10585000" />
+      <workItem from="1654700802561" duration="16655000" />
+      <workItem from="1654783607166" duration="543000" />
+      <workItem from="1654877975242" duration="789000" />
+      <workItem from="1655143083711" duration="757000" />
+      <workItem from="1655159976909" duration="146000" />
+      <workItem from="1655215609662" duration="5746000" />
+      <workItem from="1655318819527" duration="626000" />
+      <workItem from="1655390544061" duration="299000" />
+      <workItem from="1655490759466" duration="776000" />
+      <workItem from="1655496727011" duration="182000" />
+      <workItem from="1655824912109" duration="9470000" />
+      <workItem from="1655907219490" duration="6190000" />
+      <workItem from="1657210102002" duration="3765000" />
+      <workItem from="1657376981092" duration="2432000" />
     </task>
-    <task id="LOCAL-00001" summary="Some changes with LOG">
-      <created>1647271076826</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
+    <task id="LOCAL-00072" summary="Some corrections for w_2022_22">
+      <created>1654205002519</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
       <option name="project" value="LOCAL" />
-      <updated>1647271076827</updated>
+      <updated>1654205002519</updated>
     </task>
-    <task id="LOCAL-00002" summary="Some changes with LOG">
-      <created>1647271095185</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
+    <task id="LOCAL-00073" summary="Some corrections for w_2022_22">
+      <created>1654205469957</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
       <option name="project" value="LOCAL" />
-      <updated>1647271095185</updated>
+      <updated>1654205469957</updated>
     </task>
-    <task id="LOCAL-00003" summary="Some changes with LOG">
-      <created>1647271115406</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
+    <task id="LOCAL-00074" summary="Some corrections for w_2022_22">
+      <created>1654205950698</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
       <option name="project" value="LOCAL" />
-      <updated>1647271115406</updated>
+      <updated>1654205950698</updated>
     </task>
-    <task id="LOCAL-00004" summary="Some changes with LOG">
-      <created>1647271135698</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
+    <task id="LOCAL-00075" summary="Corrected information stored for a step">
+      <created>1654625201784</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
       <option name="project" value="LOCAL" />
-      <updated>1647271135698</updated>
+      <updated>1654625201784</updated>
     </task>
-    <task id="LOCAL-00005" summary="Some changes with LOG">
-      <created>1647271148208</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
+    <task id="LOCAL-00076" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654625410083</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
       <option name="project" value="LOCAL" />
-      <updated>1647271148208</updated>
+      <updated>1654625410083</updated>
     </task>
-    <task id="LOCAL-00006" summary="Some changes with LOG">
-      <created>1647271392444</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
+    <task id="LOCAL-00077" summary="Updated bps_config as for w_2022_22">
+      <created>1654627116136</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
       <option name="project" value="LOCAL" />
-      <updated>1647271392444</updated>
+      <updated>1654627116136</updated>
     </task>
-    <task id="LOCAL-00007" summary="Reformatted clicl with include MWCommand.">
-      <created>1647363873672</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
+    <task id="LOCAL-00078" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654630413749</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
       <option name="project" value="LOCAL" />
-      <updated>1647363873672</updated>
+      <updated>1654630413749</updated>
     </task>
-    <task id="LOCAL-00008" summary="Correct names in docstring">
-      <created>1647444983511</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
+    <task id="LOCAL-00079" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654701216556</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
       <option name="project" value="LOCAL" />
-      <updated>1647444983511</updated>
+      <updated>1654701216556</updated>
     </task>
-    <task id="LOCAL-00009" summary="Corrections in docstring">
-      <created>1647445987778</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
+    <task id="LOCAL-00080" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654702181870</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
       <option name="project" value="LOCAL" />
-      <updated>1647445987778</updated>
+      <updated>1654702181870</updated>
     </task>
-    <task id="LOCAL-00010" summary="Corrections in docstring">
-      <created>1647446025998</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
+    <task id="LOCAL-00081" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654704286991</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
       <option name="project" value="LOCAL" />
-      <updated>1647446025998</updated>
+      <updated>1654704286991</updated>
     </task>
-    <task id="LOCAL-00011" summary="Corrections in docstring">
-      <created>1647446070879</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
+    <task id="LOCAL-00082" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654704685739</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
       <option name="project" value="LOCAL" />
-      <updated>1647446070879</updated>
+      <updated>1654704685739</updated>
     </task>
-    <task id="LOCAL-00012" summary="Corrections in docstring">
-      <created>1647446115977</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
+    <task id="LOCAL-00083" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654705248078</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
       <option name="project" value="LOCAL" />
-      <updated>1647446115977</updated>
+      <updated>1654705248078</updated>
     </task>
-    <task id="LOCAL-00013" summary="Set protection for missing jobs.">
-      <created>1647717187729</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
+    <task id="LOCAL-00084" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654705482727</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
       <option name="project" value="LOCAL" />
-      <updated>1647717187729</updated>
+      <updated>1654705482727</updated>
     </task>
-    <task id="LOCAL-00014" summary="Some changes with LOG">
-      <created>1647717607164</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
+    <task id="LOCAL-00085" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654705756304</created>
+      <option name="number" value="00085" />
+      <option name="presentableId" value="LOCAL-00085" />
       <option name="project" value="LOCAL" />
-      <updated>1647717607164</updated>
+      <updated>1654705756304</updated>
     </task>
-    <task id="LOCAL-00015" summary="Some changes with LOG">
-      <created>1647725144971</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
+    <task id="LOCAL-00086" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654705945859</created>
+      <option name="number" value="00086" />
+      <option name="presentableId" value="LOCAL-00086" />
       <option name="project" value="LOCAL" />
-      <updated>1647725144971</updated>
+      <updated>1654705945859</updated>
     </task>
-    <task id="LOCAL-00016" summary="Some changes with LOG">
-      <created>1647725266377</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
+    <task id="LOCAL-00087" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654706251125</created>
+      <option name="number" value="00087" />
+      <option name="presentableId" value="LOCAL-00087" />
       <option name="project" value="LOCAL" />
-      <updated>1647725266377</updated>
+      <updated>1654706251125</updated>
     </task>
-    <task id="LOCAL-00017" summary="Some changes with CLI">
-      <created>1647877656133</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
+    <task id="LOCAL-00088" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654706609995</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
       <option name="project" value="LOCAL" />
-      <updated>1647877656133</updated>
+      <updated>1654706609995</updated>
     </task>
-    <task id="LOCAL-00018" summary="Some changes with CLI">
-      <created>1647882414514</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
+    <task id="LOCAL-00089" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654706917143</created>
+      <option name="number" value="00089" />
+      <option name="presentableId" value="LOCAL-00089" />
       <option name="project" value="LOCAL" />
-      <updated>1647882414514</updated>
+      <updated>1654706917144</updated>
     </task>
-    <task id="LOCAL-00019" summary="Cleaning flake8 errors">
-      <created>1647904911950</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
+    <task id="LOCAL-00090" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654709535670</created>
+      <option name="number" value="00090" />
+      <option name="presentableId" value="LOCAL-00090" />
       <option name="project" value="LOCAL" />
-      <updated>1647904911950</updated>
+      <updated>1654709535670</updated>
     </task>
-    <task id="LOCAL-00020" summary="Cleaning flake8 errors">
-      <created>1647904941468</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
+    <task id="LOCAL-00091" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654711581733</created>
+      <option name="number" value="00091" />
+      <option name="presentableId" value="LOCAL-00091" />
       <option name="project" value="LOCAL" />
-      <updated>1647904941468</updated>
+      <updated>1654711581733</updated>
     </task>
-    <task id="LOCAL-00021" summary="Cleaning flake8 errors">
-      <created>1647904964370</created>
-      <option name="number" value="00021" />
-      <option name="presentableId" value="LOCAL-00021" />
+    <task id="LOCAL-00092" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654713525368</created>
+      <option name="number" value="00092" />
+      <option name="presentableId" value="LOCAL-00092" />
       <option name="project" value="LOCAL" />
-      <updated>1647904964370</updated>
+      <updated>1654713525368</updated>
     </task>
-    <task id="LOCAL-00022" summary="Cleaning flake8 errors">
-      <created>1647904984813</created>
-      <option name="number" value="00022" />
-      <option name="presentableId" value="LOCAL-00022" />
+    <task id="LOCAL-00093" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654714474797</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
       <option name="project" value="LOCAL" />
-      <updated>1647904984813</updated>
+      <updated>1654714474797</updated>
     </task>
-    <task id="LOCAL-00023" summary="Cleaning flake8 errors">
-      <created>1647905004647</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
+    <task id="LOCAL-00094" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654717524084</created>
+      <option name="number" value="00094" />
+      <option name="presentableId" value="LOCAL-00094" />
       <option name="project" value="LOCAL" />
-      <updated>1647905004647</updated>
+      <updated>1654717524084</updated>
     </task>
-    <task id="LOCAL-00024" summary="Cleaning flake8 errors">
-      <created>1647905026783</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
+    <task id="LOCAL-00095" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654717610634</created>
+      <option name="number" value="00095" />
+      <option name="presentableId" value="LOCAL-00095" />
       <option name="project" value="LOCAL" />
-      <updated>1647905026783</updated>
+      <updated>1654717610635</updated>
     </task>
-    <task id="LOCAL-00025" summary="Cleaning flake8 errors">
-      <created>1647905046587</created>
-      <option name="number" value="00025" />
-      <option name="presentableId" value="LOCAL-00025" />
+    <task id="LOCAL-00096" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654718837869</created>
+      <option name="number" value="00096" />
+      <option name="presentableId" value="LOCAL-00096" />
       <option name="project" value="LOCAL" />
-      <updated>1647905046587</updated>
+      <updated>1654718837869</updated>
     </task>
-    <task id="LOCAL-00026" summary="Cleaning flake8 errors">
-      <created>1647958085481</created>
-      <option name="number" value="00026" />
-      <option name="presentableId" value="LOCAL-00026" />
+    <task id="LOCAL-00097" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654720414213</created>
+      <option name="number" value="00097" />
+      <option name="presentableId" value="LOCAL-00097" />
       <option name="project" value="LOCAL" />
-      <updated>1647958085481</updated>
+      <updated>1654720414213</updated>
     </task>
-    <task id="LOCAL-00027" summary="Added commands for update_campaign, update_step, update_workflow">
-      <created>1648833700147</created>
-      <option name="number" value="00027" />
-      <option name="presentableId" value="LOCAL-00027" />
+    <task id="LOCAL-00098" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654721646146</created>
+      <option name="number" value="00098" />
+      <option name="presentableId" value="LOCAL-00098" />
       <option name="project" value="LOCAL" />
-      <updated>1648833700147</updated>
+      <updated>1654721646146</updated>
     </task>
-    <task id="LOCAL-00028" summary="Added commands for update_campaign, update_step, update_workflow">
-      <created>1648833714074</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
+    <task id="LOCAL-00099" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654721678445</created>
+      <option name="number" value="00099" />
+      <option name="presentableId" value="LOCAL-00099" />
       <option name="project" value="LOCAL" />
-      <updated>1648833714074</updated>
+      <updated>1654721678445</updated>
     </task>
-    <task id="LOCAL-00029" summary="Some modifications in commands to set empty defaults">
-      <created>1649099236323</created>
-      <option name="number" value="00029" />
-      <option name="presentableId" value="LOCAL-00029" />
+    <task id="LOCAL-00100" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654721767711</created>
+      <option name="number" value="00100" />
+      <option name="presentableId" value="LOCAL-00100" />
       <option name="project" value="LOCAL" />
-      <updated>1649099236323</updated>
+      <updated>1654721767711</updated>
     </task>
-    <task id="LOCAL-00030" summary="Some examples of update-campauign command">
-      <created>1649099294474</created>
-      <option name="number" value="00030" />
-      <option name="presentableId" value="LOCAL-00030" />
+    <task id="LOCAL-00101" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654722623774</created>
+      <option name="number" value="00101" />
+      <option name="presentableId" value="LOCAL-00101" />
       <option name="project" value="LOCAL" />
-      <updated>1649099294474</updated>
+      <updated>1654722623774</updated>
     </task>
-    <task id="LOCAL-00031" summary="Some examples of update-campauign command">
-      <created>1649099311006</created>
-      <option name="number" value="00031" />
-      <option name="presentableId" value="LOCAL-00031" />
+    <task id="LOCAL-00102" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654722922190</created>
+      <option name="number" value="00102" />
+      <option name="presentableId" value="LOCAL-00102" />
       <option name="project" value="LOCAL" />
-      <updated>1649099311006</updated>
+      <updated>1654722922190</updated>
     </task>
-    <task id="LOCAL-00032" summary="Working on commands to test new classes.">
-      <created>1649370925211</created>
-      <option name="number" value="00032" />
-      <option name="presentableId" value="LOCAL-00032" />
+    <task id="LOCAL-00103" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654723775192</created>
+      <option name="number" value="00103" />
+      <option name="presentableId" value="LOCAL-00103" />
       <option name="project" value="LOCAL" />
-      <updated>1649370925211</updated>
+      <updated>1654723775192</updated>
     </task>
-    <task id="LOCAL-00033" summary="Working on commands to test new classes.">
-      <created>1649896139861</created>
-      <option name="number" value="00033" />
-      <option name="presentableId" value="LOCAL-00033" />
+    <task id="LOCAL-00104" summary="Switched from ButlerURI to ResourcePath">
+      <created>1654724762527</created>
+      <option name="number" value="00104" />
+      <option name="presentableId" value="LOCAL-00104" />
       <option name="project" value="LOCAL" />
-      <updated>1649896139861</updated>
+      <updated>1654724762527</updated>
     </task>
-    <task id="LOCAL-00034" summary="Working on commands to test new classes.">
-      <created>1649896164822</created>
-      <option name="number" value="00034" />
-      <option name="presentableId" value="LOCAL-00034" />
+    <task id="LOCAL-00105" summary="Switched from ButlerURI to ResourcePath">
+      <created>1655218394790</created>
+      <option name="number" value="00105" />
+      <option name="presentableId" value="LOCAL-00105" />
       <option name="project" value="LOCAL" />
-      <updated>1649896164822</updated>
+      <updated>1655218394791</updated>
     </task>
-    <task id="LOCAL-00035" summary="Working on commands to test new classes.">
-      <created>1650293787268</created>
-      <option name="number" value="00035" />
-      <option name="presentableId" value="LOCAL-00035" />
+    <task id="LOCAL-00106" summary="Switched from ButlerURI to ResourcePath">
+      <created>1655226920915</created>
+      <option name="number" value="00106" />
+      <option name="presentableId" value="LOCAL-00106" />
       <option name="project" value="LOCAL" />
-      <updated>1650293787268</updated>
+      <updated>1655226920915</updated>
     </task>
-    <task id="LOCAL-00036" summary="Check subset in DPRUtils">
-      <created>1650297764722</created>
-      <option name="number" value="00036" />
-      <option name="presentableId" value="LOCAL-00036" />
+    <task id="LOCAL-00107" summary="Replaced depricated render method with to_html() in pandas tables.">
+      <created>1655234135004</created>
+      <option name="number" value="00107" />
+      <option name="presentableId" value="LOCAL-00107" />
       <option name="project" value="LOCAL" />
-      <updated>1650297764722</updated>
+      <updated>1655234135004</updated>
     </task>
-    <task id="LOCAL-00037" summary="Updated pandas set_option for newer version">
-      <created>1650298470001</created>
-      <option name="number" value="00037" />
-      <option name="presentableId" value="LOCAL-00037" />
+    <task id="LOCAL-00108" summary="Replaced depricated render method with to_html() in pandas tables.">
+      <created>1655234229400</created>
+      <option name="number" value="00108" />
+      <option name="presentableId" value="LOCAL-00108" />
       <option name="project" value="LOCAL" />
-      <updated>1650298470001</updated>
+      <updated>1655234229400</updated>
     </task>
-    <task id="LOCAL-00038" summary="Updated pandas set_option for newer version">
-      <created>1650308610204</created>
-      <option name="number" value="00038" />
-      <option name="presentableId" value="LOCAL-00038" />
+    <task id="LOCAL-00109" summary="Replaced depricated render method with to_html() in pandas tables.">
+      <created>1655490855852</created>
+      <option name="number" value="00109" />
+      <option name="presentableId" value="LOCAL-00109" />
       <option name="project" value="LOCAL" />
-      <updated>1650308610204</updated>
+      <updated>1655490855852</updated>
     </task>
-    <task id="LOCAL-00039" summary="Updated pandas set_option for newer version">
-      <created>1650308619390</created>
-      <option name="number" value="00039" />
-      <option name="presentableId" value="LOCAL-00039" />
+    <task id="LOCAL-00110" summary="Added a try case in unpacking time stamp.">
+      <created>1655491222846</created>
+      <option name="number" value="00110" />
+      <option name="presentableId" value="LOCAL-00110" />
       <option name="project" value="LOCAL" />
-      <updated>1650308619390</updated>
+      <updated>1655491222847</updated>
     </task>
-    <task id="LOCAL-00040" summary="Updated pandas set_option for newer version">
-      <created>1650308661348</created>
-      <option name="number" value="00040" />
-      <option name="presentableId" value="LOCAL-00040" />
+    <task id="LOCAL-00111" summary="Added a try case in unpacking time stamp.">
+      <created>1655491310679</created>
+      <option name="number" value="00111" />
+      <option name="presentableId" value="LOCAL-00111" />
       <option name="project" value="LOCAL" />
-      <updated>1650308661349</updated>
+      <updated>1655491310679</updated>
     </task>
-    <task id="LOCAL-00041" summary="Updated pandas set_option for newer version">
-      <created>1650309814139</created>
-      <option name="number" value="00041" />
-      <option name="presentableId" value="LOCAL-00041" />
+    <task id="LOCAL-00112" summary="Added a try case in unpacking time stamp.">
+      <created>1655491436947</created>
+      <option name="number" value="00112" />
+      <option name="presentableId" value="LOCAL-00112" />
       <option name="project" value="LOCAL" />
-      <updated>1650309814139</updated>
+      <updated>1655491436947</updated>
     </task>
-    <task id="LOCAL-00042" summary="Updated pandas set_option for newer version">
-      <created>1650310446432</created>
-      <option name="number" value="00042" />
-      <option name="presentableId" value="LOCAL-00042" />
+    <task id="LOCAL-00113" summary="Added a try case in unpacking time stamp. Updated campaign issue in step dictionary">
+      <created>1655826725348</created>
+      <option name="number" value="00113" />
+      <option name="presentableId" value="LOCAL-00113" />
       <option name="project" value="LOCAL" />
-      <updated>1650310446433</updated>
+      <updated>1655826725349</updated>
     </task>
-    <task id="LOCAL-00043" summary="Updated pandas set_option for newer version">
-      <created>1650311269912</created>
-      <option name="number" value="00043" />
-      <option name="presentableId" value="LOCAL-00043" />
+    <task id="LOCAL-00114" summary="Updated campaign issue in step dictionary">
+      <created>1655826894676</created>
+      <option name="number" value="00114" />
+      <option name="presentableId" value="LOCAL-00114" />
       <option name="project" value="LOCAL" />
-      <updated>1650311269912</updated>
+      <updated>1655826894676</updated>
     </task>
-    <task id="LOCAL-00044" summary="Small flake8 corrections">
-      <created>1651777780919</created>
-      <option name="number" value="00044" />
-      <option name="presentableId" value="LOCAL-00044" />
+    <task id="LOCAL-00115" summary="Updated campaign issue in step dictionary">
+      <created>1655830016205</created>
+      <option name="number" value="00115" />
+      <option name="presentableId" value="LOCAL-00115" />
       <option name="project" value="LOCAL" />
-      <updated>1651777780919</updated>
+      <updated>1655830016205</updated>
     </task>
-    <task id="LOCAL-00045" summary="Small flake8 corrections">
-      <created>1651783858584</created>
-      <option name="number" value="00045" />
-      <option name="presentableId" value="LOCAL-00045" />
+    <task id="LOCAL-00116" summary="Adding links between issues">
+      <created>1655911236253</created>
+      <option name="number" value="00116" />
+      <option name="presentableId" value="LOCAL-00116" />
       <option name="project" value="LOCAL" />
-      <updated>1651783858584</updated>
+      <updated>1655911236253</updated>
     </task>
-    <task id="LOCAL-00046" summary="Fix start time in plot">
-      <created>1652145450853</created>
-      <option name="number" value="00046" />
-      <option name="presentableId" value="LOCAL-00046" />
+    <task id="LOCAL-00117" summary="Adding links between issues">
+      <created>1655911792533</created>
+      <option name="number" value="00117" />
+      <option name="presentableId" value="LOCAL-00117" />
       <option name="project" value="LOCAL" />
-      <updated>1652145450853</updated>
+      <updated>1655911792533</updated>
     </task>
-    <task id="LOCAL-00047" summary="Fix start time in plot">
-      <created>1652145823129</created>
-      <option name="number" value="00047" />
-      <option name="presentableId" value="LOCAL-00047" />
+    <task id="LOCAL-00118" summary="Adding links between issues">
+      <created>1655913163142</created>
+      <option name="number" value="00118" />
+      <option name="presentableId" value="LOCAL-00118" />
       <option name="project" value="LOCAL" />
-      <updated>1652145823129</updated>
+      <updated>1655913163142</updated>
     </task>
-    <task id="LOCAL-00048" summary="Fix start time in plot">
-      <created>1652147066062</created>
-      <option name="number" value="00048" />
-      <option name="presentableId" value="LOCAL-00048" />
+    <task id="LOCAL-00119" summary="As requested by QLeB put set() in registry query, will test consistence of results.">
+      <created>1655923211420</created>
+      <option name="number" value="00119" />
+      <option name="presentableId" value="LOCAL-00119" />
       <option name="project" value="LOCAL" />
-      <updated>1652147066062</updated>
+      <updated>1655923211420</updated>
     </task>
-    <task id="LOCAL-00049" summary="Fix start time in plot">
-      <created>1652147512169</created>
-      <option name="number" value="00049" />
-      <option name="presentableId" value="LOCAL-00049" />
+    <task id="LOCAL-00120" summary="Fixed problem of not created campaign issue for new campaign.">
+      <created>1657215703357</created>
+      <option name="number" value="00120" />
+      <option name="presentableId" value="LOCAL-00120" />
       <option name="project" value="LOCAL" />
-      <updated>1652147512169</updated>
+      <updated>1657215703358</updated>
     </task>
-    <option name="localTasksCounter" value="50" />
+    <option name="localTasksCounter" value="121" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -466,13 +499,9 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Reformatted clicl with include MWCommand." />
-    <MESSAGE value="Correct names in docstring" />
-    <MESSAGE value="Corrections in docstring" />
-    <MESSAGE value="Set protection for missing jobs." />
-    <MESSAGE value="Some changes with LOG" />
     <MESSAGE value="Some changes with CLI" />
     <MESSAGE value="Cleaning flake8 errors" />
     <MESSAGE value="Added commands for update_campaign, update_step, update_workflow" />
@@ -483,6 +512,21 @@
     <MESSAGE value="Updated pandas set_option for newer version" />
     <MESSAGE value="Small flake8 corrections" />
     <MESSAGE value="Fix start time in plot" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix start time in plot" />
+    <MESSAGE value="Save data frame as csv" />
+    <MESSAGE value="Made stat data collection a differential process." />
+    <MESSAGE value="Small change to make scons happy." />
+    <MESSAGE value="Some corrections for w_2022_22, more corrections to come" />
+    <MESSAGE value="Some corrections for w_2022_22" />
+    <MESSAGE value="Corrected information stored for a step" />
+    <MESSAGE value="Updated bps_config as for w_2022_22" />
+    <MESSAGE value="Switched from ButlerURI to ResourcePath" />
+    <MESSAGE value="Replaced depricated render method with to_html() in pandas tables." />
+    <MESSAGE value="Added a try case in unpacking time stamp." />
+    <MESSAGE value="Added a try case in unpacking time stamp. Updated campaign issue in step dictionary" />
+    <MESSAGE value="Updated campaign issue in step dictionary" />
+    <MESSAGE value="Adding links between issues" />
+    <MESSAGE value="As requested by QLeB put set() in registry query, will test consistence of results." />
+    <MESSAGE value="Fixed problem of not created campaign issue for new campaign." />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed problem of not created campaign issue for new campaign." />
   </component>
 </project>

@@ -767,7 +767,7 @@ class DRPUtils:
 
     @staticmethod
     def map_drp_steps(map_yaml, stepissue, campaign_flag):
-        """Update description of a step, by parsing the map yaml file.````
+        """Update description of a step, by parsing the map yaml file.
 
         Parameters
         ----------
@@ -1033,7 +1033,7 @@ class DRPUtils:
             skip <skipgroups> groups (if others generating similar campaigns)
         ngroups : `int`
             how many groups (maximum)
-        explists : `str`
+        explist : `str`
             text file listing <band1> <exposure1> for all visits to use
         """
         template_base = os.path.basename(template)
@@ -1110,7 +1110,7 @@ class DRPUtils:
         print("link:", a_link)
 
         print(bpsstr, kwd, akwd)
-
+        steppath = ''
         upn = kwd["campaign"] + "/" + pupn
         # upn.replace("/","_")
         # upn=d['bps_defined']['uniqProcName']
@@ -1351,7 +1351,7 @@ class DRPUtils:
         LOG.info("Finish with update_step")
 
     @staticmethod
-    def update_workflow(workflow_yaml, workflow_issue, step_issue):
+    def update_workflow(workflow_yaml, workflow_issue, step_issue, workflow_name):
         """Creates workflow
          It overwrites the existing DRP-187 ticket
          (or makes a new one if --issue isn't given),
@@ -1379,6 +1379,10 @@ class DRPUtils:
             workflow_specs["issue_name"] = workflow_issue
         if step_issue is not None:
             workflow_specs["step_issue"] = step_issue
+        if workflow_name is not None:
+            workflow_specs["name"] = workflow_name
+        else:
+            workflow_specs["name"] = ''
         workflow = WorkflowN.from_dict(workflow_specs)
         LOG.info(f"workflow name: {workflow.name}")
         return workflow
@@ -1447,16 +1451,15 @@ class DRPUtils:
             ----------
             step_yaml : `str`
                 A name of the step yaml with path
-
-                step_name : `str`
-                    A name of the step.
-                step_issue : `str`
-                    if specified  the step yaml will be loaded from the
-                    ticket and updated with input parameters
-                campaign_issue : `str`
-                    Campaign jira ticket the step belongs to
-                workflow_dir: `str`
-                    A name of the directory where workflow bps yaml files are,
+            step_name : `str`
+                A name of the step.
+            step_issue : `str`
+                if specified  the step yaml will be loaded from the
+                ticket and updated with input parameters
+            campaign_issue : `str`
+                Campaign jira ticket the step belongs to
+            workflow_dir: `str`
+                A name of the directory where workflow bps yaml files are,
                     including path
                 """
         LOG.info("Start with create_step_yaml")
