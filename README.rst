@@ -1,11 +1,11 @@
-########
+
 prodstatus
-########
+==========
 
 ``prodstat`` provides scripts which are used  to organize DP0.2 production and collect production statistics.
 Collected statistics in form of plots and tables can be reported to corresponding Jira tickets.
 
-For a "quick start" guide, see: `doc/lsst.prodstatus/quickstart.rst. <doc/lsst.prodstatus/quickstart.rst/>`_ 
+For a "quick start" guide, see: `doc/lsst.prodstatus/quickstart.rst. <doc/lsst.prodstatus/quickstart.rst/>`_
 
 Quick reminders
 ---------------
@@ -15,7 +15,7 @@ Check out the product::
   git clone https://github.com/lsst-dm/prodstatus.git
   cd prodstatus
   scons
-  
+
 Setup the environment::
 
   setup lsst_distrib
@@ -36,7 +36,7 @@ Split a list of exposures into groups for processing, creating BPS submit files:
 The `bps submit` command from the `ctrl_bps` product can be used here to submit the just created BPS sumbit files::
 
   bps submit BPS_SUBMIT_FNAME
-  
+
 Create a new Jira ticket to track a processing job (create a "DRP" issue)::
 
   prodstat update-issue BPS_SUBMIT_FNAME PRODUCTION_ISSUE
@@ -59,5 +59,21 @@ Create a plot with timing data ::
   prodstat prep-timing-data PARAM_FILE
   prodstat plot-data PARAM_FILE
 
-See `doc/lsst.prodstatus/quickstart.rst. <doc/lsst.prodstatus/quickstart.rst/>`_ for descriptions
-of the parametersand other options. 
+Create template yaml for a campaign::
+
+  prodstat create-campaign-yaml campaign.yaml
+
+Create or update campaign::
+
+  prodstat update-campaign campaign.yaml
+
+Create template yaml for a step::
+
+  prodstat create-step-yaml step.yaml
+
+Create or update step::
+
+  prodstat update-step step.yaml
+
+See `doc/lsst.prodstatus/quickstart.rst. <doc/lsst.prodstatus/quickstart.rst/>`
+for descriptions of the parameters and other options.
