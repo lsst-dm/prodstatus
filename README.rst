@@ -41,18 +41,13 @@ Create a new Jira ticket to track a processing job (create a "DRP" issue)::
 
   prodstat update-issue BPS_SUBMIT_FNAME PRODUCTION_ISSUE
 
-Add a new job to the tables of jobs in Jira issues DRP-53 and DRP-55::
-
-  prodstat add-job-to-summary PRODUCTION_ISSUE DRP_ISSUE
-
 Update an existing Jira ticket that tracks a processing job (update a "DRP" issue)::
 
   prodstat update-issue BPS_SUBMIT_FNAME PRODUCTION_ISSUE DRP_ISSUE
 
-Update statistics on a job in the Jira issues that track it (DRP-53, DRP-54, DRP-55, and its own DRP issue)::
+Update statistics on a job in the Jira issues that track it:
 
   prodstat update-stat PRODUCTION_ISSUE DRP_ISSUE
-  prodstat add-job-to-summary PRODUCTION_ISSUE DRP_ISSUE
 
 Create a plot with timing data ::
 
@@ -74,6 +69,10 @@ Create template yaml for a step::
 Create or update step::
 
   prodstat update-step step.yaml
+
+Map bps submit yaml files to specific DRP workflow issue tickets::
+
+  prodstat map-drp-steps map-bps-steps.yaml step_issue campaign_flag
 
 See `doc/lsst.prodstatus/quickstart.rst. <doc/lsst.prodstatus/quickstart.rst/>`
 for descriptions of the parameters and other options.

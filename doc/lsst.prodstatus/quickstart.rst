@@ -75,24 +75,24 @@ Options:
 -  --help  Show this message and exit.
 
 Commands:
-- `add-job-to-summary`:     Add a summary to a job summary table.
-- `get-butler-stat`:        Build production statistics tables using Butler.
-- `get-panda-stat`:         Build production statistics tables using PanDa.
-- `make-prod-groups`:       Split a list of exposures into groups defined in yaml.
-- `map-drp-steps`:          Update description of a step, by parsing the map...
-- `plot-data`:              Create timing data of the campaign jobs.
-- `prep-timing-data`:       Create timing data of the campaign jobs Parameters.
-- `report-to-jira`:         Report production statistics to a Jira ticket.
-- `update-issue`:           Update or create a DRP issue.
-- `update-stat`:            Update issue statistics.
-- `create-campaign-yaml`:  Creates campaign yaml template.
-- `create-step-yaml`:      Creates step yaml.
-- `update-campaign`:       Creates or updates campaign.
-- `update-step`:           Creates/updates step.
-- `create-campaign-yaml`:  Creates campaign yaml template.
-- `create-step-yaml`:      Creates step yaml.
-- `update-campaign`:       Creates or updates campaign.
-- `update-step`:           Creates/updates step.
+* `add-job-to-summary`:     Add a summary to a job summary table.
+* `get-butler-stat`:        Build production statistics tables using Butler.
+* `get-panda-stat`:         Build production statistics tables using PanDa.
+* `make-prod-groups`:       Split a list of exposures into groups defined in yaml.
+* `map-drp-steps`:          Update description of a step, by parsing the map...
+* `plot-data`:              Create timing data of the campaign jobs.
+* `prep-timing-data`:       Create timing data of the campaign jobs Parameters.
+* `report-to-jira`:         Report production statistics to a Jira ticket.
+* `update-issue`:           Update or create a DRP issue.
+* `update-stat`:            Update issue statistics.
+* `create-campaign-yaml`:  Creates campaign yaml template.
+* `create-step-yaml`:      Creates step yaml.
+* `update-campaign`:       Creates or updates campaign.
+* `update-step`:           Creates/updates step.
+* `create-campaign-yaml`:  Creates campaign yaml template.
+* `create-step-yaml`:      Creates step yaml.
+* `update-campaign`:       Creates or updates campaign.
+* `update-step`:           Creates/updates step.
 
 Obtaining help on command
 -------------------------
@@ -118,7 +118,7 @@ auxillary bps includes like memoryRequest.yaml and clustering.yaml::
   git clone https://github.com/lsst-dm/dp02-processing.git
 
 
-The tract list, explist, templates, and clustering yaml memoryRequest yaml are in:
+Sample DP0.2 tract list, explist, templates, and clustering yaml memoryRequest yaml are in:
 dp02-processing/full/rehearsal/PREOPS-938/
 
 On your data-int.lsst.cloud note, to enable running scripts, like update-issue, etc \
@@ -127,45 +127,57 @@ To install jira to this::
 
   `pip install jira`
 
+If a local install of jira is not an option,
+You may also be able to find the jira packages in the standard lsst_distrib stack eventually,
+or with an additional setup beyond setup lsst_distrib.
+
 Until tokens are enabled for jira access, one can use a .netrc file for jira authentication.
-Please ask for help if you need it here for jira authentication.
+Please ask for help if you need it here for jira authentication.  Note that if you
+fail to login correctly a few times, jira will require you to use a captcha to get back in.
+The easiest way to to this is to use the web-browser JIRA interface to log in correctly
+one time and answer the captcha correctly, then the python API interface with .netrc (updated
+if necesssary) will work again.
 
 submit a job to bps, record it in an issue
 ------------------------------------------
 
 Do this::
--  bps submit clusttest-all-1.yaml
--  prodstat issue-update clusttest-all-1.yaml PREOPS-XXX
+
+*  bps submit clusttest-all-1.yaml
+*  prodstat issue-update clusttest-all-1.yaml PREOPS-XXX
 
 (this will return a new DRP-YYY issue number -- make a note of the DRP-YYY number issued)
 
-(and it will pick the most recent timestamp that it can find with that PREOPS-XXX in your
-submit dir tree)
+clusttest-all-1.yaml is a bps submit yaml file which contains enough information to generate a quantum
+graph and execution butler (if applicable) to run a set of pipetasks on an input collection,
+resulting in an output collection in the butler.  It describes one bps unit of data production.
+
+The prodstat issue-update ... command will search through your submit directory (if accessible) 
+for the 'expanded version' of the bps submit yaml file and generate a new JIRA DRP-YYY ticket
+containing key keywords extracted from the bps yaml file(s).  The new JIRA DRP-YYY ticket will 
+referfence the overriding campaign description ticket (PREOPS-XXX in this example), 
+which is assumed to be pre-existing.
+
+By default it will pick the most recent timestamp that it can find with that PREOPS-XXX in your
+submit directory tree.
 
 or::
 
-  `prodstat issue-update clusttest-all-1.yaml PREOPS-XXX DRP0 [--ts 20211225T122512Z]`
+  `prodstat update-issue clusttest-all-1.yaml PREOPS-XXX DRP0 [--ts 20211225T122512Z]`
 
 The --ts TIMESTAMP option allows one to create new DRP-YYY issues for a bps submit yaml
 long after the initial bps submit is done.  One should search through the submit/ directory
 tree to find a directory with the timestamp TIMESTAMP that contains a copy the clusttest-all-1.yaml
 submit file to make sure these are in sync.
+
 One may also find the timestamps on the wfprogress panDa workflow status page.
+(for DP0.2, this was at: https://panda-doma.cern.ch/idds/wfprogress)
 
-`prodstat add-job-to-summary PREOPS-XXX DRP-YYY`
-then look at DRP-53 for the current table of tracked completed and running and submitted issues.
-DRP-53 is currently a 'magic' issue containing a listing of campaign production runs.
+Note:
+Generally the update-issue command should be run by the person who run production where
+access to bps files is available.
 
-You can remove an unwanted entry from the DRP-53 table by doing this::
-
-  `prodstat add-job-to-summary PREOPS-XXX DRP-YYY --remove True`
-
-This does not delete the DRP-YYY issue, just removes it from the  DRP-53 summary table listing.
-It can be added back in with another prodstat add-job-to-summary command.
-This is useful if you get the PREOPS-XXX or DRP-YYY wrong accidently, or wish to remove
-test DRP-YYY issues.
-
-Update Butler, Panda Stats when job is partially complete and again when done
+Update Butler, Panda Stats when job is partially complete and again when done:
 
 When job completes, or while still running (panDa workflow shows it in a 'transforming' state),
 you can update the stats table in the DRP-YYY ticket with this call::
@@ -174,21 +186,11 @@ you can update the stats table in the DRP-YYY ticket with this call::
 
 this will take several minute to query the butler, panda and generate the updated stats
 
-Then::
-
-  `prodstat add-job-to-summary PREOPS-XXX DRP-YYY`
-
-this will then update the entry in the DRP-53 table with the new nTasks,nFiles,nFinished,nFail,nSub
-stats
-
-Note:
-This commands should be run by the person who run production where
-access to bps files is available.
 
 Commands
 ========
 
-issue-update
+update-issue
 ------------
 
 Update or create a DRP issue::
@@ -210,26 +212,25 @@ Parameters::
      new issue will be created and assigned (use this newly created number
      for future prodstat update-stat and prodstat add-job-to-summary calls.
 -   --ts : `str`
-     time stamp of the form YYYYMMDDTHHMMSSZ (i.e. 20220107T122421Z)
+     TimeStamp of the form YYYYMMDDTHHMMSSZ (i.e. 20220107T122421Z)
 
 Options:
-- --ts TEXT  timestamp
-- --help     Show this message and exit.
+* --ts TEXT  timestamp
+* --help     Show this message and exit.
 
 Example::
 
-  `prodstat issue-update ../dp02-processing/full/rehearsal/PREOPS-938/clusttest.yaml PREOPS-938 DRP0 --ts 20211225T122522Z`
+  `prodstat update-issue ../dp02-processing/full/rehearsal/PREOPS-938/clusttest.yaml PREOPS-938 DRP0 --ts 20211225T122522Z`
 
 or::
 
-  `prodstat issue-update ../dp02-processing/full/rehearsal/PREOPS-938/clusttest.yaml PREOPS-938`
+  `prodstat update-issue ../dp02-processing/full/rehearsal/PREOPS-938/clusttest.yaml PREOPS-938`
 
 this will use the latest timestamp in the submit subdir, and so if you've done any bps submits since
-this one, you should hunt down the correct --ts TIMESTAMP
+this one, you should instead hunt down the correct TIMESTAMP and pass it with --ts TIMESTAMP.
 
 This will return a new DRP-YYY issue where the  prodstats for the PREOPS-938 issue step will be stored
 and updated later.
-
 
 make-prod-groups
 ----------------
@@ -244,8 +245,8 @@ Parameters:
     Template file with place holders for start/end dataset/visit/tracts
     If these variables are present in a template file:
     GNUM (group number 1--N for splitting a set of visits/tracts),
-    LOWEXP (first exposure or tract number in a range)
-    HIGHEXP (last exposure or tract number in a range)
+    LOWEXP (first visit/exposure or tract number in a range)
+    HIGHEXP (last visit/exposure or tract number in a range)
     They will be substituted for with the values drawn from the explist/tractlist file
     (an optional .yaml suffix here will be added to each generated bps submit yaml in the group)
 -  band : `str`
@@ -263,22 +264,6 @@ Parameters:
       this may alternatively be a file listing tracts instead of exposures/visits.
       valid bands are: ugrizy for exposures/visits and all for tracts (or if the
       band is not needed to be known)
-
-add-job-to-summary
-------------------
-
-To add a job to the summary jira tickets::
-
-  `prodstat add-job-to-summary DRP-XXX PREOPS-YYY [--remove True]`
-
-DRP-XX is the issue created to track prodstatus for this bps submit.
-
-If you run the command twice with the same entries, it is ok.
-
-If you specify --remove True, it will instead remove one entry from the table with the DRP/PREOPS number.
-
-To see the output summary: View special DRP tickets DRP-53 (all bps submits entered) and https://jira.lsstcorp.org/browse/DRP-55 (step1 submits only)
-
 
 get-butler-stat
 ----------------
@@ -343,10 +328,11 @@ pandaStat-PREOPS-XXX.txt.
 
 Here PREOPS-XXX tokens represent Jira ticket the statistics is collected for.
 
-Options::
- --clean_history True/False. Default False
-   This option permits to collect statistics in steps for different subsets of
-   the data set, or present statistics just for one subset.
+    Options::
+         --clean_history True/False. Default False
+
+        This option permits to collect statistics in steps for different subsets of
+        the data set, or present statistics just for one subset.
 
 prep-timing-data
 -----------------
@@ -543,3 +529,66 @@ the name provided in the step.yaml.
 Note:
 It is recommended to use campaign commands to create steps related to the campaign,
 and to create cross links between campaign and steps jira tickets.
+
+
+
+map-drp-steps
+-------------
+
+This command is used to make a one-to-one linkage between a workflow DRP-YYYY JIRA issue
+and a BPS submit yaml file and update this linkage on a campaign or step level JIRA issue.
+
+Call:
+`prodstat map-drp-steps MAP_YAML STEP_ISSUE CAMPAIGN_FLAG`
+
+The MAP_YAML has the form (in the step case): 
+
+cat step2map.yaml
+
+* {
+* step2_all_14 : DRP-142 ,
+* step2_all_13 : DRP-143 ,
+* step2_all_12 : DRP-141 ,
+* step2_all_11 : DRP-139 ,
+* step2_all_10 : DRP-476 ,
+* step2_all_9 : DRP-475 ,
+* step2_all_8 : DRP-474 ,
+* step2_all_7 : DRP-138 ,
+* step2_all_6 : DRP-137 ,
+* step2_all_5 : DRP-136 ,
+* step2_all_4 : DRP-134 ,
+* step2_all_3 : DRP-133 ,
+* step2_all_2 : DRP-132 ,
+* step2_all_1 : DRP-131 
+* }
+
+This MAP_YAML file is currently constructed by hand after a set of 
+bps submit have been done.
+
+Eventually it could be automatically generated as part 
+of the update-issue procedure.
+
+STEP_ISSUE is the (preexisting) name of the DRP-ZZZZ issue (created by 
+create/update-campaign (recursively) or create/update-step), 
+in the case where CAMPAIGN_FLAG is 0. 
+
+CAMPAIGN_FLAG is 0 if this is a STEP_ISSUE, or CAMPAIGN_FLAG is 1 if this is a CAMPAIGN MAP,
+in which case STEP_ISSUE is in fact a pre-existing CAMPAIGN_ISSUE.
+
+The syntax of the CAMPAIGN MAP (which links STEP JIRA issues to step 
+names and rollup statistics about a step:
+
+cat camp17.yaml
+
+* {
+* step1 : [DRP-466,'2021-12-18','2022-01-12',166000,Complete],
+* step2 : [DRP-467,'2022-01-20','2022-01-24',22000,Complete],
+* step3 : [DRP-468,'2022-02-18','2022-03-25',1100000,Complete],
+* step4 : [DRP-469,'2022-04-01','2022-04-30',1100000,Complete],
+* step5 : [DRP-470,'2022-05-03','2022-05-12',66000,Complete],
+* step6 : [DRP-471,'2022-05-12','2022-05-16',16000,Complete],
+* step7 : [DRP-472,'2022-05-01','2022-05-01',10,Complete]
+* }
+
+
+
