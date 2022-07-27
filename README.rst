@@ -45,11 +45,11 @@ Update an existing Jira ticket that tracks a processing job (update a "DRP" issu
 
   prodstat update-issue BPS_SUBMIT_FNAME PRODUCTION_ISSUE DRP_ISSUE
 
-Update statistics on a job in the Jira issues that track it:
+Update statistics on a job in the Jira issues that track it::
 
   prodstat update-stat PRODUCTION_ISSUE DRP_ISSUE
 
-Create a plot with timing data ::
+Create a plot with timing data::
 
   prodstat prep-timing-data PARAM_FILE
   prodstat plot-data PARAM_FILE
