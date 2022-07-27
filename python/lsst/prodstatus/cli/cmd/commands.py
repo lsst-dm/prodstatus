@@ -110,6 +110,39 @@ def update_issue(bps_submit_fname, production_issue, drp_issue, ts):
 
 
 @click.command(cls=ProdstatusCommand)
+@click.argument("template", type=str)
+@click.argument("band", type=str)
+@click.argument("groupsize", type=str)
+@click.argument("skipgroups", type=str)
+@click.argument("ngroups", type=str)
+@click.argument("explist", type=str)
+def make_prod_groups(template, band, groupsize, skipgroups, ngroups, explist):
+
+    """Split a list of exposures into groups defined in yaml files.
+
+        Parameters
+        ----------
+        template : `str`
+            Template file with place holders for start/end dataset/visit/tracts
+            (optional .yaml suffix here will be added)
+        band : `str`
+            Which band to restrict to (or 'all' for no restriction, matches
+            BAND in template if not 'all')
+        groupsize : `int`
+            How many visits (later tracts) per group (i.e. 500)
+        skipgroups: `int`
+            skip <skipgroups> groups (if others generating similar campaigns)
+        ngroups : `int`
+            how many groups (maximum)
+        explist : `str`
+            text file listing <band1> <exposure1> for all visits to use
+        """
+    DRPUtils.make_prod_groups(
+        template, band, groupsize, skipgroups, ngroups, explist
+    )
+
+
+@click.command(cls=ProdstatusCommand)
 @click.argument("map_yaml", type=str)
 @click.argument("step_issue", type=str)
 @click.argument("campaign_flag", type=str)
