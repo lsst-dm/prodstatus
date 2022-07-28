@@ -29,7 +29,7 @@ Notes on Compiling the package the first time and Running tests
    scons
    -----
 
-This makes a link between bin.src and the bin dir and compiles anything that needs
+This makes copies the prodstat from ``bin.src`` to ``bin`` dir and compiles anything that needs
 compiling (in this case its pure python so no compiling), it also makes sure the python
 is setup in the right place this only needs to be run once after checking out or updating
 
@@ -127,29 +127,31 @@ Organizing production
   setup prodstatus -r .
   cd ../
 
-it is also useful to have the dp02-processing package which has the
-DC0.2 explist and some sample template bps submit scripts and
+it is also useful to have the https://github.com/lsst-dm/dp02-processing package checked out 
+which has the DC0.2 exposure list ``explist`` and some 
+sample template ``bps submit`` scripts and
 auxillary bps includes like memoryRequest.yaml and clustering.yaml::
 
   git clone https://github.com/lsst-dm/dp02-processing.git
 
 
 Sample DP0.2 tract list, explist, templates, and clustering yaml memoryRequest yaml are in:
-dp02-processing/full/rehearsal/PREOPS-938/
 
-On your data-int.lsst.cloud note, to enable running scripts, like update-issue, etc \
-one needs to install jira locally in you home area and add a login credential .netrc file.
-To install jira to this::
+https://github.com/lsst-dm/dp02-processing/tree/main/full/rehearsal/PREOPS-938
+
+On your data-int.lsst.cloud node, to enable running scripts, like ``update-issue``, etc
+one needs to install Jira locally in you home area and add a login credential .netrc file.
+To install Jira do this::
 
   `pip install jira`
 
-If a local install of jira is not an option,
-You may also be able to find the jira packages in the standard lsst_distrib stack eventually,
+If a local install of Jira is not an option,
+You may also be able to find the Jira packages in the standard lsst_distrib stack eventually,
 or with an additional setup beyond setup lsst_distrib.
 
-Until tokens are enabled for jira access, one can use a .netrc file for jira authentication.
-Please ask for help if you need it here for jira authentication.  Note that if you
-fail to login correctly a few times, jira will require you to use a captcha to get back in.
+Until tokens are enabled for Jira access, one can use a .netrc file for Jira authentication.
+Please ask for help if you need it here for Jira authentication.  Note that if you
+fail to login correctly a few times, Jira will require you to use a captcha to get back in.
 The easiest way to to this is to use the web-browser JIRA interface to log in correctly
 one time and answer the captcha correctly, then the python API interface with .netrc (updated
 if necesssary) will work again.
@@ -185,10 +187,10 @@ or:
 
   `prodstat update-issue clusttest-all-1.yaml PREOPS-XXX DRP0 [--ts 20211225T122512Z]`
 
-The --ts TIMESTAMP option allows one to create new DRP-YYY issues for a bps submit yaml
+The ``--ts TIMESTAMP`` option allows one to create new DRP-YYY issues for a bps submit yaml
 long after the initial bps submit is done.  One should search through the submit/ directory
-tree to find a directory with the timestamp TIMESTAMP that contains a copy the clusttest-all-1.yaml
-submit file to make sure these are in sync.
+tree to find a directory with the timestamp ``TIMESTAMP`` that contains a copy 
+the clusttest-all-1.yaml submit file to make sure these are in sync.
 
 One may also find the timestamps on the wfprogress panDa workflow status page.
 (for DP0.2, this was at: https://panda-doma.cern.ch/idds/wfprogress)
@@ -253,7 +255,7 @@ or::
   `prodstat update-issue ../dp02-processing/full/rehearsal/PREOPS-938/clusttest.yaml PREOPS-938`
 
 this will use the latest timestamp in the submit subdir, and so if you've done any bps submits since
-this one, you should instead hunt down the correct TIMESTAMP and pass it with --ts TIMESTAMP.
+this one, you should instead hunt down the correct ``TIMESTAMP`` and pass it with ``--ts TIMESTAMP``.
 
 This will return a new DRP-YYY issue where the  prodstats for the PREOPS-938 issue step will be stored
 and updated later.
@@ -320,7 +322,7 @@ The inpfile.yaml has following format:
 
 This program will scan butler registry to select _metadata files for
 tasks in given workflow. Those metadata files will be copied one by
-one into /tmp/tempTask.yaml file from which maxRss and CPU time usage
+one into ``/tmp/tempTask.yaml`` file from which maxRss and CPU time usage
 will be extracted.  The program collects these data for each task type
 and calculates total CPU usage for all tasks of the type. At the end
 total CPU time used by all workflows and maxRss will be calculated and

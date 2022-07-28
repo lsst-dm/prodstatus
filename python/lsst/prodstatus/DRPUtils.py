@@ -71,7 +71,8 @@ class DRPUtils:
         Returns
         -------
         bpsstr : `str`
-            Description of the BPS connection data.
+            Description of the BPS connection data which will
+            end up in the Jira issue description field.
         kwd : `dict` [`str`, `str`]
             Some values extracted from the yaml file, into a Key
             Word Dictionary.
@@ -107,7 +108,7 @@ class DRPUtils:
         # TBD:  use the BPS API to read this BPS yaml in rather than
         # direct yaml load.
         with open(bps_yaml_file, 'r') as f:
-            d = load(f, Loader=FullLoader)
+            d = yaml.load(f, Loader=yaml.FullLoader)
         kwd = dict()
         bpsstr = "BPS Submit Keywords:\n{code}\n"
         # Format the essential keywords from the BPS submit yaml
