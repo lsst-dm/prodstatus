@@ -49,7 +49,7 @@ have to run scons again.
 
 Set up the package -- subsequent setups
 =======================================
-See :doc:`prodstatus-install>`.
+See :ref:`prodstatus-install`.
 
 ::
 
