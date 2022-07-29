@@ -20,6 +20,7 @@ Using lsst.prodstatus
 .. toctree::
    :maxdepth: 1
 
+   install
    quickstart    
    
 .. _lsst.prodstatus-contributing:
