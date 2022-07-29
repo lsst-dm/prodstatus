@@ -1,5 +1,6 @@
 
 .. _prodstatus-install:
+=============================
 prodstatus installation guide
 =============================
 
