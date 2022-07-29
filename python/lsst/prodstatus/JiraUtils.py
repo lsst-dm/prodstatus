@@ -128,7 +128,7 @@ class JiraUtils:
         Returns
         -------
         all_attachments : `dict`
-            issueId: issue.filename
+            issueId: issue filename
         """
 
         all_attachments = dict()

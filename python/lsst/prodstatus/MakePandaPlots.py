@@ -418,5 +418,5 @@ class MakePandaPlots:
                         max_time = row[0]
                     data_list.append((row[0], row[1]))
                 self.log.info(f" job name {job_name}")
-                self.make_plot(data_list, max_time, job_name, figure_number)
+                self.make_plot(data_list, max_time, job_name, str(figure_number))
                 figure_number += 1

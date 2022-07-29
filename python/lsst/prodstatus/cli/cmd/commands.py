@@ -23,15 +23,12 @@
 """
 import click
 import yaml
-import io
 from lsst.daf.butler.cli.utils import MWCommand
 from lsst.prodstatus.DRPUtils import DRPUtils
-from lsst.prodstatus.JiraUtils import JiraUtils
 from lsst.prodstatus.GetButlerStat import GetButlerStat
 from lsst.prodstatus.GetPanDaStat import GetPanDaStat
 from lsst.prodstatus.ReportToJira import ReportToJira
 from lsst.prodstatus.MakePandaPlots import MakePandaPlots
-from lsst.prodstatus.WorkflowN import WorkflowN
 
 
 class ProdstatusCommand(MWCommand):
@@ -95,7 +92,7 @@ def update_issue(bps_submit_fname, production_issue, drp_issue, ts):
     ----------
     bps_submit_fname : `str`
         The file name for the BPS submit file (yaml).
-        Should be sitting in the same dir that bps submit was done,
+        Should be sitting in the same dir that the bps submit was done,
         so that the submit/ dir can be searched for more info
     production_issue : `str`
         PREOPS-938 or similar production issue for this group of
@@ -123,7 +120,7 @@ def make_prod_groups(template, band, groupsize, skipgroups, ngroups, explist):
         Parameters
         ----------
         template : `str`
-            Template file with place holders for start/end dataset/visit/tracts
+            Template file with placeholders for start/end dataset/visit/tracts
             (optional .yaml suffix here will be added)
         band : `str`
             Which band to restrict to (or 'all' for no restriction, matches
@@ -500,90 +497,3 @@ def update_step(step_yaml, step_issue, campaign_name, step_name):
     click.echo(f"Step yaml {step_yaml}")
     click.echo(f"Step name {step_name}")
     DRPUtils.update_step(step_yaml, step_issue, campaign_name, step_name)
-
-
-@click.command(cls=ProdstatusCommand)
-@click.argument("workflow_yaml", type=click.Path(exists=True))
-@click.option("--step_name", required=False, type=str, default="")
-@click.option('--workflow_issue', required=False, type=str, default=None)
-@click.option('--step_issue', required=False, type=str, default=None)
-def update_workflow(workflow_yaml, step_name, workflow_issue, step_issue):
-    """Creates/updates workflow.
-        It overwrites the existing DRP ticket
-        (or makes a new one if --workflow_issue isn't given),.
-        It reads the 'full bps yaml' with all includes
-        and saves that as an attachment.
-    \b
-    Parameters
-    ----------
-
-    workflow_yaml : `str`
-        A yaml file from which to get step parameters.
-    step_name : `str`
-        A name of the step the workflow belong to
-    workflow_issue : `str`
-        if specified  it overwrite a pre-existing DRP ticket,
-        if not, it creates a new JIRA issue.
-    step_issue : `str`
-    """
-    click.echo("Start with update_workflow")
-    click.echo(f"Step name {step_name}")
-    click.echo(f"Workflow issue:{workflow_issue}")
-    click.echo(f"Step issue {step_issue}")
-    jira = JiraUtils()
-    (auth_jira, user) = jira.get_login()
-    temp_dir = './temp/'
-    with open(workflow_yaml, 'r') as wf:
-        workflows = yaml.safe_load(wf)
-    " Update workflow.yaml with one particular issue "
-    if workflow_issue is not None:
-        issue = auth_jira.issue(workflow_issue)
-        print(f"Issue is: {issue}")
-        all_attachments = jira.get_attachments(issue)
-        for aid in all_attachments:
-            att_file = all_attachments[aid]
-            if att_file == "workflow.yaml":
-                attachment = auth_jira.attachment(aid)
-                a_yaml = io.BytesIO(attachment.get()).read()
-                wf_sub = yaml.load(a_yaml, Loader=yaml.Loader)
-                if workflows is not None:
-                    for workflow_name in workflows:
-                        wf_dict = workflows[workflow_name]
-                        if wf_sub['name'] == workflow_name:
-                            workflow = WorkflowN.from_dict(wf_dict)
-                            workflow.to_files(temp_dir)
-    else:
-        if workflows is not None:
-            for workflow_name in workflows:
-                wf_dict = workflows[workflow_name]
-                workflow = WorkflowN.from_dict(wf_dict)
-                workflow.to_files(temp_dir)
-    click.echo("Finish with update_workflow")
-
-
-@click.command(cls=ProdstatusCommand)
-@click.argument("step_dir", type=click.Path(exists=True))
-@click.argument("step_name_base", type=str, default="")
-@click.argument("workflow_yaml", type=click.Path())
-def make_workflow_yaml(step_dir, step_name_base, workflow_yaml):
-    """Creates/updates workflow.yaml for update_workflow command
-       It read all step yaml files in a directory and creates new entry
-       in the workflow yaml file
-    \b
-    Parameters
-    ----------
-
-    step_dir : `str`
-        A directory path where the step yaml files are
-    step_name_base : `str`
-        A base name to create unique step names
-    workflow_yaml : `str`
-        A yaml file name where workflow names and step yaml files are stored
-        If exists workflow parameters will be updated.
-    """
-    click.echo("Start with make-workflow-yaml")
-    click.echo(f"Step dir:{step_dir}")
-    click.echo(f"Step base name {step_name_base}")
-    click.echo(f"Workflow yaml: {workflow_yaml}")
-    DRPUtils.make_workflow_yaml(step_dir, step_name_base, workflow_yaml)
-    click.echo("Finish with make_workflow_yaml")

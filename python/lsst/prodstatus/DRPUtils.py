@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # This file is part of prodstatus package.
 #
 # Developed for the LSST Data Management System.
@@ -27,6 +26,7 @@ import io
 import yaml
 from yaml import load, FullLoader
 from pathlib import Path
+
 "from tempfile import TemporaryDirectory"
 import datetime
 import json
@@ -37,7 +37,6 @@ from lsst.prodstatus.GetButlerStat import GetButlerStat
 from lsst.prodstatus.GetPanDaStat import GetPanDaStat
 from lsst.prodstatus.JiraUtils import JiraUtils
 
-from lsst.prodstatus.WorkflowN import WorkflowN
 from lsst.prodstatus.StepN import StepN
 from lsst.prodstatus.CampaignN import CampaignN
 from lsst.prodstatus import LOG
@@ -122,7 +121,7 @@ class DRPUtils:
                 else:
                     kwd[k] = v
                     bpsstr += str(k) + ": " + str(v) + "\n"
-        uniqid = "./" + os.path.dirname(bps_yaml_file) + "/submit/" + kwd["output"]
+        uniqid = f"./{os.path.dirname(bps_yaml_file)}/submit/{kwd['output']}"
         for k in kwd:
             v = kwd[k]
             uniqid = uniqid.replace("{" + str(k) + "}", v)
@@ -196,7 +195,7 @@ class DRPUtils:
             with open(fullbpsyaml, 'r') as f:
                 d = load(f, Loader=FullLoader)
             # TBD: Consider using the logger here
-            print("submityaml keys:", d)
+            print(f"submityaml keys:{d}")
             for k, v in d.items():
                 if k in skwlist:
                     if k in skw:
@@ -208,8 +207,8 @@ class DRPUtils:
                         bpsstr += str(k) + ": " + str(v) + "\n"
 
             # TBD: Consider using the logger here
-            print("akwd", akwd)
-            print("kwd", kwd)
+            print(f"akwd {akwd}")
+            print(f"kwd {kwd}")
             print(bpsstr)
             # Get the unix filesystem stats (size, createtime) on the
             # qgraph file
@@ -391,14 +390,14 @@ class DRPUtils:
         in_pars = dict()
         drp_issue = self.ajira.issue(drpi)
         summary = drp_issue.fields.summary
-        print("summary is", summary)
+        print(f"summary is  {summary}")
         olddesc = drp_issue.fields.description
-        print("old desc is", olddesc)
+        print(f"old desc is {olddesc}")
         substr = "{code}"
         idx = olddesc.find(substr, olddesc.find(substr) + 1)
         print(idx)
         newdesc = olddesc[0:idx] + "{code}\n"
-        print("new is", newdesc)
+        print(f"new is {newdesc}")
         pattern0 = "(.*)#(.*)(20[0-9][0-9][0-9][0-9][0-9][0-9][Tt][0-9][0-9][0-9][0-9][0-9][0-9][Zz])"
         mts = re.match(pattern0, summary)
         if mts:
@@ -419,20 +418,20 @@ class DRPUtils:
         in_pars["stop_date"] = datetime.datetime.now().isoformat()[:10]
         get_butler_stat = GetButlerStat(**in_pars)
         get_butler_stat.run()
-        butfilename = "/tmp/butlerStat-" + str(pissue) + ".txt"
+        butfilename = f"/tmp/butlerStat-{str(pissue)}.txt"
         if os.path.exists(butfilename):
             with open(butfilename, 'r') as fbstat:
                 butstat = fbstat.read()
         else:
             butstat = "\n"
-        panfilename = "/tmp/pandaStat-" + str(pissue) + ".txt"
+        panfilename = f"/tmp/pandaStat-{str(pissue)}.txt"
         in_pars["collType"] = ts.lower()
         get_panda_stat = GetPanDaStat(**in_pars)
         get_panda_stat.run()
         if os.path.exists(panfilename):
             with open(panfilename, 'r') as fpstat:
                 statstr = fpstat.read()
-            with open("/tmp/pandaWfStat-" + str(pissue) + ".csv", "r") as fstat:
+            with open(f"/tmp/pandaWfStat-{str(pissue)}.csv", "r") as fstat:
                 fstat.readline()
                 line2 = fstat.readline()
                 a = line2.split(",")
@@ -444,24 +443,9 @@ class DRPUtils:
             pnfin = int(a[6][:-2])
             pnfail = int(a[7][:-2])
             psubfin = int(a[8][:-2])
-            curstat = (
-                "Status:"
-                + str(pstat)
-                + " nTasks:"
-                + str(pntasks)
-                + " nFiles:"
-                + str(pnfiles)
-                + " nRemain:"
-                + str(pnproc)
-                + " nProc:"
-                + " nFinish:"
-                + str(pnfin)
-                + " nFail:"
-                + str(pnfail)
-                + " nSubFinish:"
-                + str(psubfin)
-                + "\n"
-            )
+            curstat = f"Status:{str(pstat)} nTasks:{str(pntasks)} nFiles:{str(pnfiles)}"
+            curstat += f" nRemain:{str(pnproc)} nProc: nFinish:{str(pnfin)} nFail:{str(pnfail)}"
+            curstat += f" nSubFinish:{str(psubfin)}\n"
         else:
             statstr = "\n"
             curstat = "\n"
@@ -472,26 +456,17 @@ class DRPUtils:
         month = str(pupn[4:6])
         # day=str(pupn[6:8])
         day = str("01")
-        print("year:", year)
-        print("year:", month)
-        print("year:", day)
-        link = (
-            "https://panda-doma.cern.ch/tasks/?taskname=*"
-            + pupn.lower()
-            + "*&date_from="
-            + str(day)
-            + "-"
-            + str(month)
-            + "-"
-            + str(year)
-            + "&days=62&sortby=time-ascending"
-        )
-        print("link:", link)
-        linkline = "PanDA link:" + link + "\n"
+        print(f"year: {year}")
+        print(f"year: {month}")
+        print(f"year: {day}")
+        link = f"https://panda-doma.cern.ch/tasks/?taskname=*{pupn.lower()}*&date_from={str(day)}"
+        link += f"-{str(month)}-{str(year)}&days=62&sortby=time-ascending"
+        print(f"link: {link}")
+        linkline = f"PanDA link:{link}\n"
 
         issue_dict = {"description": newdesc + butstat + linkline + statstr + curstat}
         drp_issue.update(fields=issue_dict)
-        print("issue:" + str(drp_issue) + " Stats updated")
+        print(f"issue:{str(drp_issue)}  Stats updated")
 
     @staticmethod
     def parse_issue_desc(jdesc, jsummary):
@@ -567,35 +542,24 @@ class DRPUtils:
             n1a = pattern1a.match(ls)
             if n1a:
                 # print("Tract range:",n1.group(2),":end")
-                hilow = "(" + n1a.group(2) + ")"
+                hilow = f"({n1a.group(2)})"
                 # print("hilow:",hilow)
             n1b = pattern1b.match(ls)
             if n1b:
-                hilow = (
-                    "(" + str(int(n1b.group(2))) + "," + str(int(n1b.group(3))) + ")"
-                )
+                hilow = f"({str(int(n1b.group(2)))},{str(int(n1b.group(3)))})"
                 # print("hilow:",hilow)
             n2 = pattern2.match(ls)
             if n2:
-                hilow = "(" + str(int(n2.group(2))) + "," + str(int(n2.group(3))) + ")"
+                hilow = f"({str(int(n2.group(2)))},{str(int(n2.group(3)))})"
                 # print("hilow:",hilow)
             # else:
             n2b = pattern2b.match(ls)
             if n2b:
-                hilow = (
-                    "(" + str(int(n2b.group(2))) + "," + str(int(n2b.group(3))) + ")"
-                )
+                hilow = f"({str(int(n2b.group(2)))},{str(int(n2b.group(3)))})"
             # print("no match to l",l)
             n2a = pattern2a.match(ls)
             if n2a:
-                hilow = (
-                    "("
-                    + str(int(n2a.group(3)))
-                    + ","
-                    + str(int(n2a.group(4)))
-                    + ")d"
-                    + str(int(n2a.group(2)))
-                )
+                hilow = f"({str(int(n2a.group(3)))},{str(int(n2a.group(4)))})d{str(int(n2a.group(2)))}"
             n3 = pattern3.match(ls)
             if n3:
                 statNtasks = int(n3.group(2))
@@ -631,17 +595,7 @@ class DRPUtils:
             nFin = status[2]
             nFail = status[3]
             nSubF = status[4]
-            statstring = (
-                str(nT)
-                + ","
-                + str(nFile)
-                + ","
-                + str(nFin)
-                + ","
-                + str(nFail)
-                + ","
-                + str(nSubF)
-            )
+            statstring = f"{str(nT)},{str(nFile)},{str(nFin)},{str(nFail)},{str(nSubF)}"
             scolor = "black"
             # print(statstring,nT,nFile,nFin,nFail,nSubF)
             if nFail > 0:
@@ -665,29 +619,11 @@ class DRPUtils:
             if len(what) > 28:
                 what = what[0:28]
 
-            table_out += (
-                "| "
-                + str(shortyear)
-                + "-"
-                + str(shortmon)
-                + "-"
-                + str(shortday)
-                + " | ["
-                + str(in_dict[i][0])
-                + "|https://jira.lsstcorp.org/browse/"
-                + str(in_dict[i][0])
-                + "] | "
-                + str(in_dict[i][1])
-                + "|{color:"
-                + scolor
-                + "}"
-                + statstring
-                + "{color} | [pDa|"
-                + in_dict[i][3]
-                + "] |"
-                + str(what)
-                + "|\n"
-            )
+            table_out += f"| {str(shortyear)}-{str(shortmon)}-{str(shortday)} | ["
+            table_out += f"{str(in_dict[i][0])}|https://jira.lsstcorp.org/browse/{str(in_dict[i][0])}] | "
+            table_out += f"{str(in_dict[i][1])}|" + "{color:" + scolor + "}"
+            table_out += f"{statstring}" + "{color}" + f"| [pDa|{in_dict[i][3]}] |{str(what)}|\n"
+
         return table_out
 
     @staticmethod
@@ -696,7 +632,7 @@ class DRPUtils:
 
         table_out = "||"
         for i in dictheader:
-            table_out += str(i) + "||"
+            table_out += f"{str(i)}||"
         table_out += "\n"
 
         for i in sorted(in_dict.keys(), reverse=True):
@@ -711,17 +647,7 @@ class DRPUtils:
                 nFin = status[2]
                 nFail = status[3]
                 nSubF = status[4]
-                statstring = (
-                    str(nT)
-                    + ","
-                    + str(nFile)
-                    + ","
-                    + str(nFin)
-                    + ","
-                    + str(nFail)
-                    + ","
-                    + str(nSubF)
-                )
+                statstring = f"{str(nT)},{str(nFile)},{str(nFin)},{str(nFail)},{str(nSubF)}"
                 scolor = "black"
                 if nFail > 0:
                     scolor = "red"
@@ -741,29 +667,11 @@ class DRPUtils:
                 what = in_dict[i][4]
                 if len(what) > 25:
                     what = what[0:25]
-                table_out += (
-                    "| "
-                    + str(shortyear)
-                    + "-"
-                    + str(shortmon)
-                    + "-"
-                    + str(shortday)
-                    + " | ["
-                    + str(in_dict[i][0])
-                    + "|https://jira.lsstcorp.org/browse/"
-                    + str(in_dict[i][0])
-                    + "] | "
-                    + str(in_dict[i][1])
-                    + "|{color:"
-                    + scolor
-                    + "}"
-                    + statstring
-                    + "{color} | [pDa|"
-                    + in_dict[i][3]
-                    + "] |"
-                    + str(what)
-                    + "|\n"
-                )
+                table_out += f"| {str(shortyear)}-{str(shortmon)}-{str(shortday)} | [{str(in_dict[i][0])}"
+                table_out += f"|https://jira.lsstcorp.org/browse/{str(in_dict[i][0])}] | {str(in_dict[i][1])}"
+                table_out += "|{color:" + scolor + "}"
+                table_out += f"{statstring}" + "{color} | [pDa|"
+                table_out += f"{in_dict[i][3]}] |{str(what)}|\n"
         return table_out
 
     @staticmethod
@@ -825,12 +733,12 @@ class DRPUtils:
         sissue = a_jira.issue(stepissue)
 
         sissue.update(fields={"description": newdesc})
-        print("description updated for: ", str(sissue))
+        print(f"description updated for: {str(sissue)}")
         for attachment in sissue.fields.attachment:
             if os.path.basename(map_yaml) == attachment.filename:
                 print("removing old attachment from issue")
                 a_jira.delete_attachment(attachment.id)
-        a_jira.add_attachment(sissue, attachment=str(map_yaml))
+        a_jira.add_attachment(str(sissue), attachment=str(map_yaml))
         print("added map_yaml attachment to issue")
 
     @staticmethod
@@ -839,24 +747,15 @@ class DRPUtils:
 
         table_out = "||"
         for i in dictheader:
-            table_out += str(i) + "||"
+            table_out += f"{str(i)}||"
         table_out += "\n"
 
         for i in in_dict.keys():
             stepname = i
-            table_out += (
-                "| " + str(stepname)
-                + "| ["
-                + str(in_dict[i][0])
-                + "|https://jira.lsstcorp.org/browse/"
-                + str(in_dict[i][0])
-                + "] | "
-                + str(in_dict[i][1]) + "|"
-                + str(in_dict[i][2]) + "|"
-                + str(in_dict[i][3]) + "|"
-                + str(in_dict[i][4])
-                + "| \n"
-            )
+            table_out += f"| {str(stepname)}| [{str(in_dict[i][0])}|https://jira.lsstcorp.org/browse/"
+            table_out += f"{str(in_dict[i][0])}] | "
+            table_out += f"{str(in_dict[i][1])}|{str(in_dict[i][2])}|{str(in_dict[i][3])}|"
+            table_out += f"{str(in_dict[i][4])}| \n"
 
         return table_out
 
@@ -866,7 +765,7 @@ class DRPUtils:
 
         table_out = "||"
         for i in dictheader:
-            table_out += str(i) + "||"
+            table_out += f"{str(i)}||"
         table_out += "\n"
 
         # sortbydescrip=sorted(in_dict[3])
@@ -878,17 +777,7 @@ class DRPUtils:
             nFin = status[2]
             nFail = status[3]
             nSubF = status[4]
-            statstring = (
-                str(nT)
-                + ","
-                + str(nFile)
-                + ","
-                + str(nFin)
-                + ","
-                + str(nFail)
-                + ","
-                + str(nSubF)
-            )
+            statstring = f"{str(nT)},{str(nFile)},{str(nFin)},{str(nFail)},{str(nSubF)}"
             scolor = "black"
             # print(statstring,nT,nFile,nFin,nFail,nSubF)
             if nFail > 0:
@@ -913,27 +802,14 @@ class DRPUtils:
             if len(what) > 28:
                 what = what[0:28]
 
-            table_out += (
-                "| "
-                + str(in_dict[i][0])
-                + "| ["
-                + str(in_dict[i][1])
-                + "|https://jira.lsstcorp.org/browse/"
-                + str(in_dict[i][1])
-                + "] | "
-                + "{color:"
-                + scolor
-                + "}"
-                + statstring
-                + "{color} | "
-                + str(what)
-                + "|" + str(i) + "| \n"
-            )
+            table_out += f"| {str(in_dict[i][0])}| [{str(in_dict[i][1])}|https://jira.lsstcorp.org/browse/"
+            table_out += f"{str(in_dict[i][1])}] | " + "{color:" + scolor + "}"
+            table_out += f"{statstring}" + "{color} | " + str(what) + "|" + str(i) + "| \n"
 
         return table_out
 
     def drp_add_job_to_summary(
-        self, first, pissue, jissue, frontend, frontend1, backend
+            self, first, pissue, jissue, frontend, frontend1, backend
     ):
         """Add a summary to a job summary tables in jira.````
 
@@ -972,15 +848,10 @@ class DRPUtils:
         jissue = self.ajira.issue(jissue)
         jdesc = jissue.fields.description
         jsummary = jissue.fields.summary
-        print("summary is", jsummary)
+        print(f"summary is {jsummary}")
         ts, status, hilow, pandalink, what = self.parse_issue_desc(jdesc, jsummary)
         print(
-            "new entry (ts,status,hilow,pandalink,step)",
-            ts,
-            status,
-            hilow,
-            pandalink,
-            what,
+            f"new entry (ts,status,hilow,pandalink,step) {ts}, {status}, {hilow}, {pandalink},{what}"
         )
 
         if first == 1:
@@ -989,11 +860,11 @@ class DRPUtils:
             a_dict = json.loads(olddescription)
 
         if first == 2:
-            print("removing PREOPS, DRP", str(pissue), str(jissue))
+            print(f"removing PREOPS, DRP  {str(pissue)}, {str(jissue)}")
             for key, value in a_dict.items():
                 # print("key",key,"value",value)
                 if value[1] == str(jissue) and value[0] == str(pissue):
-                    print("removing one key with:", str(jissue), str(pissue))
+                    print("removing one key with: {str(jissue)}, {str(pissue)}")
                     del a_dict[key]
                     break
         else:
@@ -1023,7 +894,7 @@ class DRPUtils:
         Parameters
         ----------
         template : `str`
-            Template file with place holders for start/end dataset/visit/tracts
+            Template file with placeholders for start/end dataset/visit/tracts
             (optional .yaml suffix here will be added)
         band : `str`
             Which band to restrict to (or 'all' for no restriction, matches
@@ -1060,7 +931,7 @@ class DRPUtils:
             min_exp_id = group_exposures.exp_id.min()
             max_exp_id = group_exposures.exp_id.max()
 
-            # Add 1 to the group id so it starts at 1, not 0
+            # Add 1 to the group id, so it starts at 1, not 0
             group_num = group_id + 1
             out_content = (
                 template_content.replace("GNUM", str(group_num))
@@ -1088,27 +959,18 @@ class DRPUtils:
             Timestamp in %Y%m%dT%H%M%SZ format
         """
         bpsstr, kwd, akwd, pupn = self.parse_yaml(bpsyamlfile, ts)
-        print("pupn:", pupn)
+        print(f"pupn: {pupn}")
         year = str(pupn[0:4])
         month = str(pupn[4:6])
         # day=str(pupn[6:8])
         day = str("01")
-        print("year:", year)
-        print("year:", month)
-        print("year:", day)
-        a_link = (
-            "https://panda-doma.cern.ch/tasks/?taskname=*"
-            + pupn.lower()
-            + "*&date_from="
-            + str(day)
-            + "-"
-            + str(month)
-            + "-"
-            + str(year)
-            + "&days=62&sortby=time-ascending"
-        )
+        print(f"year:{year}")
+        print(f"year:{month}")
+        print(f"year:{day}")
+        a_link = f"https://panda-doma.cern.ch/tasks/?taskname=*{pupn.lower()}*&date_from={str(day)}"
+        a_link += f"-{str(month)}-{str(year)}&days=62&sortby=time-ascending"
 
-        print("link:", a_link)
+        print(f"link:{a_link}")
 
         print(bpsstr, kwd, akwd)
         steppath = ''
@@ -1118,18 +980,18 @@ class DRPUtils:
         stepname = kwd["pipelineYaml"]
         p = re.compile("(.*)#(.*)")
         m = p.match(stepname)
-        print("stepname " + stepname)
+        print(f"stepname {stepname}")
         if m:
             steppath = m.group(1)
             stepcut = m.group(2)
         else:
             stepcut = ""
 
-        print("steplist " + stepcut)
-        print("steppath " + steppath)
-        bpsstr += "pipelineYamlSteps: " + stepcut + "\n{code}\n"
+        print(f"steplist {stepcut}")
+        print(f"steppath {steppath}")
+        bpsstr += f"pipelineYamlSteps: {stepcut}" + "\n{code}\n"
 
-        print(upn + "#" + stepcut)
+        print(f"{upn} #{stepcut}")
         sl = self.parse_drp(steppath, stepcut)
         tasktable = (
             "Butler Statistics\n"
@@ -1142,24 +1004,7 @@ class DRPUtils:
 
         tasktable += "PanDA PREOPS: " + str(pissue) + " link:" + a_link + "\n"
         for s in sl:
-            tasktable += (
-                "|"
-                + s[0]
-                + "|"
-                + s[1]
-                + "|"
-                + " "
-                + "|"
-                + " "
-                + "|"
-                + " "
-                + "|"
-                + " "
-                + "|"
-                + " "
-                + "|"
-                + "\n"
-            )
+            tasktable += f"|{s[0]}|{s[1]}| | | | | |\n"
 
         tasktable += "\n"
         print(tasktable)
@@ -1177,7 +1022,7 @@ class DRPUtils:
         issue.update(
             fields={"summary": stepcut + "#" + upn, "description": bpsstr + tasktable}
         )
-        print("issue:" + str(issue))
+        print(f"issue:{str(issue)}")
 
     @staticmethod
     def update_campaign(campaign_yaml, campaign_issue, campaign_name):
@@ -1323,8 +1168,8 @@ class DRPUtils:
         "Get workflows for the step from workflow_base"
         LOG.info("Updating workflows")
         for file_name in os.listdir(wf_path):
-            if file_name.endswith('.yaml'):
-                wf_name = file_name.split('.yaml')[0]
+            if str(file_name).endswith('.yaml'):
+                wf_name = str(file_name).split('.yaml')[0]
                 bps_path = os.path.join(workflow_base, file_name)
                 wf_data = dict()
                 wf_data["name"] = wf_name
@@ -1349,95 +1194,6 @@ class DRPUtils:
         tmp_dir = TemporaryDirectory()
         step.to_files(tmp_dir.name) """
         LOG.info("Finish with update_step")
-
-    @staticmethod
-    def update_workflow(workflow_yaml, workflow_issue, step_issue, workflow_name):
-        """Creates workflow
-         It overwrites the existing DRP-187 ticket
-         (or makes a new one if --issue isn't given),
-         it adds the workflow to the list of steps in the
-          stepIssue.
-          It looks reads the 'full bps yaml' with all includes
-          and saves that as an attachment.
-
-        Parameters
-        ----------
-        workflow_yaml : `str`
-            A yaml file from which to get step parameters.
-        workflow_issue : `str`
-            if specified  it overwrite a pre-existing DRP ticket,
-            if not, it creates a new JIRA issue.
-        step_issue : `str`
-        workflow_name : `str`
-            """
-        LOG.info(f"Workflow yaml: {workflow_yaml}")
-        LOG.info(f"Workflow issue: {workflow_issue}")
-        LOG.info(f"Step issue: {step_issue}")
-        with open(workflow_yaml, 'r') as wf:
-            workflow_specs = yaml.load(wf, Loader=yaml.Loader)
-        if workflow_issue is not None:
-            workflow_specs["issue_name"] = workflow_issue
-        if step_issue is not None:
-            workflow_specs["step_issue"] = step_issue
-        if workflow_name is not None:
-            workflow_specs["name"] = workflow_name
-        else:
-            workflow_specs["name"] = ''
-        workflow = WorkflowN.from_dict(workflow_specs)
-        LOG.info(f"workflow name: {workflow.name}")
-        return workflow
-
-    @staticmethod
-    def make_workflow_yaml(step_dir, step_name_base, workflow_yaml):
-        """Creates/updates workflow.yaml for update_workflow command
-           It reads all step yaml files in a directory and creates new entry
-           in the workflow yaml file
-        \b
-        Parameters
-        ----------
-
-        step_dir : `str`
-            A directory path where the step workflow yaml files are
-        step_name_base : `str`
-            A base name to create unique step names like 'step1'
-        workflow_yaml : `str`
-            A yaml file name where workflow names and step
-            yaml files are stored
-            If exists workflow parameters will be updated.
-        """
-        LOG.info("Start with make-workflow-yaml")
-        LOG.info(f"Step dir:{step_dir}")
-        LOG.info(f"Step base name {step_name_base}")
-        LOG.info(f"Workflow yaml: {workflow_yaml}")
-        if os.path.exists(workflow_yaml):
-            with open(workflow_yaml) as wf:
-                workflows = yaml.load(wf, Loader=yaml.Loader)
-            if workflows is None:
-                workflows = dict()
-        else:
-            workflows = dict()
-        " Get list of yaml files in step directory"
-        step_files = list()
-        for file in os.listdir(step_dir):
-            " check the files which  start with step token "
-            if file.startswith("step"):
-                step_files.append(file)
-        for file_name in step_files:
-            wf_dict = dict()
-            wf_name = file_name.split('.yaml')[0]
-            wf_dict['name'] = wf_name
-            wf_dict['bps_name'] = None
-            wf_dict['issue_name'] = None
-            wf_dict['band'] = 'all'
-            wf_dict['step_name'] = step_name_base
-            wf_dict['bps_dir'] = step_dir
-            if wf_name not in workflows:
-                workflows[wf_name] = wf_dict
-        LOG.info("created workflow")
-        with open(workflow_yaml, 'w') as wf:
-            yaml.dump(workflows, wf)
-        print(workflows)
-        LOG.info("Finish with make_workflow_yaml")
 
     @staticmethod
     def create_step_yaml(step_yaml,
@@ -1491,10 +1247,10 @@ class DRPUtils:
             "Get workflows for the step from workflow_base"
             for file_name in os.listdir(wf_path):
                 # check the files which  start with step token
-                if file_name.startswith(step_name):
+                if str(file_name).startswith(step_name):
                     wf_data = dict()
-                    wf_name = file_name.split('.yaml')[0]
-                    bps_path = os.path.join(workflow_dir, file_name)
+                    wf_name = str(file_name).split('.yaml')[0]
+                    bps_path = os.path.join(workflow_dir, str(file_name))
                     LOG.info(f"wf_name {wf_name}")
                     LOG.info(f"bps_path {bps_path}")
                     wf_data['name'] = wf_name

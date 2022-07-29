@@ -111,8 +111,8 @@ class GetButlerStat:
 
         Notes
         -----
-        The yaml file should be file created by the lsst.pipe.base.timeMethod
-        decorator as applied to pipetask methods.
+        The yaml file should be a file created by the lsst.pipe.base.timeMethod
+        decorator as applied to the pipe task methods.
         """
 
         time_types = "Cpu User System".split()

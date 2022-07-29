@@ -303,7 +303,7 @@ class CampaignN:
                     else:
                         step_issue = step.to_jira(jira, None)
                         step_specs["issue_name"] = step_issue
-                    step.to_jira(jira, step_issue, replace=replace, cascade=cascade)
+                    step.to_jira(jira, step_issue, replace=replace)
             " Now steps are created or updated make new yaml file"
             s_dir = Path(staging_dir)
             campaign_file = s_dir.joinpath("campaign.yaml")
@@ -328,7 +328,7 @@ class CampaignN:
                                     f"{file_name} already exists in {issue}; not saving."
                                 )
                     LOG.info(f"attachment file {full_file_path}")
-                    jira.add_attachment(issue, attachment=str(full_file_path))
+                    jira.add_attachment(str(issue), attachment=str(full_file_path))
                     LOG.debug(f"Added {file_name} to {issue}")
         return str(issue)
 

@@ -117,6 +117,36 @@ class StepN:
             step.workflows = dict()
         return step
 
+    def __getitem__(self, item):
+        """abstract getitem method """
+        if item == 'name':
+            return self.name
+        elif item == 'issue_name':
+            return self.issue_name
+        elif item == 'campaign_issue':
+            return self.campaign_issue
+        elif item == 'workflow_base':
+            return self.workflow_base
+        elif item == 'workflows':
+            return self.workflows
+        else:
+            return ''
+
+    def __setitem__(self, item, value):
+        """ abstract method to set items in the class """
+        if item == 'name':
+            self.name = value
+        elif item == 'issue_name':
+            self.issue_name = value
+        elif item == 'campaign_issue':
+            self.campaign_issue = value
+        elif item == 'workflow_base':
+            self.workflow_base = value
+        elif item == 'workflows':
+            self.workflows = value
+        else:
+            print(f" There is now such item {item} in the class")
+
     def _generate_workflows(self, workflow_base, name):
         """Generate the workflows for this step.
 
@@ -135,6 +165,7 @@ class StepN:
         """
         "scan workflow base for bps yaml files "
         LOG.info(f"in generate_workflows workflow_base {workflow_base}")
+        workflows = dict()
         if self.workflows is not None:
             workflows = deepcopy(self.workflows)
         else:
@@ -161,10 +192,12 @@ class StepN:
         """ Read yaml file line by line and return a list of lines
         Parameters
         ----------
-        file_ath: `pathlib.Path`
+        file_path: `pathlib.Path`
            yaml file name with path
 
-        Returns: `list(str)`
+        Returns
+        -------
+        `list(str)`
             content of the file
         """
         result = list()
@@ -285,7 +318,7 @@ class StepN:
                                     f"{file_name} already exists in {self.issue_name}; not saving."
                                 )
                     LOG.info(f" Full file path {full_file_path}")
-                    jira.add_attachment(issue, attachment=str(full_file_path))
+                    jira.add_attachment(str(issue), attachment=str(full_file_path))
                     LOG.info(f"Added {file_name} to {self.issue_name}")
             " Now copy workflow yaml files to step issue "
             for wf_name in self.workflows:
@@ -305,7 +338,7 @@ class StepN:
                                     f"{file_name} already exists in {self.issue_name}; not saving."
                                 )
                     LOG.info(f" Full file path {full_file_path}")
-                    jira.add_attachment(issue, attachment=str(full_file_path))
+                    jira.add_attachment(str(issue), attachment=str(full_file_path))
                     LOG.info(f"Added {file_name} to {issue}")
         return self.issue_name
 

@@ -672,12 +672,12 @@ class GetPanDaStat:
         tabula.scale(1.2, 1.2)  # change size table
         plt.savefig(self.data_path.joinpath(f"{table_name}-{self.Jira}.png"), transparent=True)
         plt.show()
-        html_buff = data_frame.to_html(index=True)
+        html_buff = data_frame.to_html()
         html_file = open(self.data_path.joinpath(f"{table_name}-{self.Jira}.html"), "w")
         html_file.write(html_buff)
         html_file.close()
-        data_frame.to_csv(self.data_path.joinpath(f"{table_name}-{self.Jira}.csv"), index=True)
-        csbuf = data_frame.to_csv(index=True)
+        data_frame.to_csv(self.data_path.joinpath(f"{table_name}-{self.Jira}.csv"), )
+        csbuf = data_frame.to_csv()
         self.make_table_from_csv(csbuf, table_name, index_name, comment)
 
     def get_old(self):
