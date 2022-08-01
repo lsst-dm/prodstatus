@@ -10,3 +10,6 @@ setupRequired(daf_butler)
 # See https://dmtn-001.lsst.io for details on LSST_LIBRARY_PATH.
 envPrepend(PYTHONPATH, ${PRODUCT_DIR}/python)
 envPrepend(PATH, ${PRODUCT_DIR}/bin)
+
+# The following is general PANDA page for GetPandaStat.py
+envPrepend(PANDABASEDIR, "//panda-doma.cern.ch/")

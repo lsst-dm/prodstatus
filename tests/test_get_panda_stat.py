@@ -29,6 +29,8 @@ import json
 
 from lsst.prodstatus.GetPanDaStat import GetPanDaStat
 
+os.environ['PANDABASEDIR'] = '//panda-doma.cern.ch/'
+
 TEST_PANDA_QUERY_FNAME = os.path.join(
     os.environ["PRODSTATUS_DIR"], "tests", "data", "panda_query_results.json.gz"
 )
@@ -40,6 +42,7 @@ TEST_PANDA_STAT_PARAM_FNAME = os.path.join(
 
 def _mock_query_panda(self, urlst):
     fname = TEST_PANDA_QUERY_FNAME
+    captured = {}
     this_open = gzip.open if fname.endswith(".gz") else open
     try:
         with this_open(fname, "rt", encoding="UTF-8") as in_io:
@@ -48,7 +51,6 @@ def _mock_query_panda(self, urlst):
         captured = {}
 
     result = captured[urlst]
-
     return result
 
 

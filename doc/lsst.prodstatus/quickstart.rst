@@ -9,60 +9,8 @@ Collected statistics in form of plots and tables can be reported to correspondin
 Obtaining the package -- initial setup
 ======================================
 
-::
+see:`install.rst. <install.rst/>`_
 
-   setup lsst_distrib
-
-   git clone https://github.com/lsst-dm/prodstatus.git
-
-   cd prodstatus
-
-   setup prodstatus -r .
-
-   scons
-
-Notes on Compiling the package the first time and Running tests
----------------------------------------------------------------
-
-::
-
-   scons
-   -----
-
-This makes copies the prodstat from ``bin.src`` to ``bin`` dir and compiles anything that needs
-compiling (in this case its pure python so no compiling), it also makes sure the python
-is setup in the right place this only needs to be run once after checking out or updating
-
-Not all tests may pass, but proceed for now.
-
-After this initial 'scons', for subsequent runs of prodstat commands,
-it is sufficient to run::
-
-  setup lsst_distrib;
-  cd prodstatus;
-  setup prodstatus -r .
-
-  in prodstatus directory
-
-If you haven't changed any binaries or added any new python files, you don't
-have to run scons again.
-
-Set up the package -- subsequent setups
-=======================================
-See :doc:`prodstatus-install`.
-
-::
-
-   setup lsst_distrib ; # if you have not done so already
-
-   cd prodstatus; #if you are not there already
-
-   setup prodstatus -r .
-
-If you wont to avoid `cd prodstatus`,
-you can also do `setup prodstatus -r <mypathtoprodstatus>`
-
-where it will find the `ups/prodstatus.table` file to complete the EUPS setup of the product.
 
 Using the package
 -----------------
@@ -79,42 +27,13 @@ Usage:
 
   `prodstat [OPTIONS] COMMAND [ARGS]...`
 
-Options:
+To get help on a command:
 
 ::
 
-  `--help  Show this message and exit.`
+  `prodstat COMMAND --help`
 
-Commands:
-
-::
-
- `add-job-to-summary`:     Add a summary to a job summary table.
- `get-butler-stat`:        Build production statistics tables using Butler.
- `get-panda-stat`:         Build production statistics tables using PanDa.
- `make-prod-groups`:       Split a list of exposures into groups defined in yaml.
- `map-drp-steps`:          Update description of a step, by parsing the map...
- `plot-data`:              Create timing data of the campaign jobs.
- `prep-timing-data`:       Create timing data of the campaign jobs Parameters.
- `report-to-jira`:         Report production statistics to a Jira ticket.
- `update-issue`:           Update or create a DRP issue.
- `update-stat`:            Update issue statistics.
- `create-campaign-yaml`:  Creates campaign yaml template.
- `create-step-yaml`:      Creates step yaml.
- `update-campaign`:       Creates or updates campaign.
- `update-step`:           Creates/updates step.
- `create-campaign-yaml`:  Creates campaign yaml template.
- `create-step-yaml`:      Creates step yaml.
- `update-campaign`:       Creates or updates campaign.
- `update-step`:           Creates/updates step.
-
-Obtaining help on command
--------------------------
-
-::
-
-   `prodstat COMMAND --help`
-
+.. _test-install:
 Organizing production
 =====================
 
@@ -140,22 +59,6 @@ Sample DP0.2 tract list, explist, templates, and clustering yaml memoryRequest y
 
 https://github.com/lsst-dm/dp02-processing/tree/main/full/rehearsal/PREOPS-938
 
-On your data-int.lsst.cloud node, to enable running scripts, like ``update-issue``, etc
-one needs to install Jira locally in you home area and add a login credential .netrc file.
-To install Jira do this::
-
-  `pip install jira`
-
-If a local install of Jira is not an option,
-You may also be able to find the Jira packages in the standard lsst_distrib stack eventually,
-or with an additional setup beyond setup lsst_distrib.
-
-Until tokens are enabled for Jira access, one can use a .netrc file for Jira authentication.
-Please ask for help if you need it here for Jira authentication.  Note that if you
-fail to login correctly a few times, Jira will require you to use a captcha to get back in.
-The easiest way to to this is to use the web-browser JIRA interface to log in correctly
-one time and answer the captcha correctly, then the python API interface with .netrc (updated
-if necesssary) will work again.
 
 submit a job to bps, record it in an issue
 ------------------------------------------

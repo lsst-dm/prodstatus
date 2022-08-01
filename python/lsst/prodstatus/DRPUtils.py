@@ -595,7 +595,7 @@ class DRPUtils:
             nFin = status[2]
             nFail = status[3]
             nSubF = status[4]
-            statstring = f"{str(nT)},{str(nFile)},{str(nFin)},{str(nFail)},{str(nSubF)}"
+            statstring = f"{nT},{nFile},{nFin},{nFail},{nSubF}"
             scolor = "black"
             # print(statstring,nT,nFile,nFin,nFail,nSubF)
             if nFail > 0:
@@ -619,9 +619,9 @@ class DRPUtils:
             if len(what) > 28:
                 what = what[0:28]
 
-            table_out += f"| {str(shortyear)}-{str(shortmon)}-{str(shortday)} | ["
-            table_out += f"{str(in_dict[i][0])}|https://jira.lsstcorp.org/browse/{str(in_dict[i][0])}] | "
-            table_out += f"{str(in_dict[i][1])}|" + "{color:" + scolor + "}"
+            table_out += f"| {shortyear}-{shortmon}-{shortday} | ["
+            table_out += f"{in_dict[i][0]}|https://jira.lsstcorp.org/browse/{in_dict[i][0]}] | "
+            table_out += f"{in_dict[i][1]}|" + "{color:" + scolor + "}"
             table_out += f"{statstring}" + "{color}" + f"| [pDa|{in_dict[i][3]}] |{str(what)}|\n"
 
         return table_out
@@ -647,7 +647,7 @@ class DRPUtils:
                 nFin = status[2]
                 nFail = status[3]
                 nSubF = status[4]
-                statstring = f"{str(nT)},{str(nFile)},{str(nFin)},{str(nFail)},{str(nSubF)}"
+                statstring = f"{nT},{nFile},{nFin},{nFail},{nSubF}"
                 scolor = "black"
                 if nFail > 0:
                     scolor = "red"
@@ -667,11 +667,11 @@ class DRPUtils:
                 what = in_dict[i][4]
                 if len(what) > 25:
                     what = what[0:25]
-                table_out += f"| {str(shortyear)}-{str(shortmon)}-{str(shortday)} | [{str(in_dict[i][0])}"
-                table_out += f"|https://jira.lsstcorp.org/browse/{str(in_dict[i][0])}] | {str(in_dict[i][1])}"
+                table_out += f"| {shortyear}-{shortmon}-{shortday} | [{in_dict[i][0]}"
+                table_out += f"|https://jira.lsstcorp.org/browse/{in_dict[i][0]}] | {in_dict[i][1]}"
                 table_out += "|{color:" + scolor + "}"
                 table_out += f"{statstring}" + "{color} | [pDa|"
-                table_out += f"{in_dict[i][3]}] |{str(what)}|\n"
+                table_out += f"{in_dict[i][3]}] |{what}|\n"
         return table_out
 
     @staticmethod
@@ -733,7 +733,7 @@ class DRPUtils:
         sissue = a_jira.issue(stepissue)
 
         sissue.update(fields={"description": newdesc})
-        print(f"description updated for: {str(sissue)}")
+        print(f"description updated for: {sissue}")
         for attachment in sissue.fields.attachment:
             if os.path.basename(map_yaml) == attachment.filename:
                 print("removing old attachment from issue")

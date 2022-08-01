@@ -79,6 +79,11 @@ class GetPanDaStat:
         self.old_stat = dict()
         self.last_workflow = 0.
         self.last_stat = 0.
+        " Get PANDABASEDIR from environment, should be set in setup prodstatus"
+        self.panda_base_dir = str(os.environ.get('PANDABASEDIR'))
+        if self.panda_base_dir is None:
+            print("Please run setup prodstatus to set PANDABASEDIR environment variable")
+            sys.exit(1)
         app_name = "ProdStat"
         app_author = os.environ.get('USERNAME')
         data_dir = user_data_dir(app_name, app_author)
@@ -93,12 +98,7 @@ class GetPanDaStat:
 
     def get_workflows(self):
         """First lets get all workflows with given keys."""
-        # TBD: Need to allow the IDDS top level URL be defined as a variable
-        # "http://panda-doma.cern.ch/idds/wfprogress_gcp/?json"
-        # "it was http://panda-doma.cern.ch/idds/wfprogress/?json"
-
-        # panda_query = u"http://panda-doma.cern.ch/idds/wfprogress_gcp/?json"
-        panda_query = u"http://panda-doma.cern.ch/idds/wfprogress/?json"
+        panda_query = f"http:{self.panda_base_dir}idds/wfprogress/?json"
         workflow_data = self.query_panda(
             panda_query
         )
@@ -182,7 +182,7 @@ class GetPanDaStat:
 
         urls = workflow["r_name"]
         tasks = self.query_panda(
-            f"http://panda-doma.cern.ch/tasks/?taskname={urls}*&days=120&json"
+            f"http:{self.panda_base_dir}tasks/?taskname={urls}*&days=120&json"
         )
         return tasks
 
@@ -205,7 +205,7 @@ class GetPanDaStat:
 
         # Now select a number of jobs to calculate average cpu time and max Rss
         uri = (
-            f"http://panda-doma.cern.ch/jobs/?jeditaskid={str(jeditaskid)}"
+            f"http:{self.panda_base_dir}jobs/?jeditaskid={str(jeditaskid)}"
             f"&limit={str(self.max_tasks)}&jobstatus=finished&json"
         )
         jobsdata = self.query_panda(uri)
@@ -662,8 +662,8 @@ class GetPanDaStat:
             additional text information to put at top of the table
         """
         fig, ax = plt.subplots(figsize=(20, 35))  # set size frame
-        ax.xaxis.set_visible(False)  # hide the x axis
-        ax.yaxis.set_visible(False)  # hide the y axis
+        ax.xaxis.set_visible(False)  # hide the x-axis
+        ax.yaxis.set_visible(False)  # hide the y-axis
         ax.set_frame_on(False)  # no visible frame, uncomment if size is ok
         tabula = table(ax, data_frame, loc="upper right")
         tabula.auto_set_font_size(False)  # Activate set fontsize manually
