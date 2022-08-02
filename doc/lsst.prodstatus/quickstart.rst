@@ -68,7 +68,7 @@ Do this:
 ::
 
   `bps submit clusttest-all-1.yaml`
-  `prodstat issue-update clusttest-all-1.yaml PREOPS-XXX`
+  `prodstat update-issue clusttest-all-1.yaml PREOPS-XXX`
 
 (this will return a new DRP-YYY issue number -- make a note of the DRP-YYY number issued)
 
