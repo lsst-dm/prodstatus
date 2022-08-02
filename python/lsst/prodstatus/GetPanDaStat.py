@@ -79,10 +79,10 @@ class GetPanDaStat:
         self.old_stat = dict()
         self.last_workflow = 0.
         self.last_stat = 0.
-        " Get PANDABASEDIR from environment, should be set in setup prodstatus"
-        self.panda_base_dir = str(os.environ.get('PANDABASEDIR'))
-        if self.panda_base_dir is None:
-            print("Please run setup prodstatus to set PANDABASEDIR environment variable")
+        " Get PANDABASEURL from environment, should be set in setup prodstatus"
+        self.panda_base_url = str(os.environ.get('PANDABASEURL'))
+        if self.panda_base_url is None:
+            print("Please run setup prodstatus to set PANDABASEURL environment variable")
             sys.exit(1)
         app_name = "ProdStat"
         app_author = os.environ.get('USERNAME')
@@ -98,7 +98,7 @@ class GetPanDaStat:
 
     def get_workflows(self):
         """First lets get all workflows with given keys."""
-        panda_query = f"http:{self.panda_base_dir}idds/wfprogress/?json"
+        panda_query = f"http:{self.panda_base_url}idds/wfprogress/?json"
         workflow_data = self.query_panda(
             panda_query
         )
@@ -182,7 +182,7 @@ class GetPanDaStat:
 
         urls = workflow["r_name"]
         tasks = self.query_panda(
-            f"http:{self.panda_base_dir}tasks/?taskname={urls}*&days=120&json"
+            f"http:{self.panda_base_url}tasks/?taskname={urls}*&days=120&json"
         )
         return tasks
 
@@ -205,7 +205,7 @@ class GetPanDaStat:
 
         # Now select a number of jobs to calculate average cpu time and max Rss
         uri = (
-            f"http:{self.panda_base_dir}jobs/?jeditaskid={str(jeditaskid)}"
+            f"http:{self.panda_base_url}jobs/?jeditaskid={str(jeditaskid)}"
             f"&limit={str(self.max_tasks)}&jobstatus=finished&json"
         )
         jobsdata = self.query_panda(uri)

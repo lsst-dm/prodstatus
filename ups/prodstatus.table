@@ -12,4 +12,4 @@ envPrepend(PYTHONPATH, ${PRODUCT_DIR}/python)
 envPrepend(PATH, ${PRODUCT_DIR}/bin)
 
 # The following is general PANDA page for GetPandaStat.py
-envPrepend(PANDABASEDIR, "//panda-doma.cern.ch/")
+envPrepend(PANDABASEURL, "//panda-doma.cern.ch/")

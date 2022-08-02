@@ -29,7 +29,7 @@ import json
 
 from lsst.prodstatus.GetPanDaStat import GetPanDaStat
 
-os.environ['PANDABASEDIR'] = '//panda-doma.cern.ch/'
+os.environ['PANDABASEURL'] = '//panda-doma.cern.ch/'
 
 TEST_PANDA_QUERY_FNAME = os.path.join(
     os.environ["PRODSTATUS_DIR"], "tests", "data", "panda_query_results.json.gz"
