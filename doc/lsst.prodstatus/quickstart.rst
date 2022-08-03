@@ -9,7 +9,7 @@ Collected statistics in form of plots and tables can be reported to correspondin
 Obtaining the package -- initial setup
 ======================================
 
-see:`install.rst. <install.rst/>`_
+see:`install.rst. <installing.rst/>`_
 
 
 Using the package
