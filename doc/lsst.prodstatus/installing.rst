@@ -47,7 +47,7 @@ it is sufficient to run::
 If you haven't changed any binaries or added any new python files, you don't
 have to run scons again.
 
-If you wont to avoid `cd prodstatus`,
+If you want to avoid `cd prodstatus`,
 you can also do `setup prodstatus -r <my_path_to_prodstatus>`
 
 where it will find the `ups/prodstatus.table` file to complete the EUPS setup of the product.
@@ -75,5 +75,5 @@ The structure of the file should look like following:
     login <username>
     password <user password>
 
-Be sure to set 600 permission on the file.
+Be sure to set 0600 permission on the file.
 

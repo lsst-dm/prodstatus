@@ -108,7 +108,7 @@ Update Butler, Panda Stats when job is partially complete and again when done:
 When job completes, or while still running (panDa workflow shows it in a 'transforming' state),
 you can update the stats table in the DRP-YYY ticket with this call::
 
-  `prodstat update-stat PREOPS_XXX DRP-YYY`
+  `prodstat update-stat PREOPS-XXX DRP-YYY`
 
 this will take several minute to query the butler, panda and generate the updated stats
 
@@ -226,13 +226,13 @@ The inpfile.yaml has following format:
 
 This program will scan butler registry to select _metadata files for
 tasks in given workflow. Those metadata files will be copied one by
-one into ``/tmp/tempTask.yaml`` file from which maxRss and CPU time usage
+one into a temporary file from which maxRss and CPU time usage
 will be extracted.  The program collects these data for each task type
 and calculates total CPU usage for all tasks of the type. At the end
 total CPU time used by all workflows and maxRss will be calculated and
 resulting table will be created as `<user_data_dir>`/butlerStat-PREOPS-XXX.png
 file. The text version of the table used to put in Jira comment is
-also created as `<user_data_dir>`/butlerStat-PREOPS-XXX.txt
+also created as `<user_data_dir>`/butlerStat-PREOPS-XXX.txt.
 
 Options:
 
@@ -247,7 +247,7 @@ get-panda-stat
 
 Call::
 
-  `prodstat get-panda-stat  inpfile.yaml`
+  `prodstat get-panda-stat inpfile.yaml`
 
 The input file format is exactly same as for get-butler-stat command.
 

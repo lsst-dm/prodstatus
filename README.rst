@@ -7,6 +7,10 @@ Collected statistics in form of plots and tables can be reported to correspondin
 
 For a "quick start" guide, see: `doc/lsst.prodstatus/quickstart.rst. <doc/lsst.prodstatus/quickstart.rst/>`_
 
+Step-by-step prodstat command sequence for a short sample campaign is described here: `doc/lsst.prodstatus/sample.rst <doc/lsst.prodstatus/sample.rst/>`
+
+Links to the Jira issues which track the DP0.2 campaign may be browsed here: `DRP-473 <https://jira.lsstcorp.org/browse/DRP-473>`
+
 Quick reminders
 ---------------
 
