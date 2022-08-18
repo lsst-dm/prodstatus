@@ -425,12 +425,11 @@ class DRPUtils:
         bh_file = self.data_path.joinpath(f"butlerStat-{str(pissue)}.csv").absolute()
         if bh_file.exists():
             os.remove(bh_file)
-        get_panda_stat = GetPanDaStat(**in_pars)
         get_butler_stat = GetButlerStat(**in_pars)
         get_butler_stat.run()
-        butpath=self.data_path.absolute()
+        butpath = self.data_path.absolute()
         butfn = f"/butlerStat-{str(pissue)}.txt"
-        butfilename=str(butpath)+str(butfn)
+        butfilename = str(butpath)+str(butfn)
         if os.path.exists(butfilename):
             with open(butfilename, 'r') as fbstat:
                 butstat = fbstat.read()
@@ -448,7 +447,7 @@ class DRPUtils:
             os.remove(st_file)
         get_panda_stat = GetPanDaStat(**in_pars)
         get_panda_stat.run()
-        panstatfilename=str(butpath)+str(f"/pandaWfStat-{str(pissue)}.csv")
+        panstatfilename = str(butpath)+str(f"/pandaWfStat-{str(pissue)}.csv")
         if os.path.exists(panfilename):
             with open(panfilename, 'r') as fpstat:
                 statstr = fpstat.read()
