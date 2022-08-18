@@ -25,6 +25,7 @@ import re
 import io
 import yaml
 from yaml import load, FullLoader
+from appdirs import user_data_dir
 from pathlib import Path
 
 "from tempfile import TemporaryDirectory"
@@ -414,24 +415,44 @@ class DRPUtils:
         in_pars["collType"] = ts.upper()
         in_pars["workNames"] = ""
         in_pars["maxtask"] = 100
-        in_pars["start_date"] = "1970-01-01"
+        in_pars["start_date"] = "2021-01-01"
         in_pars["stop_date"] = datetime.datetime.now().isoformat()[:10]
+        app_name = "ProdStat"
+        app_author = os.environ.get('USERNAME')
+        data_dir = user_data_dir(app_name, app_author)
+        self.data_path = Path(data_dir)
+        print("cleaning butler history")
+        bh_file = self.data_path.joinpath(f"butlerStat-{str(pissue)}.csv").absolute()
+        if bh_file.exists():
+            os.remove(bh_file)
+        get_panda_stat = GetPanDaStat(**in_pars)
         get_butler_stat = GetButlerStat(**in_pars)
         get_butler_stat.run()
-        butfilename = f"/tmp/butlerStat-{str(pissue)}.txt"
+        butpath=self.data_path.absolute()
+        butfn = f"/butlerStat-{str(pissue)}.txt"
+        butfilename=str(butpath)+str(butfn)
         if os.path.exists(butfilename):
             with open(butfilename, 'r') as fbstat:
                 butstat = fbstat.read()
         else:
             butstat = "\n"
-        panfilename = f"/tmp/pandaStat-{str(pissue)}.txt"
+        panfn = f"/pandaStat-{str(pissue)}.txt"
+        panfilename = str(butpath)+str(panfn)
         in_pars["collType"] = ts.lower()
+        print("cleaning panda history")
+        wf_file = self.data_path.joinpath(f"pandaWfStat-{str(pissue)}.csv").absolute()
+        st_file = self.data_path.joinpath(f"pandaStat-{str(pissue)}.csv").absolute()
+        if wf_file.exists():
+            os.remove(wf_file)
+        if st_file.exists():
+            os.remove(st_file)
         get_panda_stat = GetPanDaStat(**in_pars)
         get_panda_stat.run()
+        panstatfilename=str(butpath)+str(f"/pandaWfStat-{str(pissue)}.csv")
         if os.path.exists(panfilename):
             with open(panfilename, 'r') as fpstat:
                 statstr = fpstat.read()
-            with open(f"/tmp/pandaWfStat-{str(pissue)}.csv", "r") as fstat:
+            with open(panstatfilename, "r") as fstat:
                 fstat.readline()
                 line2 = fstat.readline()
                 a = line2.split(",")
@@ -520,10 +541,10 @@ class DRPUtils:
         pattern1 = re.compile("(.*)tract in (.*)")
         pattern1a = re.compile("(.*)tract *=( *[0-9]*)")
         pattern1b = re.compile("(.*)tract *>=([0-9]*) and tract *<=( *[0-9]*)")
-        pattern2 = re.compile("(.*)exposure >=([0-9]*) and exposure <=( *[0-9]*)")
-        pattern2b = re.compile("(.*)visit *>=([0-9]*) and visit *<=( *[0-9]*)")
+        pattern2 = re.compile("(.*)exposure >=( *[0-9]*) and exposure <=( *[0-9]*)")
+        pattern2b = re.compile("(.*)visit *>=( *[0-9]*) and visit *<=( *[0-9]*)")
         pattern2a = re.compile(
-            "(.*)detector>=([0-9]*).*exposure >=( *[0-9]*) and exposure <=( *[0-9]*)"
+            "(.*)detector>=( *[0-9]*).*exposure >=( *[0-9]*) and exposure <=( *[0-9]*)"
         )
         pattern3 = re.compile(
             "(.*)Status:.*nTasks:(.*)nFiles:(.*)nRemain.*nProc: nFinish:(.*) nFail:(.*) nSubFinish:(.*)"
