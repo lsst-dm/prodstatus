@@ -36,7 +36,6 @@ import pandas as pd
 from pandas.plotting import table
 from lsst.daf.butler import Butler
 from lsst.prodstatus import LOG
-
 # PropertySet needs to be imported to load the butler yaml.
 from lsst.daf.base import PropertySet  # noqa: F401
 
@@ -233,11 +232,11 @@ class GetButlerStat:
 
         Returns
         -------
-        collections : `list`
+        data_collections : `list`
             A list of collections.
         """
 
-        collections = list()
+        data_collections = list()
         pre_ops = self.jira_ticket
         for c in sorted(self.registry.queryCollections()):
             if pre_ops in str(c) and self.collection_type in str(c):
@@ -246,12 +245,12 @@ class GetButlerStat:
                     key = sub_str.split('/')[-1]
                     date_stamp = datetime.datetime.strptime(key, "%Y%m%dT%H%M%SZ").timestamp()
                     if self.last_stat <= date_stamp <= self.stop_stamp:
-                        collections.append(c)
+                        data_collections.append(c)
                         self.collection_keys[c] = key
         print("selected collections ")
-        for key in collections:
+        for key in data_collections:
             print(f"{key}")
-        return collections
+        return data_collections
 
     def make_sum(self, task_size, task_res):
         """Calculate max RSS.
@@ -309,53 +308,40 @@ class GetButlerStat:
             "MaxRSS GB": float(max_s / 1048576.0),
         }
 
-    def get_task_data(self, collections):
+    def get_task_data(self, data_collections):
         """Collect datasets & IDs for collections in subsets of IDs by type.
 
         Parameters
         ----------
-        collections : `list`
+        data_collections : `list`
             list of data collection
         """
 
         data_type_pattern = ".*_metadata"
         pattern = re.compile(data_type_pattern)
-        for collection in collections:
-            try:
-                dataset_refs = self.registry.queryDatasets(
-                    pattern, collections=collection
-                )
-            except OSError():
-                print(f"No datasets found for: {collection}")
-                continue
-                #
+        grouped_after_set = list()
+        for collection in data_collections:
+            for ref in set(self.registry.queryDatasets(pattern, collections=collection)):
+                grouped_after_set.append(ref)
+            #
             k = 0
             lc = 0  # task counter
             task_size = dict()
             task_refs = dict()
-            curr_task = ''
-            _refs = list()
-            first = True
-            for i, data_ref in enumerate(dataset_refs):
+            _refs = defaultdict(list)
+            for i, data_ref in enumerate(grouped_after_set):
                 k += 1
-                task_name = str(data_ref).split("_")[0]
+                task_name = str(data_ref.datasetType.name).split("_")[0]
                 if task_name not in task_size:
-                    if first:
-                        curr_task = task_name
-                        first = False
-                    else:
-                        task_refs[curr_task] = _refs
-                        curr_task = task_name
+                    _refs[task_name].append(data_ref)
                     lc = 0
                     task_size[task_name] = 1
-                    _refs = [data_ref]
                 else:
                     task_size[task_name] += 1
                     lc += 1
                     if lc < self.max_task:
-                        _refs.append(data_ref)
-                    #                    else:
-                task_refs[task_name] = _refs
+                        _refs[task_name].append(data_ref)
+                task_refs[task_name] = _refs[task_name]
             self.collection_data[collection] = task_refs
             self.collection_size[collection] = task_size
 
