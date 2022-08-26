@@ -52,7 +52,7 @@ class GetButlerStat:
     Jira : `str`
         Jira ticket identifying production campaign used
         to select campaign workflows
-    CollType : `str`
+    CollTypes : `list`
         token that with jira ticket will uniquely define the campaign workflows
     startTime : `str`
         time to start selecting workflows from in Y-m-d format
@@ -68,7 +68,8 @@ class GetButlerStat:
             self.butler = kwargs["Butler"]
         else:
             self.butler = ""
-        self.collection_type = kwargs["collType"]
+        self.collection_types = kwargs["collTypes"]
+        self.collection_type = ''
         self.jira_ticket = kwargs["Jira"]
         self.start_date = kwargs["start_date"]
         self.stop_date = kwargs["stop_date"]
@@ -239,14 +240,15 @@ class GetButlerStat:
         data_collections = list()
         pre_ops = self.jira_ticket
         for c in sorted(self.registry.queryCollections()):
-            if pre_ops in str(c) and self.collection_type in str(c):
-                sub_str = str(c).split(pre_ops)[1]
-                if 'T' in sub_str and 'Z' in sub_str:
-                    key = sub_str.split('/')[-1]
-                    date_stamp = datetime.datetime.strptime(key, "%Y%m%dT%H%M%SZ").timestamp()
-                    if self.last_stat <= date_stamp <= self.stop_stamp:
-                        data_collections.append(c)
-                        self.collection_keys[c] = key
+            for self.collection_type in self.collection_types:
+                if pre_ops in str(c) and self.collection_type in str(c):
+                    sub_str = str(c).split(pre_ops)[1]
+                    if 'T' in sub_str and 'Z' in sub_str:
+                        key = sub_str.split('/')[-1]
+                        date_stamp = datetime.datetime.strptime(key, "%Y%m%dT%H%M%SZ").timestamp()
+                        if self.last_stat <= date_stamp <= self.stop_stamp:
+                            data_collections.append(c)
+                            self.collection_keys[c] = key
         print("selected collections ")
         for key in data_collections:
             print(f"{key}")

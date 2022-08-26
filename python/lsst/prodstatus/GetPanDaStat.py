@@ -48,7 +48,7 @@ class GetPanDaStat:
     Jira : `str`
         Jira ticket identifying production campaign used
         to select campaign workflows
-    CollType : `str`
+    CollTypes : `list`
         token that with jira ticket will uniquely define campaign workflows
     startTime : `str`
         time to start selecting workflows from in Y-m-d format
@@ -60,7 +60,8 @@ class GetPanDaStat:
 
     def __init__(self, **kwargs):
 
-        self.collection_type = kwargs["collType"]
+        self.collection_types = kwargs["collTypes"]
+        self.collection_type = ''
         self.Jira = kwargs["Jira"]
         self.start_date = kwargs["start_date"]
         self.stop_date = kwargs["stop_date"]
@@ -103,17 +104,18 @@ class GetPanDaStat:
             panda_query
         )
         comp = str(self.Jira).lower()
-        comp1 = str(self.collection_type).lower()
         nwf = 0
-        for wf in workflow_data:
-            r_name = wf["r_name"]
-            if comp in r_name and comp1 in r_name:
-                key = str(r_name).split("_")[-1]
-                date_str = str(key).lower()
-                date_stamp = datetime.datetime.strptime(date_str, "%Y%m%dt%H%M%Sz").timestamp()
-                if self.last_workflow < date_stamp <= self.stop_stamp:
-                    self.workflow_keys.append(str(key))
-                    nwf += 1
+        for self.collection_type in self.collection_types:
+            comp1 = str(self.collection_type).lower()
+            for wf in workflow_data:
+                r_name = wf["r_name"]
+                if comp in r_name and comp1 in r_name:
+                    key = str(r_name).split("_")[-1]
+                    date_str = str(key).lower()
+                    date_stamp = datetime.datetime.strptime(date_str, "%Y%m%dt%H%M%Sz").timestamp()
+                    if self.last_workflow < date_stamp <= self.stop_stamp:
+                        self.workflow_keys.append(str(key))
+                        nwf += 1
         self.log.info(f"number of workflows ={nwf}")
         if nwf == 0:
             self.log.warning("No workflows to work with -- exiting")
