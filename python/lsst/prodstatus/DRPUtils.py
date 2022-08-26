@@ -412,11 +412,12 @@ class DRPUtils:
         # run butler and/or panda stats for one timestamp.
         in_pars["Butler"] = "s3://butler-us-central1-panda-dev/dc2/butler-external.yaml"
         in_pars["Jira"] = str(pissue)
-        in_pars["collType"] = ts.upper()
+        in_pars["collTypes"] = [ts.upper()]
         in_pars["workNames"] = ""
         in_pars["maxtask"] = 100
         in_pars["start_date"] = "2021-01-01"
         in_pars["stop_date"] = datetime.datetime.now().isoformat()[:10]
+        print("in pars are:",in_pars)
         app_name = "ProdStat"
         app_author = os.environ.get('USERNAME')
         data_dir = user_data_dir(app_name, app_author)
@@ -437,7 +438,7 @@ class DRPUtils:
             butstat = "\n"
         panfn = f"/pandaStat-{str(pissue)}.txt"
         panfilename = str(butpath)+str(panfn)
-        in_pars["collType"] = ts.lower()
+        in_pars["collTypes"] = [ts.lower()]
         print("cleaning panda history")
         wf_file = self.data_path.joinpath(f"pandaWfStat-{str(pissue)}.csv").absolute()
         st_file = self.data_path.joinpath(f"pandaStat-{str(pissue)}.csv").absolute()
