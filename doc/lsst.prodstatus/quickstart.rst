@@ -218,7 +218,9 @@ The inpfile.yaml has following format:
    Jira: PREOPS-905 ; jira ticket information for which will be selected.
                     This can be replaced by any other token that will help to uniquely
                     identify the data collection.
-   collType: 2.2i ; a token which help to uniquely recognize required data collection
+   collTypes:  ; a list of tokens which help to uniquely recognize required data collection
+    - 'token1' ; this can be time stamp the workflow was created by BPS
+    - 'token2' ; time stamps should be put in chronological order
    maxtask: 30 ; maximum number of tasks to be analyzed to speed up the process
    start_date: '2022-01-30' ; dates to select data, which will help to skip previous production steps
    stop_date: '2022-02-02'
