@@ -417,7 +417,7 @@ class DRPUtils:
         in_pars["maxtask"] = 100
         in_pars["start_date"] = "2021-01-01"
         in_pars["stop_date"] = datetime.datetime.now().isoformat()[:10]
-        print("in pars are:",in_pars)
+        print("in pars are:", in_pars)
         app_name = "ProdStat"
         app_author = os.environ.get('USERNAME')
         data_dir = user_data_dir(app_name, app_author)
