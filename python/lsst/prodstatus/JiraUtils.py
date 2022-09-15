@@ -21,6 +21,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import netrc
 import io
+import os
 import yaml
 from jira import JIRA
 import argparse
@@ -35,7 +36,33 @@ class JiraUtils:
     def __init__(self):
         secrets = netrc.netrc()
         username, account, password = secrets.authenticators("lsstjira")
-        self.aut_jira = JIRA(options={"server": account}, basic_auth=(username, password))
+        enviro_dict = dict()
+        for item, value in os.environ.items():
+            enviro_dict[item] = value
+
+        if 'HTTPS_PROXY' in enviro_dict:
+            key_string = 'HTTPS_PROXY'
+            proxy_str = os.environ.get(key_string, '')
+        elif 'https_proxy' in enviro_dict:
+            key_string = 'https_proxy'
+            proxy_str = os.environ.get(key_string, '')
+        else:
+            proxy_str = ''
+#       protocol = 'http'
+        proxyip = '134.79.23.24'
+        port_str = '3128'
+        if proxy_str != '':
+            tokens = proxy_str.split(':')
+#            protocol = tokens[0]
+            proxyip = tokens[1].strip('/')
+            port_str = tokens[2]
+
+        if proxy_str != '':
+            self.aut_jira = JIRA(options={"server": account},
+                                 basic_auth=(username, password),
+                                 proxies={"http": f"{proxyip}:{port_str}", "https": f"{proxyip}:{port_str}"})
+        else:
+            self.aut_jira = JIRA(options={"server": account}, basic_auth=(username, password))
         self.user_name = username
         self.log = LOG
 
@@ -51,8 +78,35 @@ class JiraUtils:
         """
         secrets = netrc.netrc()
         username, account, password = secrets.authenticators("lsstjira")
+        enviro_dict = dict()
+        for item, value in os.environ.items():
+            enviro_dict[item] = value
+
+        if 'HTTPS_PROXY' in enviro_dict:
+            key_string = 'HTTPS_PROXY'
+            proxy_str = os.environ.get(key_string, '')
+        elif 'https_proxy' in enviro_dict:
+            key_string = 'https_proxy'
+            proxy_str = os.environ.get(key_string, '')
+        else:
+            proxy_str = ''
+#        protocol = 'http'
+        proxyip = '134.79.23.24'
+        port_str = '3128'
+        if proxy_str != '':
+            tokens = proxy_str.split(':')
+#            protocol = tokens[0]
+            proxyip = tokens[1].strip('/')
+            port_str = tokens[2]
+
+        if proxy_str != '':
+            self.aut_jira = JIRA(options={"server": account},
+                                 basic_auth=(username, password),
+                                 proxies={"http": f"{proxyip}:{port_str}", "https": f"{proxyip}:{port_str}"})
+        else:
+            self.aut_jira = JIRA(options={"server": account}, basic_auth=(username, password))
         self.user_name = username
-        self.aut_jira = JIRA(options={"server": account}, basic_auth=(username, password))
+        self.log = LOG
         return self.aut_jira, self.user_name
 
     def get_issue(self, ticket):
@@ -87,9 +141,10 @@ class JiraUtils:
             the issue ID
         """
         jql_str = f"project={project} AND issue={key}"
-        query = self.aut_jira.search_issues(jql_str=jql_str)
-        self.log.info(f"query={query}")
-        issue_id = int(query[0].id)
+        issues = self.aut_jira.search_issues(jql_str=jql_str)
+        my_issue = issues[0]
+        self.log.info(f"query={issues}")
+        issue_id = int(my_issue.id)
         self.log.info(f"Issue id={issue_id}")
         return issue_id
 
@@ -381,7 +436,7 @@ class JiraUtils:
         description = issue.raw["fields"]["description"]
         return description
 
-    def create_issue_link(self, link_type, inward_Issue_key, outward_Issue_key):
+    def create_issue_link(self, link_type, inward_issue_key, outward_issue_key):
         """
         Create a link between two issues.
             Parameters:
@@ -393,7 +448,7 @@ class JiraUtils:
                 outward_Issue_key: `str`
                     the issue to link to, like DRP-359
         """
-        self.aut_jira.create_issue_link(link_type, inward_Issue_key, outward_Issue_key)
+        self.aut_jira.create_issue_link(link_type, inward_issue_key, outward_issue_key)
 
 
 def main():
