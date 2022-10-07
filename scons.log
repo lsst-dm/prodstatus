@@ -1,0 +1,68 @@
+scons: Reading SConscript files ...
+Setting OS X binary compatibility level: 10.9
+EUPS integration: enabled
+Setting up environment to build package 'prodstatus'.
+Running pytest with 1 process
+pytest: automated test discovery mode enabled.
+scons: done reading SConscript files.
+scons: Building targets ...
+scons: Nothing to be done for `python'.
+scons: `shebang' is up to date.
+running global pytest... 
+============================= test session starts ==============================
+platform darwin -- Python 3.8.8, pytest-7.0.1, pluggy-1.0.0
+rootdir: /Users/kuropat/devel/prodstatus, configfile: setup.cfg
+plugins: subtests-0.7.0, openfiles-0.5.0, flake8-1.0.7, forked-1.4.0, doctestplus-0.12.0, session2file-0.1.11, xdist-2.5.0, cov-3.0.0
+collected 28 items / 27 deselected / 1 selected
+run-last-failure: rerun previous 1 failure
+
+tests/test_get_panda_stat.py .                                           [100%]
+
+=============================== warnings summary ===============================
+../../../../cvmfs/sw.lsst.eu/darwin-x86_64/lsst_distrib/v23.0.1.rc4/conda/envs/lsst-scipipe-0.8.0/lib/python3.8/site-packages/_pytest/nodes.py:146
+../../../../cvmfs/sw.lsst.eu/darwin-x86_64/lsst_distrib/v23.0.1.rc4/conda/envs/lsst-scipipe-0.8.0/lib/python3.8/site-packages/_pytest/nodes.py:146
+  /cvmfs/sw.lsst.eu/darwin-x86_64/lsst_distrib/v23.0.1.rc4/conda/envs/lsst-scipipe-0.8.0/lib/python3.8/site-packages/_pytest/nodes.py:146: PytestDeprecationWarning: <class 'pytest_flake8.Flake8Item'> is not using a cooperative constructor and only takes {'parent', 'fspath'}.
+  See https://docs.pytest.org/en/stable/deprecations.html#constructors-of-custom-pytest-node-subclasses-should-take-kwargs for more details.
+    warnings.warn(
+
+../../../../cvmfs/sw.lsst.eu/darwin-x86_64/lsst_distrib/v23.0.1.rc4/conda/envs/lsst-scipipe-0.8.0/lib/python3.8/site-packages/_pytest/nodes.py:672
+../../../../cvmfs/sw.lsst.eu/darwin-x86_64/lsst_distrib/v23.0.1.rc4/conda/envs/lsst-scipipe-0.8.0/lib/python3.8/site-packages/_pytest/nodes.py:672
+  /cvmfs/sw.lsst.eu/darwin-x86_64/lsst_distrib/v23.0.1.rc4/conda/envs/lsst-scipipe-0.8.0/lib/python3.8/site-packages/_pytest/nodes.py:672: PytestRemovedIn8Warning: The (fspath: py.path.local) argument to Flake8Item is deprecated. Please use the (path: pathlib.Path) argument instead.
+  See https://docs.pytest.org/en/latest/deprecations.html#fspath-argument-for-node-constructors-replaced-with-pathlib-path
+    super().__init__(
+
+../../../../cvmfs/sw.lsst.eu/darwin-x86_64/lsst_distrib/v23.0.1.rc4/conda/envs/lsst-scipipe-0.8.0/lib/python3.8/site-packages/_pytest/nodes.py:708
+  /cvmfs/sw.lsst.eu/darwin-x86_64/lsst_distrib/v23.0.1.rc4/conda/envs/lsst-scipipe-0.8.0/lib/python3.8/site-packages/_pytest/nodes.py:708: PytestWarning: Flake8Item is an Item subclass and should not be a collector, however its bases File are collectors.
+  Please split the Collectors and the Item into separate node types.
+  Pytest Doc example: https://docs.pytest.org/en/latest/example/nonpython.html
+  example pull request on a plugin: https://github.com/asmeurer/pytest-flakes/pull/40/
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /Users/kuropat/devel/prodstatus/tests/.tests/pytest-prodstatus.xml -
+
+---------- coverage: platform darwin, python 3.8.8-final-0 -----------
+Name                                      Stmts   Miss Branch BrPart  Cover
+---------------------------------------------------------------------------
+python/lsst/prodstatus/DRPUtils.py          425    396    120      0     6%
+python/lsst/prodstatus/GetButlerStat.py     286    260    105      0     7%
+python/lsst/prodstatus/GetPanDaStat.py      417     42    126     27    86%
+python/lsst/prodstatus/JiraUtils.py         145    112     38      1    20%
+python/lsst/prodstatus/__init__.py            4      0      0      0   100%
+python/lsst/prodstatus/version.py             5      0      0      0   100%
+tests/ProdstatusTestBase.py                  22      9      2      0    62%
+tests/test_add_job_to_summary.py             34     22      4      0    37%
+tests/test_get_panda_stat.py                 27      2      2      0    93%
+tests/test_make_prod_groups.py               58     41      8      0    29%
+tests/test_update_issue.py                   38     27      2      0    32%
+tests/test_update_stat.py                    26     14      2      0    50%
+---------------------------------------------------------------------------
+TOTAL                                      1487    925    409     28    35%
+Coverage HTML written to dir tests/.tests/pytest-prodstatus.xml-htmlcov
+Coverage XML written to file tests/.tests/pytest-prodstatus.xml-cov-prodstatus.xml
+
+================= 1 passed, 27 deselected, 5 warnings in 6.41s =================
+Global pytest run completed successfully
+scons: Nothing to be done for `examples'.
+scons: Nothing to be done for `doc'.
+scons: done building targets.
