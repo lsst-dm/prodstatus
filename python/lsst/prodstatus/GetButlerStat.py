@@ -539,8 +539,8 @@ class GetButlerStat:
                 wall_time = cpu_hours
             camp_cpu += float(wall_time)
             camp_jobs += self.workflow_res[task]["nQuanta"]
-            if float(self.workflow_res[task]["MaxRSS GB"]) >= camp_rss:
-                camp_rss = float(self.workflow_res[task]["MaxRSS GB"])
+            if float(self.workflow_res[task]["MaxRSS MB"]) >= camp_rss:
+                camp_rss = float(self.workflow_res[task]["MaxRSS MB"])
         all_tasks.append("Campaign")
         u_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
         camp_data = {
