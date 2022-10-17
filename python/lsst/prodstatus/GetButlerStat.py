@@ -277,7 +277,7 @@ class GetButlerStat:
                 CPU time per quanta (`float`)
             ``"cpu-hours"``
                 Total wall time for all quantas (`float`)
-            ``"MaxRSS GB"``
+            ``"MaxRSS MB"``
                 Maximum resident size of the task (`float`)
         """
 
@@ -307,7 +307,7 @@ class GetButlerStat:
             "startTime": time_start[0],
             "cpu sec/job": float(cpu_per_task),
             "cpu-hours": float(total_cpu),
-            "MaxRSS GB": float(max_s / 1048576.0),
+            "MaxRSS MB": float(max_s / 1048576.0),
         }
 
     def get_task_data(self, data_collections):
@@ -548,7 +548,7 @@ class GetButlerStat:
             "startTime": u_time,
             "cpu sec/job": camp_cpu_per_task,
             "cpu-hours": float(camp_cpu),
-            "MaxRSS GB": float(camp_rss),
+            "MaxRSS MB": float(camp_rss),
         }
         dt["campaign"] = camp_data
         for t_type in dt:
@@ -557,7 +557,7 @@ class GetButlerStat:
                 task["cpu-hours"] = str(datetime.timedelta(seconds=task["cpu-hours"]))
             if isinstance(task["cpu sec/job"], float):
                 task["cpu sec/job"] = round(task["cpu sec/job"], 2)
-            task["MaxRSS GB"] = round(task["MaxRSS GB"], 2)
+            task["MaxRSS MB"] = round(task["MaxRSS MB"], 2)
         pd.set_option("max_colwidth", 500)
         pd.set_option("display.precision", 1)
         _task_ids = dict()
