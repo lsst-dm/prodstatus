@@ -321,8 +321,8 @@ class GetButlerStat:
 
         data_type_pattern = ".*_metadata"
         pattern = re.compile(data_type_pattern)
-        grouped_after_set = list()
         for collection in data_collections:
+            grouped_after_set = list()
             for ref in set(self.registry.queryDatasets(pattern, collections=collection)):
                 grouped_after_set.append(ref)
             #
@@ -438,7 +438,7 @@ class GetButlerStat:
         self.registry = self.butler.registry
         self.get_task_data(collections)
         """
-        Process a list of datarefs, extracting the per-task resource usage
+        Process a list of data-refs, extracting the per-task resource usage
         info from the `*_metadata` yaml files.
         """
         verbose = True
@@ -446,11 +446,11 @@ class GetButlerStat:
         "Put old statistics in the workflow_res"
         self.workflow_res = dict()
         self.workflow_res = deepcopy(self.old_stat)
+        task_res = dict()
+        results = dict()
         for collection in collections:
             task_data = self.collection_data[collection]
             task_size = self.collection_size[collection]
-            task_res = dict()
-            results = dict()
             for task in task_data:
                 data = defaultdict(list)
                 data_refs = task_data[task]
