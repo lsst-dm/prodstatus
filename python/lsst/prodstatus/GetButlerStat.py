@@ -325,7 +325,7 @@ class GetButlerStat:
             grouped_after_set = list()
             for ref in set(self.registry.queryDatasets(pattern, collections=collection)):
                 grouped_after_set.append(ref)
-            #
+#
             k = 0
             lc = 0  # task counter
             task_size = dict()
