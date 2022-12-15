@@ -109,7 +109,8 @@ class GetPanDaStat:
             comp1 = str(self.collection_type).lower()
             for wf in workflow_data:
                 r_name = wf["r_name"]
-                if comp in r_name and comp1 in r_name:
+                comp3 = str(r_name).lower()
+                if comp in comp3 and comp1 in comp3:
                     key = str(r_name).split("_")[-1]
                     date_str = str(key).lower()
                     date_stamp = datetime.datetime.strptime(date_str, "%Y%m%dt%H%M%Sz").timestamp()
@@ -375,17 +376,16 @@ class GetPanDaStat:
 
     def get_tasks(self):
         """Select finished and sub finished workflow tasks."""
-
         for key in self.workflow_keys:
             self.workflow_tasks[key] = list()
             _workflows = self.workflows[key]
             for wf in _workflows:
                 if (
-                        str(wf["r_status"]) == "finished"
-                        or str(wf["r_status"]) == "subfinished"
-                        or str(wf["r_status"]) == "running"
-                        or str(wf["r_status"]) == "transforming"
-                        or str(wf["r_status"]) == "cancelling"
+                        str(wf["r_status"]).lower() == "finished"
+                        or str(wf["r_status"]).lower() == "subfinished"
+                        or str(wf["r_status"]).lower() == "running"
+                        or str(wf["r_status"]).lower() == "transforming"
+                        or str(wf["r_status"]).lower() == "cancelling"
                 ):
                     """get tasks for this workflow"""
                     tasks = self.get_workflow_tasks(wf)
@@ -663,17 +663,17 @@ class GetPanDaStat:
         comment : `str`
             additional text information to put at top of the table
         """
-        fig, ax = plt.subplots(figsize=(20, 35))  # set size frame
-        ax.xaxis.set_visible(False)  # hide the x-axis
-        ax.yaxis.set_visible(False)  # hide the y-axis
-        ax.set_frame_on(False)  # no visible frame, uncomment if size is ok
-        tabula = table(ax, data_frame, loc="upper right")
-        tabula.auto_set_font_size(False)  # Activate set fontsize manually
-        tabula.auto_set_column_width(col=list(range(len(data_frame.columns))))
-        tabula.set_fontsize(12)  # if ++fontsize is necessary ++colWidths
-        tabula.scale(1.2, 1.2)  # change size table
-        plt.savefig(self.data_path.joinpath(f"{table_name}-{self.Jira}.png"), transparent=True)
-        plt.show()
+#        fig, ax = plt.subplots(figsize=(20, 35))  # set size frame
+#        ax.xaxis.set_visible(False)  # hide the x-axis
+#        ax.yaxis.set_visible(False)  # hide the y-axis
+#        ax.set_frame_on(False)  # no visible frame, uncomment if size is ok
+#        tabula = table(ax, data_frame, loc="upper right")
+#        tabula.auto_set_font_size(False)  # Activate set fontsize manually
+#        tabula.auto_set_column_width(col=list(range(len(data_frame.columns))))
+#        tabula.set_fontsize(12)  # if ++fontsize is necessary ++colWidths
+#        tabula.scale(1.2, 1.2)  # change size table
+#        plt.savefig(self.data_path.joinpath(f"{table_name}-{self.Jira}.png"), transparent=True)
+#        plt.show()
         html_buff = data_frame.to_html()
         html_file = open(self.data_path.joinpath(f"{table_name}-{self.Jira}.html"), "w")
         html_file.write(html_buff)
