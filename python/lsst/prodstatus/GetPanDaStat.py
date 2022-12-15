@@ -32,10 +32,10 @@ import time
 from time import sleep, gmtime, strftime
 import datetime
 import math
-#import matplotlib.pyplot as plt
 import pandas as pd
-#from pandas.plotting import table
 from lsst.prodstatus import LOG
+#import matplotlib.pyplot as plt
+#from pandas.plotting import table
 
 __all__ = ['GetPanDaStat']
 
@@ -672,7 +672,8 @@ class GetPanDaStat:
 #        tabula.auto_set_column_width(col=list(range(len(data_frame.columns))))
 #        tabula.set_fontsize(12)  # if ++fontsize is necessary ++colWidths
 #        tabula.scale(1.2, 1.2)  # change size table
-#        plt.savefig(self.data_path.joinpath(f"{table_name}-{self.Jira}.png"), transparent=True)
+#        plt.savefig(self.data_path.joinpath(f"{table_name}-{self.Jira}.png"),
+#        transparent=True)
 #        plt.show()
         html_buff = data_frame.to_html()
         html_file = open(self.data_path.joinpath(f"{table_name}-{self.Jira}.html"), "w")
