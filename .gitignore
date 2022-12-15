@@ -10,7 +10,7 @@ config.log
 *Lib.py
 
 #PyCharm
-.idea
+.idea/
 
 # Built by sconsUtils
 version.py
