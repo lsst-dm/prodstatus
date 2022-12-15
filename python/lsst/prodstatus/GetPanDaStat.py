@@ -32,9 +32,9 @@ import time
 from time import sleep, gmtime, strftime
 import datetime
 import math
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import pandas as pd
-from pandas.plotting import table
+#from pandas.plotting import table
 from lsst.prodstatus import LOG
 
 __all__ = ['GetPanDaStat']
