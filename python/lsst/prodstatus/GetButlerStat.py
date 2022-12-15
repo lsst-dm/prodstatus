@@ -277,7 +277,7 @@ class GetButlerStat:
                 CPU time per quanta (`float`)
             ``"cpu-hours"``
                 Total wall time for all quantas (`float`)
-            ``"MaxRSS GB"``
+            ``"MaxRSS MB"``
                 Maximum resident size of the task (`float`)
         """
 
@@ -307,7 +307,7 @@ class GetButlerStat:
             "startTime": time_start[0],
             "cpu sec/job": float(cpu_per_task),
             "cpu-hours": float(total_cpu),
-            "MaxRSS GB": float(max_s / 1048576.0),
+            "MaxRSS MB": float(max_s / 1048576.0),
         }
 
     def get_task_data(self, data_collections):
@@ -321,11 +321,11 @@ class GetButlerStat:
 
         data_type_pattern = ".*_metadata"
         pattern = re.compile(data_type_pattern)
-        grouped_after_set = list()
         for collection in data_collections:
+            grouped_after_set = list()
             for ref in set(self.registry.queryDatasets(pattern, collections=collection)):
                 grouped_after_set.append(ref)
-            #
+#
             k = 0
             lc = 0  # task counter
             task_size = dict()
@@ -438,7 +438,7 @@ class GetButlerStat:
         self.registry = self.butler.registry
         self.get_task_data(collections)
         """
-        Process a list of datarefs, extracting the per-task resource usage
+        Process a list of data-refs, extracting the per-task resource usage
         info from the `*_metadata` yaml files.
         """
         verbose = True
@@ -446,11 +446,11 @@ class GetButlerStat:
         "Put old statistics in the workflow_res"
         self.workflow_res = dict()
         self.workflow_res = deepcopy(self.old_stat)
+        task_res = dict()
+        results = dict()
         for collection in collections:
             task_data = self.collection_data[collection]
             task_size = self.collection_size[collection]
-            task_res = dict()
-            results = dict()
             for task in task_data:
                 data = defaultdict(list)
                 data_refs = task_data[task]
@@ -539,8 +539,8 @@ class GetButlerStat:
                 wall_time = cpu_hours
             camp_cpu += float(wall_time)
             camp_jobs += self.workflow_res[task]["nQuanta"]
-            if float(self.workflow_res[task]["MaxRSS GB"]) >= camp_rss:
-                camp_rss = float(self.workflow_res[task]["MaxRSS GB"])
+            if float(self.workflow_res[task]["MaxRSS MB"]) >= camp_rss:
+                camp_rss = float(self.workflow_res[task]["MaxRSS MB"])
         all_tasks.append("Campaign")
         u_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
         camp_data = {
@@ -548,7 +548,7 @@ class GetButlerStat:
             "startTime": u_time,
             "cpu sec/job": camp_cpu_per_task,
             "cpu-hours": float(camp_cpu),
-            "MaxRSS GB": float(camp_rss),
+            "MaxRSS MB": float(camp_rss),
         }
         dt["campaign"] = camp_data
         for t_type in dt:
@@ -557,7 +557,7 @@ class GetButlerStat:
                 task["cpu-hours"] = str(datetime.timedelta(seconds=task["cpu-hours"]))
             if isinstance(task["cpu sec/job"], float):
                 task["cpu sec/job"] = round(task["cpu sec/job"], 2)
-            task["MaxRSS GB"] = round(task["MaxRSS GB"], 2)
+            task["MaxRSS MB"] = round(task["MaxRSS MB"], 2)
         pd.set_option("max_colwidth", 500)
         pd.set_option("display.precision", 1)
         _task_ids = dict()
