@@ -34,8 +34,10 @@ import datetime
 import math
 import pandas as pd
 from lsst.prodstatus import LOG
-#import matplotlib.pyplot as plt
-#from pandas.plotting import table
+"""
+import matplotlib.pyplot as plt
+from pandas.plotting import table
+"""
 
 __all__ = ['GetPanDaStat']
 
